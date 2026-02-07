@@ -109,26 +109,26 @@ Aproveite muito seu dia! 💕`;
         setEditingEvent(null)
       }
     }}>
-      <DialogContent className="sm:max-w-[600px] rounded-3xl overflow-hidden">
-        <DialogHeader>
-          <div className="flex items-center justify-between pr-8">
+      <DialogContent className="w-[95vw] sm:max-w-[600px] rounded-[2rem] md:rounded-3xl overflow-hidden p-0 max-h-[95vh] overflow-y-auto">
+        <DialogHeader className="p-6 md:p-8 pb-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <DialogTitle className="text-2xl font-headline text-primary flex items-center gap-2">
-                <Calendar className="text-primary" />
+              <DialogTitle className="text-xl md:text-2xl font-headline text-gold-gradient flex items-center gap-2">
+                <Calendar className="text-primary" size={20} />
                 {editingEvent 
                   ? `Editando Agendamento` 
-                  : `Agenda para ${format(day, "dd 'de' MMMM", { locale: ptBR })}`}
+                  : `Agenda de ${format(day, "dd/MM", { locale: ptBR })}`}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-xs md:text-sm">
                 {editingEvent 
-                  ? "Atualize as informações do agendamento abaixo." 
-                  : "Veja os compromissos e aniversariantes de hoje."}
+                  ? "Atualize as informações do agendamento." 
+                  : "Compromissos e aniversariantes."}
               </DialogDescription>
             </div>
             {!editingEvent && onAddNew && (
               <Button 
                 onClick={() => onAddNew(day)}
-                className="rounded-full gap-2 shadow-lg bg-primary hover:bg-primary/90"
+                className="rounded-full gap-2 shadow-lg bg-gold-gradient text-black font-bold h-10 w-fit"
                 size="sm"
               >
                 <PlusCircle size={18} />
@@ -138,7 +138,7 @@ Aproveite muito seu dia! 💕`;
           </div>
         </DialogHeader>
         
-        <div className="mt-4 max-h-[70vh] overflow-y-auto pr-2 space-y-6">
+        <div className="p-6 md:p-8 pt-4 space-y-6">
           {editingEvent ? (
             <AppointmentForm 
               initialData={editingEvent} 
@@ -150,29 +150,29 @@ Aproveite muito seu dia! 💕`;
               {/* Seção de Aniversariantes */}
               {birthdays.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-pink-600 font-bold flex items-center gap-2 px-1">
+                  <h3 className="text-primary font-bold text-sm flex items-center gap-2 px-1">
                     <PartyPopper size={18} />
-                    Aniversariantes do Dia! 🎈
+                    Aniversariantes 🎈
                   </h3>
                   {birthdays.map((bday) => (
-                    <div key={`bday-${bday.id}`} className="bg-pink-50/50 border border-pink-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                    <div key={`bday-${bday.id}`} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center justify-between shadow-sm">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                           <Cake size={20} />
                         </div>
                         <div>
-                          <p className="font-bold text-pink-900">{bday.nome}</p>
-                          <p className="text-xs text-pink-600">Completando mais um ano de beleza! ✨</p>
+                          <p className="font-bold text-white text-sm">{bday.nome}</p>
+                          <p className="text-[10px] text-primary/60">Aniversário hoje! ✨</p>
                         </div>
                       </div>
                       {bday.whatsapp && (
                         <Button 
-                          size="sm" 
+                          size="icon" 
                           variant="outline" 
-                          className="rounded-full border-pink-300 text-pink-600 hover:bg-pink-100 gap-2"
+                          className="rounded-full border-primary/20 text-primary h-8 w-8"
                           onClick={() => handleSendBirthdayGreeting(bday)}
                         >
-                          <Send size={14} /> Parabéns
+                          <Send size={14} />
                         </Button>
                       )}
                     </div>
@@ -182,8 +182,8 @@ Aproveite muito seu dia! 💕`;
 
               {/* Seção de Agendamentos */}
               <div className="space-y-4">
-                <h3 className="text-muted-foreground font-bold text-sm uppercase tracking-widest px-1">
-                  Agendamentos do Dia
+                <h3 className="text-primary/40 font-bold text-xs uppercase tracking-widest px-1">
+                  Agendamentos
                 </h3>
                 {events.length > 0 ? (
                   events.map((event) => {
@@ -192,90 +192,88 @@ Aproveite muito seu dia! 💕`;
                       <div 
                         key={event.id} 
                         className={cn(
-                          "group p-4 rounded-2xl border bg-card/50 hover:bg-card transition-all shadow-sm relative",
-                          bdayMonth && "border-pink-300 bg-pink-50/30"
+                          "group p-4 rounded-2xl border bg-white/5 hover:bg-white/10 transition-all shadow-sm relative",
+                          bdayMonth && "border-primary/40 bg-primary/5"
                         )}
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="space-y-1">
-                            <h4 className="font-bold text-lg flex items-center gap-2">
-                              <User size={18} className="text-muted-foreground" />
+                            <h4 className="font-bold text-base md:text-lg flex items-center gap-2 text-white/90">
+                              <User size={16} className="text-primary/60" />
                               {event.nome}
                             </h4>
                             {bdayMonth && (
-                              <div className="flex items-center gap-1 text-pink-600 font-bold text-[10px] uppercase">
+                              <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase">
                                 <Cake size={12} /> Mês de Aniversário! ✨
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className={event.tipo === 'Aplicação' ? 'event-badge-aplicacao' : 'event-badge-manutencao'}>
-                              {event.tipo}
-                            </Badge>
-                          </div>
+                          <Badge variant="outline" className="text-[10px] border-primary/20 text-primary uppercase">
+                            {event.tipo}
+                          </Badge>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mt-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-white/60 mt-3">
                           <div className="flex items-center gap-2">
-                            <Clock size={16} />
+                            <Clock size={14} className="text-primary/40" />
                             <span>{event.servico} - R$ {event.valor || '0,00'}</span>
                           </div>
                           {event.whatsapp && (
                             <div className="flex items-center gap-2">
-                              <MessageSquare size={16} />
+                              <MessageSquare size={14} className="text-primary/40" />
                               <span className="truncate">{event.whatsapp}</span>
                             </div>
                           )}
                         </div>
                         
                         {event.observacoes && (
-                          <div className="mt-3 text-xs flex items-start gap-2 bg-muted/30 p-2 rounded-lg">
-                            <Info size={14} />
+                          <div className="mt-3 text-[11px] flex items-start gap-2 bg-white/5 p-2 rounded-lg text-white/40">
+                            <Info size={12} className="mt-0.5" />
                             <span>{event.observacoes}</span>
                           </div>
                         )}
 
-                        <div className="mt-4 border-t pt-4 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
-                              <RotateCw size={12} /> Remarcar rápido:
+                        <div className="mt-4 border-t border-white/10 pt-4 space-y-4">
+                          <div className="flex flex-col gap-2">
+                            <span className="text-[10px] font-bold text-primary/40 uppercase flex items-center gap-1">
+                              <RotateCw size={12} /> Remarcar:
                             </span>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-full" onClick={() => handleQuickReschedule(event, 15)}>+15 dias</Button>
-                              <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-full" onClick={() => handleQuickReschedule(event, 20)}>+20 dias</Button>
-                              <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-full" onClick={() => handleQuickReschedule(event, 30)}>+30 dias</Button>
+                            <div className="flex flex-wrap gap-2">
+                              <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-white/10 hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-white/10 hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-white/10 hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
                             </div>
                           </div>
 
                           <div className="flex justify-end gap-2">
                             {event.whatsapp && (
                               <Button 
-                                variant="default" 
+                                variant="outline" 
                                 size="icon" 
                                 onClick={() => handleSendReminder(event)}
-                                className="h-8 w-8 rounded-full bg-green-600 hover:bg-green-700"
+                                className="h-9 w-9 rounded-full border-green-500/20 text-green-500 hover:bg-green-500/10"
                                 title="Enviar Lembrete"
                               >
-                                <Send size={14} />
+                                <Send size={16} />
                               </Button>
                             )}
                             <Button 
-                              variant="ghost" 
+                              variant="outline" 
                               size="icon" 
                               onClick={() => setEditingEvent(event)}
-                              className="h-8 w-8 rounded-full text-primary hover:bg-primary/10"
+                              className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10"
                               title="Editar"
                             >
-                              <Edit2 size={14} />
+                              <Edit2 size={16} />
                             </Button>
                             <Button 
-                              variant="ghost" 
+                              variant="outline" 
                               size="icon" 
                               onClick={() => onDelete(event.id)}
-                              className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10"
+                              className="h-9 w-9 rounded-full border-destructive/20 text-destructive hover:bg-destructive/10"
                               title="Excluir"
                             >
-                              <Trash2 size={14} />
+                              <Trash2 size={16} />
                             </Button>
                           </div>
                         </div>
@@ -283,13 +281,13 @@ Aproveite muito seu dia! 💕`;
                     )
                   })
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground italic border-dashed border-2 rounded-2xl gap-4">
-                    <p>Nenhum agendamento para este dia.</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-primary/20 italic border-dashed border-2 border-white/10 rounded-2xl gap-4">
+                    <p className="text-sm">Nenhum agendamento.</p>
                     {onAddNew && (
                       <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         onClick={() => onAddNew(day)}
-                        className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/5"
+                        className="rounded-full gap-2 border border-primary/20 text-primary hover:bg-primary/5"
                       >
                         <PlusCircle size={18} />
                         Agendar Cliente

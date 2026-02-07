@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -76,123 +77,115 @@ Agradeço pela confiança 💕`;
   }
 
   return (
-    <Card className="rounded-3xl border-none shadow-2xl bg-card/80 backdrop-blur-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-      <CardHeader className="space-y-4">
-        <CardTitle className="text-3xl font-headline text-primary flex items-center gap-2">
+    <Card className="rounded-[2rem] md:rounded-3xl border-none shadow-2xl bg-white/5 backdrop-blur-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+      <CardHeader className="p-4 md:p-8 space-y-4">
+        <CardTitle className="text-2xl md:text-3xl font-headline text-gold-gradient flex items-center gap-2">
           <User className="text-primary" />
           Gerenciamento de Clientes
         </CardTitle>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={18} />
           <Input 
             placeholder="Pesquisar por nome ou serviço..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 rounded-xl bg-background/50"
+            className="pl-10 rounded-xl bg-black/50 border-white/10 h-12"
           />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="rounded-xl border bg-background/30 overflow-hidden">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Serviço/Valor</TableHead>
-                <TableHead>Aniversário</TableHead>
-                <TableHead>Último/Próximo</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredClients.length > 0 ? (
-                filteredClients.map((client) => (
-                  <TableRow key={client.id} className="hover:bg-muted/30">
-                    <TableCell className="font-bold">{client.nome}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-sm">{client.servico}</span>
-                        <span className="text-xs text-muted-foreground">R$ {client.valor || '0,00'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2 text-xs">
-                        <Cake size={14} className="text-pink-500" />
-                        {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-[10px] leading-tight">{safeFormatDate(client.data)}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        client.tipo === 'Aplicação' ? 'bg-yellow-500/20 text-yellow-700' : 
-                        client.tipo === 'Remoção' ? 'bg-red-500/20 text-red-700' :
-                        'bg-purple-500/20 text-purple-700'
-                      }`}>
-                        {client.tipo}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {client.whatsapp && (
-                          <>
+      <CardContent className="p-0 md:p-8">
+        <div className="rounded-xl border border-white/10 bg-black/30 overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-white/5">
+                <TableRow className="border-white/10">
+                  <TableHead className="text-primary/60 font-bold">Nome</TableHead>
+                  <TableHead className="text-primary/60 font-bold">Serviço</TableHead>
+                  <TableHead className="text-primary/60 font-bold hidden md:table-cell">Aniversário</TableHead>
+                  <TableHead className="text-primary/60 font-bold">Último</TableHead>
+                  <TableHead className="text-right text-primary/60 font-bold">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.length > 0 ? (
+                  filteredClients.map((client) => (
+                    <TableRow key={client.id} className="border-white/5 hover:bg-white/5">
+                      <TableCell className="font-bold text-white/90">{client.nome}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-white/70">{client.servico}</span>
+                          <span className="text-xs text-primary/50">R$ {client.valor || '0,00'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <div className="flex items-center gap-2 text-xs text-white/60">
+                          <Cake size={14} className="text-primary/40" />
+                          {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-[10px] leading-tight text-white/40">{safeFormatDate(client.data)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1 md:gap-2">
+                          {client.whatsapp && (
                             <Button 
                               variant="ghost" 
                               size="icon" 
                               onClick={() => handleSendReminder(client)}
                               title="Enviar Lembrete"
-                              className="h-8 w-8 text-green-600 hover:bg-green-50"
+                              className="h-8 w-8 text-green-500 hover:bg-green-500/10"
                             >
                               <Send size={16} />
                             </Button>
-                          </>
-                        )}
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => setEditingClient(client)}
-                          className="h-8 w-8 text-primary hover:bg-primary/5"
-                        >
-                          <Edit2 size={16} />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => onDelete(client.id)}
-                          className="h-8 w-8 text-destructive hover:bg-destructive/5"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setEditingClient(client)}
+                            className="h-8 w-8 text-primary hover:bg-primary/10"
+                          >
+                            <Edit2 size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => onDelete(client.id)}
+                            className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-10 text-primary/20 italic">
+                      Nenhum cliente encontrado.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground italic">
-                    Nenhum cliente encontrado.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </CardContent>
 
       <Dialog open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)}>
-        <DialogContent className="sm:max-w-[500px] rounded-3xl">
+        <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-zinc-950 border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-headline text-primary">Editar Cliente</DialogTitle>
+            <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Editar Cliente</DialogTitle>
           </DialogHeader>
           {editingClient && (
-            <AppointmentForm 
-              initialData={editingClient} 
-              onSubmit={async (data) => {
-                await onEdit(editingClient.id, data)
-                setEditingClient(null)
-              }} 
-              onCancel={() => setEditingClient(null)} 
-            />
+            <div className="mt-4 md:mt-6">
+              <AppointmentForm 
+                initialData={editingClient} 
+                onSubmit={async (data) => {
+                  await onEdit(editingClient.id, data)
+                  setEditingClient(null)
+                }} 
+                onCancel={() => setEditingClient(null)} 
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>

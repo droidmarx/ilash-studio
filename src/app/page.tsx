@@ -222,14 +222,14 @@ export default function AgendaPage() {
       />
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[550px] rounded-[2.5rem] bg-zinc-950 border-white/10 p-8">
+        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-zinc-950 border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
-            <DialogDescription className="text-primary/50 text-base">
+            <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
+            <DialogDescription className="text-primary/50 text-sm md:text-base">
               Personalize a experiência para sua cliente.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-6">
+          <div className="mt-4 md:mt-6">
             <AppointmentForm 
               clients={clients}
               prefilledDate={prefilledDate}
