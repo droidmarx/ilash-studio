@@ -17,10 +17,12 @@ import { WhatsAppFAB } from "@/components/agenda/WhatsAppFAB"
 import { CalendarDay } from "@/components/agenda/CalendarDay"
 import { EventModal } from "@/components/agenda/EventModal"
 import { SettingsModal } from "@/components/agenda/SettingsModal"
+import { AppointmentForm } from "@/components/agenda/AppointmentForm"
 import { AppointmentsList } from "@/components/agenda/AppointmentsList"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings, Plus } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -34,13 +36,17 @@ export default function AgendaPage() {
     prevMonth, 
     getDayEvents, 
     upcomingAppointments,
-    refresh
+    refresh,
+    addAppointment,
+    editAppointment,
+    removeAppointment
   } = useAgenda()
 
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [modalEvents, setModalEvents] = useState<Client[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(monthStart)
@@ -58,6 +64,11 @@ export default function AgendaPage() {
     setIsModalOpen(true)
   }
 
+  const handleAddSubmit = async (data: any) => {
+    await addAppointment(data)
+    setIsAddModalOpen(false)
+  }
+
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   return (
@@ -65,7 +76,7 @@ export default function AgendaPage() {
       {/* Background with animated gradient */}
       <div className="fixed inset-0 animated-gradient z-[-1] opacity-90 transition-opacity duration-1000" />
       
-      {/* UI Elements */}
+      {/* Top Controls */}
       <div className="fixed top-6 right-6 z-50 flex gap-2">
         <Button
           variant="outline"
@@ -78,6 +89,14 @@ export default function AgendaPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       </div>
       
+      {/* Floating Action Button for New Appointment */}
+      <Button
+        onClick={() => setIsAddModalOpen(true)}
+        className="fixed bottom-24 right-8 z-50 rounded-full w-16 h-16 shadow-2xl bg-primary hover:scale-110 transition-transform duration-300"
+      >
+        <Plus size={32} />
+      </Button>
+
       <WhatsAppFAB />
       <Toaster />
 
@@ -152,13 +171,32 @@ export default function AgendaPage() {
         </footer>
       </div>
 
-      {/* Event Modal */}
+      {/* View/Edit Event Modal */}
       <EventModal
         day={selectedDay}
-        events={modalEvents}
+        events={getDayEvents(selectedDay || new Date())}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onEdit={async (id, data) => {
+          await editAppointment(id, data)
+          setIsModalOpen(false)
+        }}
+        onDelete={async (id) => {
+          await removeAppointment(id)
+          setIsModalOpen(false)
+        }}
       />
+
+      {/* Add New Appointment Modal */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[500px] rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-headline text-primary">Novo Agendamento</DialogTitle>
+            <DialogDescription>Preencha os dados da cliente para agendar um novo serviço.</DialogDescription>
+          </DialogHeader>
+          <AppointmentForm onSubmit={handleAddSubmit} onCancel={() => setIsAddModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
 
       {/* Settings Modal */}
       <SettingsModal

@@ -1,20 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getClients, Client } from '@/lib/api';
-import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, parse } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
+import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { toast } = useToast();
 
   const fetchClients = useCallback(async () => {
     setLoading(true);
-    const data = await getClients();
-    setClients(data);
-    setLoading(false);
-  }, []);
+    try {
+      const data = await getClients();
+      setClients(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível carregar os dados da agenda.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
     fetchClients();
@@ -35,44 +45,55 @@ export function useAgenda() {
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
 
+  const safeParseDate = (dataStr: string) => {
+    if (!dataStr) return new Date();
+    try {
+      if (dataStr.includes('T')) return parseISO(dataStr);
+      if (dataStr.includes('/')) return parse(dataStr, 'dd/MM/yyyy', new Date());
+      const d = new Date(dataStr);
+      return isValid(d) ? d : new Date();
+    } catch (e) {
+      return new Date();
+    }
+  };
+
   const getDayEvents = (day: Date) => {
-    return clients.filter(client => {
-      try {
-        // Handle various date formats from MockAPI
-        let eventDate;
-        if (client.data.includes('T')) {
-          eventDate = parseISO(client.data);
-        } else if (client.data.includes('/')) {
-          eventDate = parse(client.data, 'dd/MM/yyyy', new Date());
-        } else {
-          eventDate = new Date(client.data);
-        }
-        return isSameDay(day, eventDate);
-      } catch (e) {
-        return false;
-      }
-    });
+    return clients.filter(client => isSameDay(day, safeParseDate(client.data)));
   };
 
   const upcomingAppointments = [...clients]
-    .filter(client => {
-      try {
-         let eventDate;
-         if (client.data.includes('T')) {
-           eventDate = parseISO(client.data);
-         } else if (client.data.includes('/')) {
-           eventDate = parse(client.data, 'dd/MM/yyyy', new Date());
-         } else {
-           eventDate = new Date(client.data);
-         }
-         return eventDate >= new Date();
-      } catch (e) { return false; }
-    })
-    .sort((a, b) => {
-      const dateA = a.data.includes('T') ? parseISO(a.data).getTime() : parse(a.data, 'dd/MM/yyyy', new Date()).getTime();
-      const dateB = b.data.includes('T') ? parseISO(b.data).getTime() : parse(b.data, 'dd/MM/yyyy', new Date()).getTime();
-      return dateA - dateB;
-    });
+    .filter(client => safeParseDate(client.data) >= new Date())
+    .sort((a, b) => safeParseDate(a.data).getTime() - safeParseDate(b.data).getTime());
+
+  const addAppointment = async (data: Omit<Client, 'id'>) => {
+    try {
+      await createClient(data);
+      toast({ title: "Sucesso", description: "Agendamento criado com sucesso!" });
+      await fetchClients();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Erro", description: "Erro ao criar agendamento." });
+    }
+  };
+
+  const editAppointment = async (id: string, data: Partial<Client>) => {
+    try {
+      await updateClient(id, data);
+      toast({ title: "Sucesso", description: "Agendamento atualizado com sucesso!" });
+      await fetchClients();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Erro", description: "Erro ao atualizar agendamento." });
+    }
+  };
+
+  const removeAppointment = async (id: string) => {
+    try {
+      await deleteClient(id);
+      toast({ title: "Sucesso", description: "Agendamento excluído com sucesso!" });
+      await fetchClients();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Erro", description: "Erro ao excluir agendamento." });
+    }
+  };
 
   return {
     clients,
@@ -84,6 +105,9 @@ export function useAgenda() {
     prevMonth,
     getDayEvents,
     upcomingAppointments,
+    addAppointment,
+    editAppointment,
+    removeAppointment,
     refresh: fetchClients
   };
 }

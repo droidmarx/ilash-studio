@@ -28,16 +28,28 @@ export async function getClients(): Promise<Client[]> {
   }
 }
 
+export async function createClient(data: Omit<Client, 'id'>): Promise<Client> {
+  const res = await fetch(getApiUrl(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar agendamento');
+  return await res.json();
+}
+
 export async function updateClient(id: string, data: Partial<Client>): Promise<void> {
-  await fetch(`${getApiUrl()}/${id}`, {
+  const res = await fetch(`${getApiUrl()}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (!res.ok) throw new Error('Falha ao atualizar agendamento');
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  await fetch(`${getApiUrl()}/${id}`, {
+  const res = await fetch(`${getApiUrl()}/${id}`, {
     method: 'DELETE',
   });
+  if (!res.ok) throw new Error('Falha ao excluir agendamento');
 }
