@@ -28,17 +28,7 @@ export function useAgenda() {
     }
   }, [toast]);
 
-  useEffect(() => {
-    fetchClients();
-    
-    // Carregar tema salvo
-    const savedTheme = localStorage.getItem('agenda-theme') as AgendaTheme;
-    if (savedTheme) {
-      applyTheme(savedTheme);
-    }
-  }, [fetchClients]);
-
-  const applyTheme = (theme: AgendaTheme) => {
+  const applyTheme = (theme: AgendaTheme, persist: boolean = false) => {
     const root = document.documentElement;
     // Remover temas anteriores
     root.classList.remove('theme-rose', 'theme-emerald', 'theme-blue');
@@ -49,8 +39,18 @@ export function useAgenda() {
     }
     
     setActiveTheme(theme);
-    localStorage.setItem('agenda-theme', theme);
+    if (persist) {
+      localStorage.setItem('agenda-theme', theme);
+    }
   };
+
+  useEffect(() => {
+    fetchClients();
+    
+    // Carregar tema salvo
+    const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'gold';
+    applyTheme(savedTheme, false);
+  }, [fetchClients]);
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));

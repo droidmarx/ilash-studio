@@ -90,7 +90,7 @@ export default function AgendaPage() {
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   return (
-    <div className="min-h-screen bg-black text-white py-8 px-4 md:px-8 font-body">
+    <div className="min-h-screen py-8 px-4 md:px-8 font-body transition-colors duration-700">
       <div className="fixed top-6 right-6 z-50">
         <Button
           variant="outline"

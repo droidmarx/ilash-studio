@@ -23,7 +23,7 @@ interface SettingsModalProps {
   onClose: () => void
   onSave: () => void
   currentTheme: AgendaTheme
-  onThemeChange: (theme: AgendaTheme) => void
+  onThemeChange: (theme: AgendaTheme, persist?: boolean) => void
 }
 
 const THEMES: { id: AgendaTheme; name: string; class: string }[] = [
@@ -35,14 +35,28 @@ const THEMES: { id: AgendaTheme; name: string; class: string }[] = [
 
 export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeChange }: SettingsModalProps) {
   const [apiUrl, setApiUrl] = useState("")
+  const [initialTheme, setInitialTheme] = useState<AgendaTheme>(currentTheme)
+  const [selectedTheme, setSelectedTheme] = useState<AgendaTheme>(currentTheme)
   const { toast } = useToast()
 
   useEffect(() => {
     if (isOpen) {
       const savedUrl = localStorage.getItem("mock_api_url") || DEFAULT_API_URL
       setApiUrl(savedUrl)
+      setInitialTheme(currentTheme)
+      setSelectedTheme(currentTheme)
     }
-  }, [isOpen])
+  }, [isOpen, currentTheme])
+
+  const handleThemePreview = (themeId: AgendaTheme) => {
+    setSelectedTheme(themeId)
+    onThemeChange(themeId, false) // Preview without saving to localStorage
+  }
+
+  const handleCancel = () => {
+    onThemeChange(initialTheme, false) // Revert UI to initial theme
+    onClose()
+  }
 
   const handleSave = () => {
     if (!apiUrl.trim()) {
@@ -55,6 +69,8 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
     }
 
     localStorage.setItem("mock_api_url", apiUrl.trim())
+    onThemeChange(selectedTheme, true) // Persist the selected theme
+    
     toast({
       title: "Configurações Salvas",
       description: "As alterações foram aplicadas com sucesso.",
@@ -64,7 +80,7 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
       <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-zinc-950 border-white/10 p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
@@ -87,10 +103,10 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
               {THEMES.map((theme) => (
                 <button
                   key={theme.id}
-                  onClick={() => onThemeChange(theme.id)}
+                  onClick={() => handleThemePreview(theme.id)}
                   className={cn(
                     "relative group flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all duration-300",
-                    currentTheme === theme.id 
+                    selectedTheme === theme.id 
                       ? "border-primary bg-primary/10" 
                       : "border-white/5 bg-white/5 hover:border-white/20"
                   )}
@@ -98,11 +114,11 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
                   <div className={cn("w-full h-12 rounded-xl shadow-lg", theme.class)} />
                   <span className={cn(
                     "text-xs font-bold",
-                    currentTheme === theme.id ? "text-primary" : "text-white/40"
+                    selectedTheme === theme.id ? "text-primary" : "text-white/40"
                   )}>
                     {theme.name}
                   </span>
-                  {currentTheme === theme.id && (
+                  {selectedTheme === theme.id && (
                     <div className="absolute top-2 right-2 bg-primary rounded-full p-0.5">
                       <Check size={12} className="text-black" />
                     </div>
@@ -125,22 +141,16 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
               onChange={(e) => setApiUrl(e.target.value)}
               className="rounded-xl h-12 bg-white/5 border-white/10 text-white focus:border-primary"
             />
-            <div className="bg-white/5 p-4 rounded-2xl flex gap-3 text-[11px] text-white/40 leading-relaxed">
-              <Info size={18} className="shrink-0 text-primary" />
-              <p>
-                Ao alterar esta URL, o sistema buscará os dados diretamente do seu endpoint. Use o padrão "Client" compatível.
-              </p>
-            </div>
           </div>
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-3 mt-4">
           <Button 
             variant="ghost" 
-            onClick={() => setApiUrl(DEFAULT_API_URL)} 
+            onClick={handleCancel} 
             className="rounded-xl text-white/40 hover:text-white"
           >
-            Restaurar Padrão
+            Cancelar
           </Button>
           <Button 
             onClick={handleSave} 
