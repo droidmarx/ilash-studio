@@ -16,6 +16,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Search, Edit2, Trash2, User, Send, Cake } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from "@/components/ui/alert-dialog"
 import { AppointmentForm } from "./AppointmentForm"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -29,6 +39,7 @@ interface ClientsManagerProps {
 export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const filteredClients = clients.filter(client => 
     client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -74,6 +85,13 @@ Agradeço pela confiança 💕`;
     const cleanPhone = event.whatsapp.replace(/\D/g, "");
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
+  }
+
+  const handleDelete = async () => {
+    if (deleteConfirmId) {
+      await onDelete(deleteConfirmId);
+      setDeleteConfirmId(null);
+    }
   }
 
   return (
@@ -142,14 +160,16 @@ Agradeço pela confiança 💕`;
                             size="icon" 
                             onClick={() => setEditingClient(client)}
                             className="h-8 w-8 text-primary hover:bg-primary/10"
+                            title="Editar"
                           >
                             <Edit2 size={16} />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => onDelete(client.id)}
+                            onClick={() => setDeleteConfirmId(client.id)}
                             className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                            title="Excluir"
                           >
                             <Trash2 size={16} />
                           </Button>
@@ -189,6 +209,28 @@ Agradeço pela confiança 💕`;
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent className="rounded-[2rem] border-white/10 bg-zinc-950 p-8">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Esta ação é irreversível. Todas as informações desta cliente e seus agendamentos serão removidos permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 flex gap-3">
+            <AlertDialogCancel className="flex-1 rounded-xl border-white/10 bg-transparent text-white hover:bg-white/5">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="flex-1 rounded-xl bg-destructive text-white hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }
