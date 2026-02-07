@@ -1,4 +1,4 @@
-export const API_CLIENTS = 'https://683d14e6199a0039e9e427bd.mockapi.io/Dados';
+export const DEFAULT_API_URL = 'https://683d14e6199a0039e9e427bd.mockapi.io/Dados';
 
 export interface Client {
   id: string;
@@ -10,9 +10,16 @@ export interface Client {
   observacoes?: string;
 }
 
+function getApiUrl(): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('mock_api_url') || DEFAULT_API_URL;
+  }
+  return DEFAULT_API_URL;
+}
+
 export async function getClients(): Promise<Client[]> {
   try {
-    const res = await fetch(API_CLIENTS);
+    const res = await fetch(getApiUrl());
     if (!res.ok) throw new Error('Falha ao buscar dados');
     return await res.json();
   } catch (error) {
@@ -22,7 +29,7 @@ export async function getClients(): Promise<Client[]> {
 }
 
 export async function updateClient(id: string, data: Partial<Client>): Promise<void> {
-  await fetch(`${API_CLIENTS}/${id}`, {
+  await fetch(`${getApiUrl()}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -30,7 +37,7 @@ export async function updateClient(id: string, data: Partial<Client>): Promise<v
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  await fetch(`${API_CLIENTS}/${id}`, {
+  await fetch(`${getApiUrl()}/${id}`, {
     method: 'DELETE',
   });
 }

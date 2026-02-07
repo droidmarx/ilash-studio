@@ -9,19 +9,20 @@ import {
   startOfWeek, 
   endOfWeek, 
   eachDayOfInterval, 
-  isSameMonth,
-  addDays
+  isSameMonth
 } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ThemeToggle } from "@/components/agenda/ThemeToggle"
 import { WhatsAppFAB } from "@/components/agenda/WhatsAppFAB"
 import { CalendarDay } from "@/components/agenda/CalendarDay"
 import { EventModal } from "@/components/agenda/EventModal"
+import { SettingsModal } from "@/components/agenda/SettingsModal"
 import { AppointmentsList } from "@/components/agenda/AppointmentsList"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Sparkles, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings } from "lucide-react"
 import { Client } from "@/lib/api"
+import { Toaster } from "@/components/ui/toaster"
 
 export default function AgendaPage() {
   const { 
@@ -32,12 +33,14 @@ export default function AgendaPage() {
     nextMonth, 
     prevMonth, 
     getDayEvents, 
-    upcomingAppointments 
+    upcomingAppointments,
+    refresh
   } = useAgenda()
 
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [modalEvents, setModalEvents] = useState<Client[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(monthStart)
@@ -63,8 +66,20 @@ export default function AgendaPage() {
       <div className="fixed inset-0 animated-gradient z-[-1] opacity-90 transition-opacity duration-1000" />
       
       {/* UI Elements */}
-      <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+      <div className="fixed top-6 right-6 z-50 flex gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsSettingsOpen(true)}
+          className="rounded-full w-12 h-12 shadow-lg bg-background/80 backdrop-blur-sm"
+        >
+          <Settings className="h-6 w-6 text-primary" />
+        </Button>
+        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+      </div>
+      
       <WhatsAppFAB />
+      <Toaster />
 
       <div className="w-full max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
@@ -143,6 +158,13 @@ export default function AgendaPage() {
         events={modalEvents}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={refresh}
       />
     </div>
   )

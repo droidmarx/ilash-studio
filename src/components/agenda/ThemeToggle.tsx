@@ -14,7 +14,7 @@ export function ThemeToggle({ theme, toggleTheme }: ThemeToggleProps) {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="fixed top-6 right-6 z-50 rounded-full w-12 h-12 shadow-lg group bg-background/80 backdrop-blur-sm"
+      className="rounded-full w-12 h-12 shadow-lg group bg-background/80 backdrop-blur-sm"
     >
       <div className="transition-transform duration-500 ease-in-out group-hover:rotate-[360deg]">
         {theme === 'light' ? (
