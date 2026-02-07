@@ -41,7 +41,8 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
 
   useEffect(() => {
     if (isOpen) {
-      const savedUrl = localStorage.getItem("mock_api_url") || DEFAULT_API_URL
+      // Deixa em branco por padrão se não houver URL salva no localStorage
+      const savedUrl = localStorage.getItem("mock_api_url") || ""
       setApiUrl(savedUrl)
       setInitialTheme(currentTheme)
       setSelectedTheme(currentTheme)
@@ -59,15 +60,7 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
   }
 
   const handleSave = () => {
-    if (!apiUrl.trim()) {
-      toast({
-        variant: "destructive",
-        title: "URL Inválida",
-        description: "Por favor, insira uma URL válida para o MockAPI.",
-      })
-      return
-    }
-
+    // Permite salvar vazio para voltar ao padrão do sistema, ou valida se preenchido
     localStorage.setItem("mock_api_url", apiUrl.trim())
     onThemeChange(selectedTheme, true) // Persist the selected theme
     
