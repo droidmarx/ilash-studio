@@ -27,7 +27,7 @@ import { CalendarIcon, Clock, User, Phone, ClipboardList } from "lucide-react"
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
   data: z.string().min(1, "Data/Hora é obrigatória"),
-  servico: z.string().min(2, "Serviço é obrigatório"),
+  servico: z.string().min(1, "Serviço é obrigatório"),
   tipo: z.enum(["Aplicação", "Manutenção", "Remoção"]),
   whatsapp: z.string().optional(),
   observacoes: z.string().optional(),
@@ -38,6 +38,8 @@ interface AppointmentFormProps {
   onSubmit: (data: z.infer<typeof formSchema>) => void
   onCancel: () => void
 }
+
+const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
 
 export function AppointmentForm({ initialData, onSubmit, onCancel }: AppointmentFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -122,9 +124,20 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
               <FormLabel className="flex items-center gap-2">
                 <Clock size={16} /> Técnica / Serviço
               </FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Volume Russo / Fio a Fio" {...field} className="rounded-xl" />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder="Selecione a técnica" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="rounded-xl">
+                  {TECHNIQUES.map((tech) => (
+                    <SelectItem key={tech} value={tech}>
+                      {tech}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

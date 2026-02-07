@@ -13,7 +13,6 @@ import {
 } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ThemeToggle } from "@/components/agenda/ThemeToggle"
-import { WhatsAppFAB } from "@/components/agenda/WhatsAppFAB"
 import { CalendarDay } from "@/components/agenda/CalendarDay"
 import { EventModal } from "@/components/agenda/EventModal"
 import { SettingsModal } from "@/components/agenda/SettingsModal"
@@ -92,12 +91,11 @@ export default function AgendaPage() {
       {/* Floating Action Button for New Appointment */}
       <Button
         onClick={() => setIsAddModalOpen(true)}
-        className="fixed bottom-24 right-8 z-50 rounded-full w-16 h-16 shadow-2xl bg-primary hover:scale-110 transition-transform duration-300"
+        className="fixed bottom-12 right-8 z-50 rounded-full w-16 h-16 shadow-2xl bg-primary hover:scale-110 transition-transform duration-300"
       >
         <Plus size={32} />
       </Button>
 
-      <WhatsAppFAB />
       <Toaster />
 
       <div className="w-full max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
