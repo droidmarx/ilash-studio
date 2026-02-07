@@ -68,8 +68,8 @@ Agradeço pela confiança 💕`;
           Agenda Vip
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-8">
-        <div className="space-y-6">
+      <CardContent className="p-4 md:p-8">
+        <div className="space-y-4">
           {appointments.length > 0 ? (
             appointments.slice(0, 8).map((app, idx) => {
               const date = getEventDate(app.data);
@@ -80,62 +80,64 @@ Agradeço pela confiança 💕`;
                 <div 
                   key={app.id} 
                   className={cn(
-                    "group flex items-center justify-between p-5 rounded-3xl transition-all duration-500",
-                    isFirst ? "bg-primary/10 ring-2 ring-primary/40 shadow-[0_0_20px_rgba(179,135,40,0.15)]" : "hover:bg-white/5"
+                    "group relative flex items-center gap-4 p-4 rounded-3xl transition-all duration-500 border border-white/5",
+                    isFirst ? "bg-primary/10 border-primary/30 shadow-[0_0_15px_rgba(179,135,40,0.1)]" : "hover:bg-white/5"
                   )}
                 >
-                  <div className="flex gap-5 items-center flex-1">
-                    <div className={cn(
-                      "w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-bold shadow-2xl transition-transform group-hover:scale-110",
-                      isFirst ? "bg-gold-gradient text-black" : "bg-zinc-800 text-primary"
-                    )}>
-                      <span className="text-[10px] uppercase tracking-tighter">{format(date, 'MMM', { locale: ptBR })}</span>
-                      <span className="text-xl leading-none">{format(date, 'dd')}</span>
+                  {/* Bloco de Data */}
+                  <div className={cn(
+                    "flex flex-col items-center justify-center min-w-[56px] h-[56px] rounded-2xl font-bold transition-transform group-hover:scale-105",
+                    isFirst ? "bg-gold-gradient text-black" : "bg-zinc-900 text-primary border border-primary/20"
+                  )}>
+                    <span className="text-[10px] uppercase font-black leading-none">{format(date, 'MMM', { locale: ptBR })}</span>
+                    <span className="text-xl leading-none">{format(date, 'dd')}</span>
+                  </div>
+                  
+                  {/* Informações Centrais */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <h4 className="font-bold text-base md:text-lg text-white/90 truncate group-hover:text-primary transition-colors">
+                        {app.nome}
+                      </h4>
+                      {isBday && (
+                        <Cake size={14} className="text-primary animate-pulse shrink-0" />
+                      )}
                     </div>
-                    
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-xl leading-none text-white/90 group-hover:text-primary transition-colors">
-                          {app.nome}
-                        </h4>
-                        {isBday && (
-                          <div className="bg-primary/20 text-primary border border-primary/30 p-1 rounded-full">
-                            <Cake size={12} />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-sm text-primary/40 flex items-center gap-2">
-                        <Clock size={14} />
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="text-[10px] md:text-xs text-primary/60 flex items-center gap-1">
+                        <Clock size={12} className="shrink-0" />
                         {app.servico}
-                      </p>
+                      </span>
+                      <span className={cn(
+                        "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border",
+                        app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : "bg-white/5 border-white/10 text-white/40"
+                      )}>
+                        {app.tipo}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-3">
+                  {/* Ações Integradas */}
+                  <div className="flex items-center shrink-0">
                     {app.whatsapp && (
                       <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         size="icon" 
-                        className="h-10 w-10 rounded-xl border-primary/20 text-primary hover:bg-primary/10"
+                        className="h-10 w-10 rounded-full text-primary hover:bg-primary/10 transition-colors"
                         onClick={() => handleSendReminder(app)}
+                        title="Enviar Lembrete"
                       >
                         <Send size={18} />
                       </Button>
                     )}
-                    <span className={cn(
-                      "text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-[0.1em]",
-                      app.tipo === 'Aplicação' ? "bg-primary text-black" : "border border-white/20 text-white/50"
-                    )}>
-                      {app.tipo}
-                    </span>
                   </div>
                 </div>
               );
             })
           ) : (
             <div className="text-center py-20">
-              <Sparkles className="mx-auto mb-4 text-primary/20" size={48} />
-              <p className="text-primary/30 text-lg font-light italic">Sua agenda está disponível.</p>
+              <Star className="mx-auto mb-4 text-primary/20" size={48} />
+              <p className="text-primary/30 text-lg font-light italic">Sua agenda Vip está pronta.</p>
             </div>
           )}
         </div>
