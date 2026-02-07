@@ -37,6 +37,7 @@ export default function AgendaPage() {
     nextMonth, 
     prevMonth, 
     getDayEvents, 
+    getDayBirthdays,
     upcomingAppointments,
     refresh,
     addAppointment,
@@ -46,6 +47,7 @@ export default function AgendaPage() {
 
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [modalEvents, setModalEvents] = useState<Client[]>([])
+  const [modalBirthdays, setModalBirthdays] = useState<Client[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -60,9 +62,10 @@ export default function AgendaPage() {
     end: endDate
   })
 
-  const handleDayClick = (day: Date, events: Client[]) => {
+  const handleDayClick = (day: Date, events: Client[], birthdays: Client[]) => {
     setSelectedDay(day)
     setModalEvents(events)
+    setModalBirthdays(birthdays)
     setIsModalOpen(true)
   }
 
@@ -158,8 +161,9 @@ export default function AgendaPage() {
                             key={idx}
                             day={day}
                             events={getDayEvents(day)}
+                            birthdays={getDayBirthdays(day)}
                             isCurrentMonth={isSameMonth(day, monthStart)}
-                            onClick={handleDayClick}
+                            onClick={(d, evts, bdays) => handleDayClick(d, evts, bdays)}
                           />
                         ))}
                       </div>
@@ -189,7 +193,8 @@ export default function AgendaPage() {
 
       <EventModal
         day={selectedDay}
-        events={getDayEvents(selectedDay || new Date())}
+        events={modalEvents}
+        birthdays={modalBirthdays}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onEdit={async (id, data) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
-import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid } from 'date-fns';
+import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export function useAgenda() {
@@ -61,6 +61,26 @@ export function useAgenda() {
     return clients.filter(client => isSameDay(day, safeParseDate(client.data)));
   };
 
+  const getDayBirthdays = (day: Date) => {
+    // Filtra clientes que fazem aniversário hoje (mesmo dia e mês)
+    // Usamos um Set para evitar nomes duplicados caso a mesma cliente tenha vários agendamentos
+    const seen = new Set();
+    return clients.filter(client => {
+      if (!client.aniversario) return false;
+      try {
+        const birthDate = parseISO(client.aniversario);
+        const isBday = getMonth(day) === getMonth(birthDate) && getDate(day) === getDate(birthDate);
+        if (isBday && !seen.has(client.nome)) {
+          seen.add(client.nome);
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    });
+  };
+
   const upcomingAppointments = [...clients]
     .filter(client => safeParseDate(client.data) >= new Date())
     .sort((a, b) => safeParseDate(a.data).getTime() - safeParseDate(b.data).getTime());
@@ -104,6 +124,7 @@ export function useAgenda() {
     nextMonth,
     prevMonth,
     getDayEvents,
+    getDayBirthdays,
     upcomingAppointments,
     addAppointment,
     editAppointment,
