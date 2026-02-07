@@ -18,15 +18,18 @@ import { EventModal } from "@/components/agenda/EventModal"
 import { SettingsModal } from "@/components/agenda/SettingsModal"
 import { AppointmentForm } from "@/components/agenda/AppointmentForm"
 import { AppointmentsList } from "@/components/agenda/AppointmentsList"
+import { ClientsManager } from "@/components/agenda/ClientsManager"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings, Plus } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings, Plus, Calendar as CalendarIcon, Users } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
 
 export default function AgendaPage() {
   const { 
+    clients,
     loading, 
     currentMonth, 
     theme, 
@@ -72,10 +75,8 @@ export default function AgendaPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center py-12 px-4 md:px-8">
-      {/* Background with animated gradient */}
       <div className="fixed inset-0 animated-gradient z-[-1] opacity-90 transition-opacity duration-1000" />
       
-      {/* Top Controls */}
       <div className="fixed top-6 right-6 z-50 flex gap-2">
         <Button
           variant="outline"
@@ -88,7 +89,6 @@ export default function AgendaPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       </div>
       
-      {/* Floating Action Button for New Appointment */}
       <Button
         onClick={() => setIsAddModalOpen(true)}
         className="fixed bottom-12 right-8 z-50 rounded-full w-16 h-16 shadow-2xl bg-primary hover:scale-110 transition-transform duration-300"
@@ -100,7 +100,6 @@ export default function AgendaPage() {
 
       <div className="w-full max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        {/* Header Section */}
         <div className="text-center space-y-4 mb-12">
           <h1 className="text-6xl md:text-8xl font-headline text-white drop-shadow-lg flex items-center justify-center gap-4">
             <Sparkles className="text-yellow-400" size={48} />
@@ -115,53 +114,72 @@ export default function AgendaPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-white">
             <Loader2 className="animate-spin mb-4" size={48} />
-            <p className="text-xl animate-pulse">Carregando dados da agenda...</p>
+            <p className="text-xl animate-pulse">Carregando dados...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Calendar Column */}
-            <div className="lg:col-span-2">
-              <Card className="rounded-3xl border-none shadow-2xl bg-card/80 backdrop-blur-md">
-                <CardHeader className="flex flex-row items-center justify-between pb-8">
-                  <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/20">
-                    <ChevronLeft size={32} />
-                  </Button>
-                  <CardTitle className="text-3xl md:text-4xl font-headline text-primary text-center">
-                    {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
-                  </CardTitle>
-                  <Button variant="ghost" size="icon" onClick={nextMonth} className="hover:bg-primary/20">
-                    <ChevronRight size={32} />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-7 mb-4">
-                    {weekdays.map(day => (
-                      <div key={day} className="text-center font-bold text-muted-foreground text-xs uppercase tracking-widest pb-2">
-                        {day}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-7 gap-2 md:gap-4">
-                    {calendarDays.map((day, idx) => (
-                      <CalendarDay
-                        key={idx}
-                        day={day}
-                        events={getDayEvents(day)}
-                        isCurrentMonth={isSameMonth(day, monthStart)}
-                        onClick={handleDayClick}
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+          <Tabs defaultValue="agenda" className="w-full">
+            <div className="flex justify-center mb-8">
+              <TabsList className="bg-white/20 backdrop-blur-md p-1 rounded-2xl h-14 w-full max-w-md shadow-xl border border-white/30">
+                <TabsTrigger value="agenda" className="flex-1 rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-white h-full transition-all">
+                  <CalendarIcon size={18} /> Agenda
+                </TabsTrigger>
+                <TabsTrigger value="clientes" className="flex-1 rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-white h-full transition-all">
+                  <Users size={18} /> Clientes
+                </TabsTrigger>
+              </TabsList>
             </div>
 
-            {/* List Column */}
-            <div className="lg:col-span-1">
-              <AppointmentsList appointments={upcomingAppointments} />
-            </div>
-          </div>
+            <TabsContent value="agenda" className="mt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <Card className="rounded-3xl border-none shadow-2xl bg-card/80 backdrop-blur-md">
+                    <CardHeader className="flex flex-row items-center justify-between pb-8">
+                      <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/20">
+                        <ChevronLeft size={32} />
+                      </Button>
+                      <CardTitle className="text-3xl md:text-4xl font-headline text-primary text-center">
+                        {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+                      </CardTitle>
+                      <Button variant="ghost" size="icon" onClick={nextMonth} className="hover:bg-primary/20">
+                        <ChevronRight size={32} />
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-7 mb-4">
+                        {weekdays.map(day => (
+                          <div key={day} className="text-center font-bold text-muted-foreground text-xs uppercase tracking-widest pb-2">
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-2 md:gap-4">
+                        {calendarDays.map((day, idx) => (
+                          <CalendarDay
+                            key={idx}
+                            day={day}
+                            events={getDayEvents(day)}
+                            isCurrentMonth={isSameMonth(day, monthStart)}
+                            onClick={handleDayClick}
+                          />
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                <div className="lg:col-span-1">
+                  <AppointmentsList appointments={upcomingAppointments} />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="clientes" className="mt-0">
+              <ClientsManager 
+                clients={clients} 
+                onEdit={editAppointment} 
+                onDelete={removeAppointment} 
+              />
+            </TabsContent>
+          </Tabs>
         )}
 
         <footer className="text-center pt-12 pb-6 text-white/60 text-sm font-light">
@@ -169,7 +187,6 @@ export default function AgendaPage() {
         </footer>
       </div>
 
-      {/* View/Edit Event Modal */}
       <EventModal
         day={selectedDay}
         events={getDayEvents(selectedDay || new Date())}
@@ -185,7 +202,6 @@ export default function AgendaPage() {
         }}
       />
 
-      {/* Add New Appointment Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="sm:max-w-[500px] rounded-3xl">
           <DialogHeader>
@@ -196,7 +212,6 @@ export default function AgendaPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Settings Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
