@@ -3,11 +3,13 @@ import { getClients, createClient, updateClient, deleteClient, Client } from '@/
 import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
+export type AgendaTheme = 'gold' | 'rose' | 'emerald' | 'blue';
+
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [activeTheme, setActiveTheme] = useState<AgendaTheme>('gold');
   const { toast } = useToast();
 
   const fetchClients = useCallback(async () => {
@@ -28,18 +30,26 @@ export function useAgenda() {
 
   useEffect(() => {
     fetchClients();
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+    
+    // Carregar tema salvo
+    const savedTheme = localStorage.getItem('agenda-theme') as AgendaTheme;
     if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      applyTheme(savedTheme);
     }
   }, [fetchClients]);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  const applyTheme = (theme: AgendaTheme) => {
+    const root = document.documentElement;
+    // Remover temas anteriores
+    root.classList.remove('theme-rose', 'theme-emerald', 'theme-blue');
+    
+    // Adicionar novo tema (exceto gold que é o default)
+    if (theme !== 'gold') {
+      root.classList.add(`theme-${theme}`);
+    }
+    
+    setActiveTheme(theme);
+    localStorage.setItem('agenda-theme', theme);
   };
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -62,8 +72,6 @@ export function useAgenda() {
   };
 
   const getDayBirthdays = (day: Date) => {
-    // Filtra clientes que fazem aniversário hoje (mesmo dia e mês)
-    // Usamos um Set para evitar nomes duplicados caso a mesma cliente tenha vários agendamentos
     const seen = new Set();
     return clients.filter(client => {
       if (!client.aniversario) return false;
@@ -119,8 +127,8 @@ export function useAgenda() {
     clients,
     loading,
     currentMonth,
-    theme,
-    toggleTheme,
+    activeTheme,
+    applyTheme,
     nextMonth,
     prevMonth,
     getDayEvents,

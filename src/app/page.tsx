@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -25,7 +24,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -39,6 +38,8 @@ export default function AgendaPage() {
     getDayEvents, 
     getDayBirthdays,
     upcomingAppointments,
+    activeTheme,
+    applyTheme,
     refresh,
     addAppointment,
     editAppointment,
@@ -103,7 +104,7 @@ export default function AgendaPage() {
       
       <Button
         onClick={() => handleOpenAddModal()}
-        className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(179,135,40,0.5)] bg-gold-gradient text-black hover:scale-110 transition-transform duration-300"
+        className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(var(--primary),0.5)] bg-gold-gradient text-black hover:scale-110 transition-transform duration-300"
       >
         <Plus size={32} />
       </Button>
@@ -244,6 +245,8 @@ export default function AgendaPage() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         onSave={refresh}
+        currentTheme={activeTheme}
+        onThemeChange={applyTheme}
       />
     </div>
   )
