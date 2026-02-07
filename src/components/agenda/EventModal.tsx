@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
+import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Client } from "@/lib/api"
 import {
@@ -12,7 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2 } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 
@@ -35,6 +35,38 @@ export function EventModal({ day, events, isOpen, onClose, onEdit, onDelete }: E
       onEdit(editingEvent.id, data)
       setEditingEvent(null)
     }
+  }
+
+  const handleSendReminder = (event: Client) => {
+    if (!event.whatsapp) return;
+
+    let dateObj = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
+    if (!isValid(dateObj)) dateObj = new Date();
+
+    const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
+    const formattedTime = format(dateObj, "HH:mm");
+    
+    const message = `💖 *Lembrete de agendamento*
+
+Olá Diva, tudo bem?
+
+✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
+
+Confira os detalhes abaixo:
+
+⏰ Horário: ${formattedTime}
+💸 Valor: R$ ${event.valor || 'A combinar'}
+
+📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.
+
+📌 Se houver necessidade de remarcar, peço que avise com no mínimo 1 dia de antecedência.
+
+Em caso de dúvidas ou imprevistos, é só me chamar! 💬
+Agradeço pela confiança 💕`;
+
+    const cleanPhone = event.whatsapp.replace(/\D/g, "");
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
   }
 
   return (
@@ -90,7 +122,7 @@ export function EventModal({ day, events, isOpen, onClose, onEdit, onDelete }: E
                   <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mt-3">
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
-                      <span>{event.servico}</span>
+                      <span>{event.servico} - R$ {event.valor || '0,00'}</span>
                     </div>
                     {event.whatsapp && (
                       <div className="flex items-center gap-2">
@@ -107,7 +139,17 @@ export function EventModal({ day, events, isOpen, onClose, onEdit, onDelete }: E
                     </div>
                   )}
 
-                  <div className="flex justify-end gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex justify-end gap-2 mt-4">
+                    {event.whatsapp && (
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={() => handleSendReminder(event)}
+                        className="h-8 rounded-full bg-green-600 hover:bg-green-700 gap-2"
+                      >
+                        <Send size={14} /> Lembrete
+                      </Button>
+                    )}
                     <Button 
                       variant="ghost" 
                       size="sm" 

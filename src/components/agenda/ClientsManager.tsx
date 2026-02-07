@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, MessageSquare, User } from "lucide-react"
+import { Search, Edit2, Trash2, MessageSquare, User, Send } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AppointmentForm } from "./AppointmentForm"
 import { format, parseISO, isValid } from "date-fns"
@@ -32,7 +32,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   const filteredClients = clients.filter(client => 
     client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.servico.toLowerCase().includes(searchTerm.toLowerCase())
-  ).sort((a, b) => b.id.localeCompare(a.id)) // Mostrar os mais recentes primeiro
+  ).sort((a, b) => b.id.localeCompare(a.id))
 
   const safeFormatDate = (dateStr: string) => {
     try {
@@ -43,10 +43,36 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     }
   }
 
-  const handleWhatsApp = (phone?: string) => {
-    if (!phone) return
-    const cleanPhone = phone.replace(/\D/g, "")
-    window.open(`https://wa.me/${cleanPhone}`, "_blank")
+  const handleSendReminder = (event: Client) => {
+    if (!event.whatsapp) return;
+
+    let dateObj = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
+    if (!isValid(dateObj)) dateObj = new Date();
+
+    const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
+    const formattedTime = format(dateObj, "HH:mm");
+    
+    const message = `💖 *Lembrete de agendamento*
+
+Olá Diva, tudo bem?
+
+✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
+
+Confira os detalhes abaixo:
+
+⏰ Horário: ${formattedTime}
+💸 Valor: R$ ${event.valor || 'A combinar'}
+
+📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.
+
+📌 Se houver necessidade de remarcar, peço que avise com no mínimo 1 dia de antecedência.
+
+Em caso de dúvidas ou imprevistos, é só me chamar! 💬
+Agradeço pela confiança 💕`;
+
+    const cleanPhone = event.whatsapp.replace(/\D/g, "");
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
   }
 
   return (
@@ -72,7 +98,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
             <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Serviço/Técnica</TableHead>
+                <TableHead>Serviço/Valor</TableHead>
                 <TableHead>Data/Hora</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
@@ -83,11 +109,18 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                 filteredClients.map((client) => (
                   <TableRow key={client.id} className="hover:bg-muted/30">
                     <TableCell className="font-bold">{client.nome}</TableCell>
-                    <TableCell>{client.servico}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{client.servico}</span>
+                        <span className="text-xs text-muted-foreground">R$ {client.valor || '0,00'}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-xs">{safeFormatDate(client.data)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        client.tipo === 'Aplicação' ? 'bg-yellow-500/20 text-yellow-700' : 'bg-purple-500/20 text-purple-700'
+                        client.tipo === 'Aplicação' ? 'bg-yellow-500/20 text-yellow-700' : 
+                        client.tipo === 'Remoção' ? 'bg-red-500/20 text-red-700' :
+                        'bg-purple-500/20 text-purple-700'
                       }`}>
                         {client.tipo}
                       </span>
@@ -95,14 +128,17 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         {client.whatsapp && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleWhatsApp(client.whatsapp)}
-                            className="h-8 w-8 text-green-600 hover:bg-green-50"
-                          >
-                            <MessageSquare size={16} />
-                          </Button>
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleSendReminder(client)}
+                              title="Enviar Lembrete"
+                              className="h-8 w-8 text-green-600 hover:bg-green-50"
+                            >
+                              <Send size={16} />
+                            </Button>
+                          </>
                         )}
                         <Button 
                           variant="ghost" 

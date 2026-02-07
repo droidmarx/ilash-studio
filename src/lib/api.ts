@@ -5,7 +5,8 @@ export interface Client {
   nome: string;
   data: string; // Expecting ISO or DD/MM/YYYY format
   servico: string;
-  tipo: 'Aplicação' | 'Manutenção' | string;
+  tipo: 'Aplicação' | 'Manutenção' | 'Remoção' | string;
+  valor?: string;
   whatsapp?: string;
   observacoes?: string;
 }

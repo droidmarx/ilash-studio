@@ -22,13 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CalendarIcon, Clock, User, Phone, ClipboardList } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign } from "lucide-react"
 
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
   data: z.string().min(1, "Data/Hora é obrigatória"),
   servico: z.string().min(1, "Serviço é obrigatório"),
   tipo: z.enum(["Aplicação", "Manutenção", "Remoção"]),
+  valor: z.string().optional(),
   whatsapp: z.string().optional(),
   observacoes: z.string().optional(),
 })
@@ -49,6 +50,7 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
       data: initialData?.data || new Date().toISOString().slice(0, 16),
       servico: initialData?.servico || "",
       tipo: (initialData?.tipo as any) || "Aplicação",
+      valor: initialData?.valor || "",
       whatsapp: initialData?.whatsapp || "",
       observacoes: initialData?.observacoes || "",
     },
@@ -116,32 +118,50 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="servico"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <Clock size={16} /> Técnica / Serviço
-              </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="servico"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <Clock size={16} /> Técnica / Serviço
+                </FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="rounded-xl">
+                      <SelectValue placeholder="Selecione a técnica" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="rounded-xl">
+                    {TECHNIQUES.map((tech) => (
+                      <SelectItem key={tech} value={tech}>
+                        {tech}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="valor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <DollarSign size={16} /> Valor (R$)
+                </FormLabel>
                 <FormControl>
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Selecione a técnica" />
-                  </SelectTrigger>
+                  <Input placeholder="100,00" {...field} className="rounded-xl" />
                 </FormControl>
-                <SelectContent className="rounded-xl">
-                  {TECHNIQUES.map((tech) => (
-                    <SelectItem key={tech} value={tech}>
-                      {tech}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
