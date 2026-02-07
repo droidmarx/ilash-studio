@@ -90,13 +90,13 @@ export default function AgendaPage() {
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8 font-body transition-colors duration-700">
+    <div className="min-h-screen py-8 px-4 md:px-8 font-body transition-colors duration-700 bg-background text-foreground">
       <div className="fixed top-6 right-6 z-50">
         <Button
           variant="outline"
           size="icon"
           onClick={() => setIsSettingsOpen(true)}
-          className="rounded-full w-12 h-12 border-primary/40 bg-black/50 backdrop-blur-md hover:bg-primary/10"
+          className="rounded-full w-12 h-12 border-primary/40 bg-background/50 backdrop-blur-md hover:bg-primary/10"
         >
           <Settings className="h-6 w-6 text-primary" />
         </Button>
@@ -146,7 +146,7 @@ export default function AgendaPage() {
             <TabsContent value="agenda" className="animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <Card className="rounded-[2.5rem] border-white/10 shadow-2xl bg-white/5 backdrop-blur-2xl">
+                  <Card className="rounded-[2.5rem] border-white/10 shadow-2xl bg-card backdrop-blur-2xl">
                     <CardHeader className="flex flex-row items-center justify-between px-8 py-10">
                       <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/10 text-primary">
                         <ChevronLeft size={36} />
@@ -223,7 +223,7 @@ export default function AgendaPage() {
       />
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-zinc-950 border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-background border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
             <DialogDescription className="text-primary/50 text-sm md:text-base">

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -95,7 +94,7 @@ Agradeço pela confiança 💕`;
   }
 
   return (
-    <Card className="rounded-[2rem] md:rounded-3xl border-none shadow-2xl bg-white/5 backdrop-blur-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+    <Card className="rounded-[2rem] md:rounded-3xl border-none shadow-2xl bg-card backdrop-blur-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
       <CardHeader className="p-4 md:p-8 space-y-4">
         <CardTitle className="text-2xl md:text-3xl font-headline text-gold-gradient flex items-center gap-2">
           <User className="text-primary" />
@@ -107,12 +106,12 @@ Agradeço pela confiança 💕`;
             placeholder="Pesquisar por nome ou serviço..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 rounded-xl bg-black/50 border-white/10 h-12"
+            className="pl-10 rounded-xl bg-background/50 border-white/10 h-12"
           />
         </div>
       </CardHeader>
       <CardContent className="p-0 md:p-8">
-        <div className="rounded-xl border border-white/10 bg-black/30 overflow-hidden">
+        <div className="rounded-xl border border-white/10 bg-background/30 overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-white/5">
@@ -191,7 +190,7 @@ Agradeço pela confiança 💕`;
       </CardContent>
 
       <Dialog open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)}>
-        <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-zinc-950 border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Editar Cliente</DialogTitle>
           </DialogHeader>
@@ -211,7 +210,7 @@ Agradeço pela confiança 💕`;
       </Dialog>
 
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <AlertDialogContent className="rounded-[2rem] border-white/10 bg-zinc-950 p-8">
+        <AlertDialogContent className="rounded-[2rem] border-white/10 bg-background p-8">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription className="text-white/60">

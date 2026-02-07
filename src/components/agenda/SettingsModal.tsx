@@ -81,7 +81,7 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
-      <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-zinc-950 border-white/10 p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-white/10 p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
             <Settings className="text-primary" size={28} />

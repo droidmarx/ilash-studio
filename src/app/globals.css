@@ -31,30 +31,33 @@
   }
 
   .theme-rose {
-    --background: 340 30% 3%;
+    --background: 340 30% 5%;
     --primary: 340 80% 80%;
     --ring: 340 80% 80%;
     --gold-grad: linear-gradient(to right, #e29595, #f8d7da, #d63384, #f8d7da, #e29595);
     --theme-primary: #d63384;
-    --card: 340 30% 7%;
+    --card: 340 30% 8%;
+    --border: 340 30% 15%;
   }
 
   .theme-emerald {
-    --background: 160 30% 2%;
+    --background: 160 30% 4%;
     --primary: 160 80% 60%;
     --ring: 160 80% 60%;
     --gold-grad: linear-gradient(to right, #064e3b, #10b981, #059669, #10b981, #064e3b);
     --theme-primary: #10b981;
-    --card: 160 30% 6%;
+    --card: 160 30% 7%;
+    --border: 160 30% 12%;
   }
 
   .theme-blue {
-    --background: 220 30% 3%;
+    --background: 220 30% 4%;
     --primary: 210 80% 70%;
     --ring: 210 80% 70%;
     --gold-grad: linear-gradient(to right, #1e3a8a, #60a5fa, #3b82f6, #60a5fa, #1e3a8a);
     --theme-primary: #3b82f6;
-    --card: 220 30% 7%;
+    --card: 220 30% 8%;
+    --border: 220 30% 15%;
   }
 }
 
