@@ -116,8 +116,8 @@ export default function AgendaPage() {
           <div className="flex items-center justify-center gap-2 mb-2">
             <Crown className="text-primary animate-bounce" size={24} />
           </div>
-          <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl">
-            Lash Luxury Studio
+          <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-8">
+            I Lash Studio
           </h1>
           <p className="text-primary/70 text-sm md:text-base font-medium tracking-[0.3em] uppercase">
             Exclusive Client Experience
@@ -197,7 +197,7 @@ export default function AgendaPage() {
         )}
 
         <footer className="text-center pt-20 pb-10 text-primary/20 text-xs font-light tracking-[0.2em] uppercase">
-          <p>&copy; {new Date().getFullYear()} Studio Lash Luxury Design</p>
+          <p>&copy; {new Date().getFullYear()} I Lash Studio</p>
         </footer>
       </div>
 
