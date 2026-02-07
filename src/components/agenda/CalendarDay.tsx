@@ -30,17 +30,17 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
         isCurrentMonth && "group"
       )}
     >
-      <div className="flex justify-between items-start w-full px-1">
+      <div className="flex flex-col items-center justify-start w-full">
         <span className={cn(
-          "text-lg font-bold transition-colors",
+          "text-lg font-bold transition-colors leading-none mb-1",
           isTodayDate ? "text-primary" : "text-white/80 group-hover:text-primary"
         )}>
           {format(day, 'd')}
         </span>
         {hasBirthdays && isCurrentMonth && (
-          <div className="relative">
-            <Cake size={16} className="text-primary animate-pulse" />
-            <Sparkles size={10} className="absolute -top-1 -right-1 text-white animate-bounce" />
+          <div className="relative mt-0.5">
+            <Cake size={18} className="text-primary animate-pulse" />
+            <Sparkles size={12} className="absolute -top-1 -right-1 text-white animate-bounce" />
           </div>
         )}
       </div>
