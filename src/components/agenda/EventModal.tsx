@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -12,7 +13,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { cn } from "@/lib/utils"
@@ -23,11 +24,12 @@ interface EventModalProps {
   birthdays: Client[]
   isOpen: boolean
   onClose: () => void
+  onAddNew?: (date: Date) => void
   onEdit: (id: string, data: any) => void
   onDelete: (id: string) => void
 }
 
-export function EventModal({ day, events, birthdays, isOpen, onClose, onEdit, onDelete }: EventModalProps) {
+export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, onEdit, onDelete }: EventModalProps) {
   const [editingEvent, setEditingEvent] = useState<Client | null>(null)
 
   if (!day) return null
@@ -109,17 +111,31 @@ Aproveite muito seu dia! 💕`;
     }}>
       <DialogContent className="sm:max-w-[600px] rounded-3xl overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-headline text-primary flex items-center gap-2">
-            <Calendar className="text-primary" />
-            {editingEvent 
-              ? `Editando Agendamento` 
-              : `Agenda para ${format(day, "dd 'de' MMMM", { locale: ptBR })}`}
-          </DialogTitle>
-          <DialogDescription>
-            {editingEvent 
-              ? "Atualize as informações do agendamento abaixo." 
-              : "Veja os compromissos e aniversariantes de hoje."}
-          </DialogDescription>
+          <div className="flex items-center justify-between pr-8">
+            <div className="space-y-1">
+              <DialogTitle className="text-2xl font-headline text-primary flex items-center gap-2">
+                <Calendar className="text-primary" />
+                {editingEvent 
+                  ? `Editando Agendamento` 
+                  : `Agenda para ${format(day, "dd 'de' MMMM", { locale: ptBR })}`}
+              </DialogTitle>
+              <DialogDescription>
+                {editingEvent 
+                  ? "Atualize as informações do agendamento abaixo." 
+                  : "Veja os compromissos e aniversariantes de hoje."}
+              </DialogDescription>
+            </div>
+            {!editingEvent && onAddNew && (
+              <Button 
+                onClick={() => onAddNew(day)}
+                className="rounded-full gap-2 shadow-lg bg-primary hover:bg-primary/90"
+                size="sm"
+              >
+                <PlusCircle size={18} />
+                Agendar
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         
         <div className="mt-4 max-h-[70vh] overflow-y-auto pr-2 space-y-6">
@@ -171,13 +187,13 @@ Aproveite muito seu dia! 💕`;
                 </h3>
                 {events.length > 0 ? (
                   events.map((event) => {
-                    const isBdayMonth = isBirthdayMonth(event);
+                    const bdayMonth = isBirthdayMonth(event);
                     return (
                       <div 
                         key={event.id} 
                         className={cn(
                           "group p-4 rounded-2xl border bg-card/50 hover:bg-card transition-all shadow-sm relative",
-                          isBdayMonth && "border-pink-300 bg-pink-50/30"
+                          bdayMonth && "border-pink-300 bg-pink-50/30"
                         )}
                       >
                         <div className="flex justify-between items-start mb-2">
@@ -186,7 +202,7 @@ Aproveite muito seu dia! 💕`;
                               <User size={18} className="text-muted-foreground" />
                               {event.nome}
                             </h4>
-                            {isBdayMonth && (
+                            {bdayMonth && (
                               <div className="flex items-center gap-1 text-pink-600 font-bold text-[10px] uppercase">
                                 <Cake size={12} /> Mês de Aniversário! ✨
                               </div>
@@ -267,8 +283,18 @@ Aproveite muito seu dia! 💕`;
                     )
                   })
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground italic border-dashed border-2 rounded-2xl">
-                    Nenhum agendamento para este dia.
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground italic border-dashed border-2 rounded-2xl gap-4">
+                    <p>Nenhum agendamento para este dia.</p>
+                    {onAddNew && (
+                      <Button 
+                        variant="outline" 
+                        onClick={() => onAddNew(day)}
+                        className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/5"
+                      >
+                        <PlusCircle size={18} />
+                        Agendar Cliente
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

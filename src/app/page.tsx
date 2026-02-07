@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -9,7 +10,9 @@ import {
   startOfWeek, 
   endOfWeek, 
   eachDayOfInterval, 
-  isSameMonth
+  isSameMonth,
+  setHours,
+  setMinutes
 } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ThemeToggle } from "@/components/agenda/ThemeToggle"
@@ -51,6 +54,7 @@ export default function AgendaPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined)
 
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(monthStart)
@@ -67,6 +71,17 @@ export default function AgendaPage() {
     setModalEvents(events)
     setModalBirthdays(birthdays)
     setIsModalOpen(true)
+  }
+
+  const handleOpenAddModal = (date?: Date) => {
+    if (date) {
+      const now = new Date()
+      const dateWithTime = setMinutes(setHours(date, now.getHours()), now.getMinutes())
+      setPrefilledDate(dateWithTime.toISOString().slice(0, 16))
+    } else {
+      setPrefilledDate(undefined)
+    }
+    setIsAddModalOpen(true)
   }
 
   const handleAddSubmit = async (data: any) => {
@@ -93,7 +108,7 @@ export default function AgendaPage() {
       </div>
       
       <Button
-        onClick={() => setIsAddModalOpen(true)}
+        onClick={() => handleOpenAddModal()}
         className="fixed bottom-12 right-8 z-50 rounded-full w-16 h-16 shadow-2xl bg-primary hover:scale-110 transition-transform duration-300"
       >
         <Plus size={32} />
@@ -197,6 +212,10 @@ export default function AgendaPage() {
         birthdays={modalBirthdays}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onAddNew={(date) => {
+          setIsModalOpen(false)
+          handleOpenAddModal(date)
+        }}
         onEdit={async (id, data) => {
           await editAppointment(id, data)
           setIsModalOpen(false)
@@ -213,7 +232,12 @@ export default function AgendaPage() {
             <DialogTitle className="text-2xl font-headline text-primary">Novo Agendamento</DialogTitle>
             <DialogDescription>Preencha os dados da cliente para agendar um novo serviço.</DialogDescription>
           </DialogHeader>
-          <AppointmentForm onSubmit={handleAddSubmit} onCancel={() => setIsAddModalOpen(false)} />
+          <AppointmentForm 
+            clients={clients}
+            prefilledDate={prefilledDate}
+            onSubmit={handleAddSubmit} 
+            onCancel={() => setIsAddModalOpen(false)} 
+          />
         </DialogContent>
       </Dialog>
 
