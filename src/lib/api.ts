@@ -9,6 +9,7 @@ export interface Client {
   valor?: string;
   whatsapp?: string;
   observacoes?: string;
+  aniversario?: string; // Format YYYY-MM-DD
 }
 
 function getApiUrl(): string {

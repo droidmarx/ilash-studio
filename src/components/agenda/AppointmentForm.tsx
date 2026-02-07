@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake } from "lucide-react"
 
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -31,6 +31,7 @@ const formSchema = z.object({
   tipo: z.enum(["Aplicação", "Manutenção", "Remoção"]),
   valor: z.string().optional(),
   whatsapp: z.string().optional(),
+  aniversario: z.string().optional(),
   observacoes: z.string().optional(),
 })
 
@@ -52,6 +53,7 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
       tipo: (initialData?.tipo as any) || "Aplicação",
       valor: initialData?.valor || "",
       whatsapp: initialData?.whatsapp || "",
+      aniversario: initialData?.aniversario || "",
       observacoes: initialData?.observacoes || "",
     },
   })
@@ -94,6 +96,24 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
 
           <FormField
             control={form.control}
+            name="aniversario"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <Cake size={16} /> Data de Nascimento
+                </FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} className="rounded-xl" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="tipo"
             render={({ field }) => (
               <FormItem>
@@ -116,9 +136,7 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="servico"
@@ -145,6 +163,24 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
               </FormItem>
             )}
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="whatsapp"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <Phone size={16} /> WhatsApp
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="5511999999999" {...field} className="rounded-xl" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -162,22 +198,6 @@ export function AppointmentForm({ initialData, onSubmit, onCancel }: Appointment
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="whatsapp"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <Phone size={16} /> WhatsApp
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="5511999999999" {...field} className="rounded-xl" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}

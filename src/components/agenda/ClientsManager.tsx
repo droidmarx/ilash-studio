@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, User, Send } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send, Cake } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AppointmentForm } from "./AppointmentForm"
 import { format, parseISO, isValid } from "date-fns"
@@ -99,7 +99,8 @@ Agradeço pela confiança 💕`;
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Serviço/Valor</TableHead>
-                <TableHead>Data/Hora</TableHead>
+                <TableHead>Aniversário</TableHead>
+                <TableHead>Último/Próximo</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -115,7 +116,13 @@ Agradeço pela confiança 💕`;
                         <span className="text-xs text-muted-foreground">R$ {client.valor || '0,00'}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs">{safeFormatDate(client.data)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Cake size={14} className="text-pink-500" />
+                        {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-[10px] leading-tight">{safeFormatDate(client.data)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                         client.tipo === 'Aplicação' ? 'bg-yellow-500/20 text-yellow-700' : 
@@ -162,7 +169,7 @@ Agradeço pela confiança 💕`;
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-10 text-muted-foreground italic">
+                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground italic">
                     Nenhum cliente encontrado.
                   </TableCell>
                 </TableRow>
