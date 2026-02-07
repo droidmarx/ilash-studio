@@ -65,7 +65,7 @@ Agradeço pela confiança 💕`;
       <CardHeader className="bg-gold-gradient py-8">
         <CardTitle className="flex items-center gap-3 font-headline text-4xl text-black">
           <Star className="fill-black" size={24} />
-          Agenda VIP
+          Agenda Vip
         </CardTitle>
       </CardHeader>
       <CardContent className="p-8">
