@@ -1,9 +1,10 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Agenda Studio | Lash Design',
-  description: 'Sistema de agendamento profissional para Lash Designers',
+  title: 'Studio Lash | Luxury Agenda',
+  description: 'Sistema de agendamento premium para Lash Designers',
 };
 
 export default function RootLayout({
@@ -12,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -15,7 +15,6 @@ import {
   setMinutes
 } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { ThemeToggle } from "@/components/agenda/ThemeToggle"
 import { CalendarDay } from "@/components/agenda/CalendarDay"
 import { EventModal } from "@/components/agenda/EventModal"
 import { SettingsModal } from "@/components/agenda/SettingsModal"
@@ -26,7 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings, Plus, Calendar as CalendarIcon, Users } from "lucide-react"
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -35,8 +34,6 @@ export default function AgendaPage() {
     clients,
     loading, 
     currentMonth, 
-    theme, 
-    toggleTheme, 
     nextMonth, 
     prevMonth, 
     getDayEvents, 
@@ -92,80 +89,78 @@ export default function AgendaPage() {
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center py-12 px-4 md:px-8">
-      <div className="fixed inset-0 animated-gradient z-[-1] opacity-90 transition-opacity duration-1000" />
-      
-      <div className="fixed top-6 right-6 z-50 flex gap-2">
+    <div className="min-h-screen bg-black text-white py-8 px-4 md:px-8 font-body">
+      <div className="fixed top-6 right-6 z-50">
         <Button
           variant="outline"
           size="icon"
           onClick={() => setIsSettingsOpen(true)}
-          className="rounded-full w-12 h-12 shadow-lg bg-background/80 backdrop-blur-sm"
+          className="rounded-full w-12 h-12 border-primary/40 bg-black/50 backdrop-blur-md hover:bg-primary/10"
         >
           <Settings className="h-6 w-6 text-primary" />
         </Button>
-        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       </div>
       
       <Button
         onClick={() => handleOpenAddModal()}
-        className="fixed bottom-12 right-8 z-50 rounded-full w-16 h-16 shadow-2xl bg-primary hover:scale-110 transition-transform duration-300"
+        className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(179,135,40,0.5)] bg-gold-gradient text-black hover:scale-110 transition-transform duration-300"
       >
         <Plus size={32} />
       </Button>
 
       <Toaster />
 
-      <div className="w-full max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="w-full max-w-7xl mx-auto space-y-10">
         
-        <div className="text-center space-y-4 mb-12">
-          <h1 className="text-6xl md:text-8xl font-headline text-white drop-shadow-lg flex items-center justify-center gap-4">
-            <Sparkles className="text-yellow-400" size={48} />
-            Studio Lash Agenda
-            <Sparkles className="text-yellow-400" size={48} />
+        <header className="text-center space-y-2 mb-12 animate-in fade-in duration-1000">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Crown className="text-primary animate-bounce" size={24} />
+          </div>
+          <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl">
+            Lash Luxury Studio
           </h1>
-          <p className="text-white/80 text-lg md:text-xl font-light tracking-widest uppercase">
-            Gestão de Agendamentos e Clientes
+          <p className="text-primary/70 text-sm md:text-base font-medium tracking-[0.3em] uppercase">
+            Exclusive Client Experience
           </p>
-        </div>
+        </header>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-white">
-            <Loader2 className="animate-spin mb-4" size={48} />
-            <p className="text-xl animate-pulse">Carregando dados...</p>
+          <div className="flex flex-col items-center justify-center py-40">
+            <Loader2 className="animate-spin text-primary mb-4" size={48} />
+            <p className="text-xl text-primary font-light tracking-widest">Aguarde um instante...</p>
           </div>
         ) : (
-          <Tabs defaultValue="agenda" className="w-full">
-            <div className="flex justify-center mb-8">
-              <TabsList className="bg-white/20 backdrop-blur-md p-1 rounded-2xl h-14 w-full max-w-md shadow-xl border border-white/30">
-                <TabsTrigger value="agenda" className="flex-1 rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-white h-full transition-all">
-                  <CalendarIcon size={18} /> Agenda
+          <Tabs defaultValue="agenda" className="w-full space-y-8">
+            <div className="flex justify-center">
+              <TabsList className="bg-white/5 border border-white/10 p-1.5 rounded-[2rem] h-16 w-full max-w-md shadow-2xl">
+                <TabsTrigger value="agenda" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-black h-full transition-all text-base font-semibold">
+                  <CalendarIcon size={20} /> Agenda
                 </TabsTrigger>
-                <TabsTrigger value="clientes" className="flex-1 rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-white h-full transition-all">
-                  <Users size={18} /> Clientes
+                <TabsTrigger value="clientes" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-black h-full transition-all text-base font-semibold">
+                  <Users size={20} /> Clientes
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="agenda" className="mt-0">
+            <TabsContent value="agenda" className="animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <Card className="rounded-3xl border-none shadow-2xl bg-card/80 backdrop-blur-md">
-                    <CardHeader className="flex flex-row items-center justify-between pb-8">
-                      <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/20">
-                        <ChevronLeft size={32} />
+                  <Card className="rounded-[2.5rem] border-white/10 shadow-2xl bg-white/5 backdrop-blur-2xl">
+                    <CardHeader className="flex flex-row items-center justify-between px-8 py-10">
+                      <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/10 text-primary">
+                        <ChevronLeft size={36} />
                       </Button>
-                      <CardTitle className="text-3xl md:text-4xl font-headline text-primary text-center">
+                      <CardTitle className="text-3xl md:text-4xl font-headline text-gold-gradient text-center">
                         {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
                       </CardTitle>
-                      <Button variant="ghost" size="icon" onClick={nextMonth} className="hover:bg-primary/20">
-                        <ChevronRight size={32} />
+                      <Button variant="ghost" size="icon" onClick={nextMonth} className="hover:bg-primary/10 text-primary">
+                        <ChevronRight size={36} />
                       </Button>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-7 mb-4">
+                    <CardContent className="px-6 pb-10">
+                      <div className="grid grid-cols-7 mb-6">
                         {weekdays.map(day => (
-                          <div key={day} className="text-center font-bold text-muted-foreground text-xs uppercase tracking-widest pb-2">
+                          <div key={day} className="text-center font-bold text-primary/40 text-xs uppercase tracking-widest">
                             {day}
                           </div>
                         ))}
@@ -191,7 +186,7 @@ export default function AgendaPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="clientes" className="mt-0">
+            <TabsContent value="clientes" className="animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
               <ClientsManager 
                 clients={clients} 
                 onEdit={editAppointment} 
@@ -201,8 +196,8 @@ export default function AgendaPage() {
           </Tabs>
         )}
 
-        <footer className="text-center pt-12 pb-6 text-white/60 text-sm font-light">
-          <p>&copy; {new Date().getFullYear()} Studio Lash Design. Todos os direitos reservados.</p>
+        <footer className="text-center pt-20 pb-10 text-primary/20 text-xs font-light tracking-[0.2em] uppercase">
+          <p>&copy; {new Date().getFullYear()} Studio Lash Luxury Design</p>
         </footer>
       </div>
 
@@ -227,17 +222,21 @@ export default function AgendaPage() {
       />
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[500px] rounded-3xl">
+        <DialogContent className="sm:max-w-[550px] rounded-[2.5rem] bg-zinc-950 border-white/10 p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-headline text-primary">Novo Agendamento</DialogTitle>
-            <DialogDescription>Preencha os dados da cliente para agendar um novo serviço.</DialogDescription>
+            <DialogTitle className="text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
+            <DialogDescription className="text-primary/50 text-base">
+              Personalize a experiência para sua cliente.
+            </DialogDescription>
           </DialogHeader>
-          <AppointmentForm 
-            clients={clients}
-            prefilledDate={prefilledDate}
-            onSubmit={handleAddSubmit} 
-            onCancel={() => setIsAddModalOpen(false)} 
-          />
+          <div className="mt-6">
+            <AppointmentForm 
+              clients={clients}
+              prefilledDate={prefilledDate}
+              onSubmit={handleAddSubmit} 
+              onCancel={() => setIsAddModalOpen(false)} 
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

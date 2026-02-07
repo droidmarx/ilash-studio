@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -66,7 +65,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     },
   })
 
-  // Obtém lista de nomes únicos para sugestão
   const uniqueClients = useMemo(() => {
     const map = new Map<string, Client>()
     clients.forEach(c => {
@@ -91,64 +89,59 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="nome"
           render={({ field }) => (
             <FormItem className="relative">
-              <FormLabel className="flex items-center gap-2">
-                <User size={16} /> Nome da Cliente
+              <FormLabel className="text-primary/60 font-semibold flex items-center gap-2">
+                <User size={18} /> Nome da Cliente
               </FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input 
                     placeholder="Ex: Maria Oliveira" 
                     {...field} 
-                    className="rounded-xl pr-10" 
+                    className="rounded-2xl h-14 bg-white/5 border-white/10 text-white focus:border-primary text-lg" 
                     autoComplete="off"
                     onChange={(e) => {
                       field.onChange(e)
                       setNameSearch(e.target.value)
                     }}
                   />
-                  <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Search size={22} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary" />
                 </div>
               </FormControl>
               {suggestions.length > 0 && (
-                <div className="absolute z-50 w-full bg-card border rounded-xl mt-1 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute z-50 w-full bg-zinc-900 border border-primary/20 rounded-2xl mt-2 shadow-2xl overflow-hidden backdrop-blur-3xl">
                   {suggestions.map((s) => (
                     <button
                       key={s.id}
                       type="button"
-                      className="w-full text-left px-4 py-3 hover:bg-primary/10 transition-colors flex flex-col gap-0.5"
+                      className="w-full text-left px-6 py-4 hover:bg-primary/10 transition-colors flex flex-col gap-1 border-b border-white/5 last:border-none"
                       onClick={() => handleSelectClient(s)}
                     >
-                      <span className="font-bold text-sm">{s.nome}</span>
-                      {s.whatsapp && <span className="text-[10px] text-muted-foreground">{s.whatsapp}</span>}
+                      <span className="font-bold text-white text-lg">{s.nome}</span>
+                      {s.whatsapp && <span className="text-xs text-primary/60">{s.whatsapp}</span>}
                     </button>
                   ))}
                 </div>
               )}
-              <FormDescription className="text-[10px]">
-                Digite o nome para buscar clientes existentes.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="data"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <CalendarIcon size={16} /> Data e Hora
-                </FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2"><CalendarIcon size={18} /> Data e Hora</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} className="rounded-xl" />
+                  <Input type="datetime-local" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -160,11 +153,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="aniversario"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Cake size={16} /> Data de Nascimento
-                </FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2"><Cake size={18} /> Nascimento</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} className="rounded-xl" />
+                  <Input type="date" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -172,22 +163,20 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="tipo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <ClipboardList size={16} /> Tipo
-                </FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2"><ClipboardList size={18} /> Tipo</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-xl">
+                    <SelectTrigger className="rounded-2xl h-12 bg-white/5 border-white/10 text-white">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="rounded-xl">
+                  <SelectContent className="rounded-2xl bg-zinc-900 border-white/10 text-white">
                     <SelectItem value="Aplicação">Aplicação</SelectItem>
                     <SelectItem value="Manutenção">Manutenção</SelectItem>
                     <SelectItem value="Remoção">Remoção</SelectItem>
@@ -203,16 +192,14 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="servico"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Clock size={16} /> Técnica / Serviço
-                </FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2"><Clock size={18} /> Técnica</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="Selecione a técnica" />
+                    <SelectTrigger className="rounded-2xl h-12 bg-white/5 border-white/10 text-white">
+                      <SelectValue placeholder="Escolha a técnica" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="rounded-xl">
+                  <SelectContent className="rounded-2xl bg-zinc-900 border-white/10 text-white">
                     {TECHNIQUES.map((tech) => (
                       <SelectItem key={tech} value={tech}>
                         {tech}
@@ -226,17 +213,15 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="whatsapp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Phone size={16} /> WhatsApp
-                </FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2"><Phone size={18} /> WhatsApp</FormLabel>
                 <FormControl>
-                  <Input placeholder="5511999999999" {...field} className="rounded-xl" />
+                  <Input placeholder="5511999999999" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -248,11 +233,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="valor"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <DollarSign size={16} /> Valor (R$)
-                </FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2"><DollarSign size={18} /> Valor (R$)</FormLabel>
                 <FormControl>
-                  <Input placeholder="100,00" {...field} className="rounded-xl" />
+                  <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -260,26 +243,12 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="observacoes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observações</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Alergias, preferências, etc." {...field} className="rounded-xl resize-none" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} className="flex-1 rounded-xl">
+        <div className="flex gap-4 pt-6">
+          <Button type="button" variant="ghost" onClick={onCancel} className="flex-1 rounded-2xl h-14 text-white/50 hover:text-white hover:bg-white/5">
             Cancelar
           </Button>
-          <Button type="submit" className="flex-1 rounded-xl">
-            {initialData ? "Atualizar" : "Agendar"}
+          <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-black font-bold text-lg hover:scale-[1.02] transition-transform">
+            {initialData ? "Salvar" : "Confirmar Agendamento"}
           </Button>
         </div>
       </form>

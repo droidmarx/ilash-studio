@@ -1,10 +1,11 @@
+
 "use client"
 
 import { Client } from "@/lib/api"
 import { format, parseISO, parse, isValid, getMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { List, Clock, Send, Cake } from "lucide-react"
+import { List, Clock, Send, Cake, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -60,17 +61,17 @@ Agradeço pela confiança 💕`;
   }
 
   return (
-    <Card className="rounded-3xl border-none shadow-xl bg-card/80 backdrop-blur-md overflow-hidden">
-      <CardHeader className="bg-primary text-primary-foreground">
-        <CardTitle className="flex items-center gap-2 font-headline text-3xl">
-          <List />
-          Próximos Agendamentos
+    <Card className="rounded-[2.5rem] border-white/10 shadow-2xl bg-white/5 backdrop-blur-md overflow-hidden animate-in slide-in-from-right duration-700">
+      <CardHeader className="bg-gold-gradient py-8">
+        <CardTitle className="flex items-center gap-3 font-headline text-4xl text-black">
+          <Star className="fill-black" size={24} />
+          Agenda VIP
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-4">
+      <CardContent className="p-8">
+        <div className="space-y-6">
           {appointments.length > 0 ? (
-            appointments.slice(0, 10).map((app, idx) => {
+            appointments.slice(0, 8).map((app, idx) => {
               const date = getEventDate(app.data);
               const isFirst = idx === 0;
               const isBday = isBirthdayMonth(app);
@@ -79,53 +80,51 @@ Agradeço pela confiança 💕`;
                 <div 
                   key={app.id} 
                   className={cn(
-                    "group flex items-center justify-between p-4 rounded-2xl transition-all duration-300",
-                    isFirst ? "bg-primary/10 ring-2 ring-primary/20 scale-[1.02] shadow-md" : "hover:bg-muted/50"
+                    "group flex items-center justify-between p-5 rounded-3xl transition-all duration-500",
+                    isFirst ? "bg-primary/10 ring-2 ring-primary/40 shadow-[0_0_20px_rgba(179,135,40,0.15)]" : "hover:bg-white/5"
                   )}
                 >
-                  <div className="flex gap-4 items-center flex-1">
+                  <div className="flex gap-5 items-center flex-1">
                     <div className={cn(
-                      "w-12 h-12 rounded-full flex flex-col items-center justify-center text-[10px] font-bold shadow-sm transition-transform group-hover:scale-110",
-                      isFirst ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      "w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-bold shadow-2xl transition-transform group-hover:scale-110",
+                      isFirst ? "bg-gold-gradient text-black" : "bg-zinc-800 text-primary"
                     )}>
-                      <span>{format(date, 'MMM', { locale: ptBR }).toUpperCase()}</span>
-                      <span className="text-base leading-none">{format(date, 'dd')}</span>
+                      <span className="text-[10px] uppercase tracking-tighter">{format(date, 'MMM', { locale: ptBR })}</span>
+                      <span className="text-xl leading-none">{format(date, 'dd')}</span>
                     </div>
                     
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-lg leading-none group-hover:text-primary transition-colors">
+                        <h4 className="font-bold text-xl leading-none text-white/90 group-hover:text-primary transition-colors">
                           {app.nome}
                         </h4>
                         {isBday && (
-                          <span className="flex items-center gap-1 bg-pink-100 text-pink-600 px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase">
-                            <Cake size={10} /> Niver
-                          </span>
+                          <div className="bg-primary/20 text-primary border border-primary/30 p-1 rounded-full">
+                            <Cake size={12} />
+                          </div>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                        <Clock size={12} />
+                      <p className="text-sm text-primary/40 flex items-center gap-2">
+                        <Clock size={14} />
                         {app.servico}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="flex gap-1">
-                      {app.whatsapp && (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-green-600 hover:bg-green-50"
-                          onClick={() => handleSendReminder(app)}
-                        >
-                          <Send size={16} />
-                        </Button>
-                      )}
-                    </div>
+                  <div className="flex flex-col items-end gap-3">
+                    {app.whatsapp && (
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-10 w-10 rounded-xl border-primary/20 text-primary hover:bg-primary/10"
+                        onClick={() => handleSendReminder(app)}
+                      >
+                        <Send size={18} />
+                      </Button>
+                    )}
                     <span className={cn(
-                      "text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider",
-                      app.tipo === 'Aplicação' ? "bg-yellow-500/20 text-yellow-700" : "bg-purple-500/20 text-purple-700"
+                      "text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-[0.1em]",
+                      app.tipo === 'Aplicação' ? "bg-primary text-black" : "border border-white/20 text-white/50"
                     )}>
                       {app.tipo}
                     </span>
@@ -134,8 +133,9 @@ Agradeço pela confiança 💕`;
               );
             })
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground italic">Nenhum agendamento futuro.</p>
+            <div className="text-center py-20">
+              <Sparkles className="mx-auto mb-4 text-primary/20" size={48} />
+              <p className="text-primary/30 text-lg font-light italic">Sua agenda está disponível.</p>
             </div>
           )}
         </div>

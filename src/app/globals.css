@@ -1,85 +1,62 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 275 100% 5%;
-    --card: 0 0% 100%;
-    --card-foreground: 275 100% 5%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 275 100% 5%;
-    --primary: 275 100% 25%; /* #4B0082 Indigo */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 275 20% 96%;
-    --secondary-foreground: 275 100% 25%;
-    --muted: 275 10% 90%;
-    --muted-foreground: 275 50% 40%;
-    --accent: 210 100% 50%; /* #007BFF Blue */
-    --accent-foreground: 0 0% 100%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 45 100% 50%; /* Gold */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 45 100% 50%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 275 20% 88%;
-    --input: 275 20% 88%;
-    --ring: 275 100% 25%;
-    --radius: 1rem;
-  }
-  .dark {
-    --background: 275 40% 4%;
-    --foreground: 275 10% 98%;
-    --card: 275 30% 8%;
-    --card-foreground: 275 10% 98%;
-    --popover: 275 30% 8%;
-    --popover-foreground: 275 10% 98%;
-    --primary: 275 100% 70%;
-    --primary-foreground: 275 100% 5%;
-    --secondary: 275 30% 15%;
-    --secondary-foreground: 275 100% 70%;
-    --muted: 275 30% 15%;
-    --muted-foreground: 275 20% 65%;
-    --accent: 210 100% 60%;
-    --accent-foreground: 0 0% 100%;
-    --border: 275 30% 15%;
-    --input: 275 30% 15%;
-    --ring: 275 100% 70%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 45 100% 50%;
+    --radius: 1.5rem;
   }
 }
 
 @layer components {
-  .animated-gradient {
-    background: linear-gradient(-45deg, #4b0082, #8a2be2, #00d2ff, #3a0066);
-    background-size: 400% 400%;
-    animation: gradient-bg 15s ease infinite;
+  .text-gold-gradient {
+    background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  
-  .dark .animated-gradient {
-    background: linear-gradient(-45deg, #1a0033, #3a0066, #001f3f, #000000);
-    background-size: 400% 400%;
+
+  .bg-gold-gradient {
+    background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+  }
+
+  .border-gold {
+    border-color: #B38728;
   }
 
   .calendar-day {
-    @apply relative flex flex-col items-center justify-center p-2 rounded-xl border border-transparent transition-all duration-300 min-h-[80px] md:min-h-[100px] cursor-pointer hover:bg-muted/50;
+    @apply relative flex flex-col items-center justify-center p-2 rounded-2xl border border-border/50 transition-all duration-300 min-h-[90px] cursor-pointer hover:bg-white/5 active:scale-95;
   }
 
   .calendar-day.today {
-    @apply border-primary bg-primary/10 font-bold;
+    @apply border-primary bg-primary/10 shadow-[0_0_15px_rgba(179,135,40,0.3)];
   }
 
   .calendar-day.has-event {
-    @apply ring-1 ring-primary/30 shadow-md;
+    @apply ring-1 ring-primary/20;
   }
 
   .calendar-day.not-current-month {
-    @apply opacity-30 pointer-events-none;
-  }
-
-  .event-badge-aplicacao {
-    @apply bg-yellow-500 text-white;
-  }
-
-  .event-badge-manutencao {
-    @apply bg-purple-500 text-white;
+    @apply opacity-20 pointer-events-none;
   }
 }
 
@@ -88,5 +65,5 @@
 }
 
 body {
-  @apply bg-background text-foreground min-h-screen;
+  @apply bg-background text-foreground min-h-screen selection:bg-primary/30;
 }

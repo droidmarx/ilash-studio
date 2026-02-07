@@ -1,10 +1,10 @@
+
 "use client"
 
 import { format, isToday } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { Client } from "@/lib/api"
 import { cn } from "@/lib/utils"
-import { Cake } from "lucide-react"
+import { Cake, Sparkles } from "lucide-react"
 
 interface CalendarDayProps {
   day: Date
@@ -30,31 +30,37 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
         isCurrentMonth && "group"
       )}
     >
-      <div className="flex justify-between items-start w-full">
-        <span className="text-sm font-medium">
+      <div className="flex justify-between items-start w-full px-1">
+        <span className={cn(
+          "text-lg font-bold transition-colors",
+          isTodayDate ? "text-primary" : "text-white/80 group-hover:text-primary"
+        )}>
           {format(day, 'd')}
         </span>
         {hasBirthdays && isCurrentMonth && (
-          <Cake size={14} className="text-pink-500 animate-pulse" />
+          <div className="relative">
+            <Cake size={16} className="text-primary animate-pulse" />
+            <Sparkles size={10} className="absolute -top-1 -right-1 text-white animate-bounce" />
+          </div>
         )}
       </div>
       
       {hasEvents && isCurrentMonth && (
-        <div className="flex flex-col items-center gap-1 mt-auto">
-          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-            {events.length}
-          </span>
-          <div className="flex -space-x-1 overflow-hidden">
-            {events.slice(0, 3).map((e, idx) => (
+        <div className="flex flex-col items-center gap-2 mt-auto pb-1 w-full">
+          <div className="flex -space-x-1.5 justify-center">
+            {events.slice(0, 4).map((e, idx) => (
               <div 
                 key={idx}
                 className={cn(
-                  "w-2 h-2 rounded-full border border-background shadow-sm",
-                  e.tipo === 'Aplicação' ? "bg-yellow-500" : "bg-purple-500"
+                  "w-2.5 h-2.5 rounded-full border border-black shadow-lg",
+                  e.tipo === 'Aplicação' ? "bg-primary" : "bg-white/40"
                 )}
               />
             ))}
           </div>
+          <span className="text-[9px] font-black uppercase tracking-tighter text-primary/60">
+            {events.length} {events.length === 1 ? 'Job' : 'Jobs'}
+          </span>
         </div>
       )}
     </div>
