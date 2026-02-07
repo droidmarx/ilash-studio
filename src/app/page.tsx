@@ -223,7 +223,7 @@ export default function AgendaPage() {
       />
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-background border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-background border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
             <DialogDescription className="text-primary/50 text-sm md:text-base">
