@@ -1,3 +1,149 @@
-export default function Home() {
-  return <></>;
+"use client"
+
+import { useState } from "react"
+import { useAgenda } from "@/hooks/use-agenda"
+import { 
+  format, 
+  startOfMonth, 
+  endOfMonth, 
+  startOfWeek, 
+  endOfWeek, 
+  eachDayOfInterval, 
+  isSameMonth,
+  addDays
+} from "date-fns"
+import { ptBR } from "date-fns/locale"
+import { ThemeToggle } from "@/components/agenda/ThemeToggle"
+import { WhatsAppFAB } from "@/components/agenda/WhatsAppFAB"
+import { CalendarDay } from "@/components/agenda/CalendarDay"
+import { EventModal } from "@/components/agenda/EventModal"
+import { AppointmentsList } from "@/components/agenda/AppointmentsList"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { ChevronLeft, ChevronRight, Sparkles, Loader2 } from "lucide-react"
+import { Client } from "@/lib/api"
+
+export default function AgendaPage() {
+  const { 
+    loading, 
+    currentMonth, 
+    theme, 
+    toggleTheme, 
+    nextMonth, 
+    prevMonth, 
+    getDayEvents, 
+    upcomingAppointments 
+  } = useAgenda()
+
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const [modalEvents, setModalEvents] = useState<Client[]>([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const monthStart = startOfMonth(currentMonth)
+  const monthEnd = endOfMonth(monthStart)
+  const startDate = startOfWeek(monthStart)
+  const endDate = endOfWeek(monthEnd)
+
+  const calendarDays = eachDayOfInterval({
+    start: startDate,
+    end: endDate
+  })
+
+  const handleDayClick = (day: Date, events: Client[]) => {
+    setSelectedDay(day)
+    setModalEvents(events)
+    setIsModalOpen(true)
+  }
+
+  const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+
+  return (
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center py-12 px-4 md:px-8">
+      {/* Background with animated gradient */}
+      <div className="fixed inset-0 animated-gradient z-[-1] opacity-90 transition-opacity duration-1000" />
+      
+      {/* UI Elements */}
+      <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+      <WhatsAppFAB />
+
+      <div className="w-full max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        
+        {/* Header Section */}
+        <div className="text-center space-y-4 mb-12">
+          <h1 className="text-6xl md:text-8xl font-headline text-white drop-shadow-lg flex items-center justify-center gap-4">
+            <Sparkles className="text-yellow-400" size={48} />
+            Studio Lash Agenda
+            <Sparkles className="text-yellow-400" size={48} />
+          </h1>
+          <p className="text-white/80 text-lg md:text-xl font-light tracking-widest uppercase">
+            Gestão de Agendamentos e Clientes
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-white">
+            <Loader2 className="animate-spin mb-4" size={48} />
+            <p className="text-xl animate-pulse">Carregando dados da agenda...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Calendar Column */}
+            <div className="lg:col-span-2">
+              <Card className="rounded-3xl border-none shadow-2xl bg-card/80 backdrop-blur-md">
+                <CardHeader className="flex flex-row items-center justify-between pb-8">
+                  <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/20">
+                    <ChevronLeft size={32} />
+                  </Button>
+                  <CardTitle className="text-3xl md:text-4xl font-headline text-primary text-center">
+                    {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+                  </CardTitle>
+                  <Button variant="ghost" size="icon" onClick={nextMonth} className="hover:bg-primary/20">
+                    <ChevronRight size={32} />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-7 mb-4">
+                    {weekdays.map(day => (
+                      <div key={day} className="text-center font-bold text-muted-foreground text-xs uppercase tracking-widest pb-2">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-2 md:gap-4">
+                    {calendarDays.map((day, idx) => (
+                      <CalendarDay
+                        key={idx}
+                        day={day}
+                        events={getDayEvents(day)}
+                        isCurrentMonth={isSameMonth(day, monthStart)}
+                        onClick={handleDayClick}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* List Column */}
+            <div className="lg:col-span-1">
+              <AppointmentsList appointments={upcomingAppointments} />
+            </div>
+          </div>
+        )}
+
+        <footer className="text-center pt-12 pb-6 text-white/60 text-sm font-light">
+          <p>&copy; {new Date().getFullYear()} Studio Lash Design. Todos os direitos reservados.</p>
+        </footer>
+      </div>
+
+      {/* Event Modal */}
+      <EventModal
+        day={selectedDay}
+        events={modalEvents}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </div>
+  )
 }
