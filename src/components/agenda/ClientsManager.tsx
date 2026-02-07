@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, MessageSquare, User, Send } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AppointmentForm } from "./AppointmentForm"
 import { format, parseISO, isValid } from "date-fns"
@@ -54,7 +54,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     
     const message = `💖 *Lembrete de agendamento*
 
-Olá Diva, tudo bem?
+Olá *${event.nome}*, tudo bem?
 
 ✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
 

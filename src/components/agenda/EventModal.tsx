@@ -48,7 +48,7 @@ export function EventModal({ day, events, isOpen, onClose, onEdit, onDelete }: E
     
     const message = `💖 *Lembrete de agendamento*
 
-Olá Diva, tudo bem?
+Olá *${event.nome}*, tudo bem?
 
 ✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
 
@@ -134,7 +134,7 @@ Agradeço pela confiança 💕`;
                   
                   {event.observacoes && (
                     <div className="mt-3 text-xs flex items-start gap-2 bg-muted/30 p-2 rounded-lg">
-                      <Info size={14} className="mt-0.5" />
+                      <Info size={14} />
                       <span>{event.observacoes}</span>
                     </div>
                   )}
