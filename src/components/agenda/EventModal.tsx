@@ -183,28 +183,31 @@ Agradeço pela confiança 💕`;
                         {event.whatsapp && (
                           <Button 
                             variant="default" 
-                            size="sm" 
+                            size="icon" 
                             onClick={() => handleSendReminder(event)}
-                            className="h-8 rounded-full bg-green-600 hover:bg-green-700 gap-2"
+                            className="h-8 w-8 rounded-full bg-green-600 hover:bg-green-700"
+                            title="Enviar Lembrete"
                           >
-                            <Send size={14} /> Lembrete
+                            <Send size={14} />
                           </Button>
                         )}
                         <Button 
                           variant="ghost" 
-                          size="sm" 
+                          size="icon" 
                           onClick={() => setEditingEvent(event)}
-                          className="h-8 rounded-full text-primary hover:bg-primary/10"
+                          className="h-8 w-8 rounded-full text-primary hover:bg-primary/10"
+                          title="Editar"
                         >
-                          <Edit2 size={14} className="mr-2" /> Editar
+                          <Edit2 size={14} />
                         </Button>
                         <Button 
                           variant="ghost" 
-                          size="sm" 
+                          size="icon" 
                           onClick={() => onDelete(event.id)}
-                          className="h-8 rounded-full text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10"
+                          title="Excluir"
                         >
-                          <Trash2 size={14} className="mr-2" /> Excluir
+                          <Trash2 size={14} />
                         </Button>
                       </div>
                     </div>
