@@ -89,13 +89,13 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4 md:px-6">
         <FormField
           control={form.control}
           name="nome"
           render={({ field }) => (
             <FormItem className="relative">
-              <FormLabel className="text-primary/60 font-semibold flex items-center gap-2">
+              <FormLabel className="text-primary/60 font-semibold flex items-center gap-2 px-1">
                 <User size={18} /> Nome da Cliente
               </FormLabel>
               <FormControl>
@@ -139,7 +139,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="data"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2"><CalendarIcon size={18} /> Data e Hora</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><CalendarIcon size={18} /> Data e Hora</FormLabel>
                 <FormControl>
                   <Input type="datetime-local" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
@@ -153,7 +153,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="aniversario"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2"><Cake size={18} /> Nascimento</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Nascimento</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
@@ -169,7 +169,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="tipo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2"><ClipboardList size={18} /> Tipo</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-white/5 border-white/10 text-white">
@@ -192,7 +192,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="servico"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2"><Clock size={18} /> Técnica</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Técnica</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-white/5 border-white/10 text-white">
@@ -219,7 +219,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="whatsapp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2"><Phone size={18} /> WhatsApp</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Phone size={18} /> WhatsApp</FormLabel>
                 <FormControl>
                   <Input placeholder="5511999999999" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
@@ -233,7 +233,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="valor"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2"><DollarSign size={18} /> Valor (R$)</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor (R$)</FormLabel>
                 <FormControl>
                   <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
                 </FormControl>
@@ -243,12 +243,12 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
           />
         </div>
 
-        <div className="flex gap-4 pt-6">
+        <div className="flex gap-4 pt-6 pb-2">
           <Button type="button" variant="ghost" onClick={onCancel} className="flex-1 rounded-2xl h-14 text-white/50 hover:text-white hover:bg-white/5">
             Cancelar
           </Button>
           <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-black font-bold text-lg hover:scale-[1.02] transition-transform">
-            {initialData ? "Salvar" : "Confirmar Agendamento"}
+            {initialData ? "Salvar" : "Confirmar"}
           </Button>
         </div>
       </form>
