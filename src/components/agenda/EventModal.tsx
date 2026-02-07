@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
+import { cn } from "@/lib/utils"
 
 interface EventModalProps {
   day: Date | null
