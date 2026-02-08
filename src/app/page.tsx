@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -123,7 +124,7 @@ export default function AgendaPage() {
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)]"
+              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
             >
               {/* Luxury Eyelash Path - Sophisticated Curves */}
               <path 
