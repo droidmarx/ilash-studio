@@ -13,14 +13,22 @@ export interface Anamnese {
   dataNascimento?: string;
   
   // Saúde e Estilo de Vida
+  procedimentoRecenteOlhos?: boolean;
+  alergiaCosmeticos?: boolean;
+  problemaTireoide?: boolean;
+  problemaOcular?: boolean;
+  tratamentoOncologico?: boolean;
+  dormeDeLado?: 'Não' | 'Sim, Lado Direito' | 'Sim, Lado Esquerdo' | 'Sim, Ambos os lados';
+  gestanteLactante?: boolean;
+  observacoesGerais?: string;
+  
+  // Legado / Compatibilidade
   alergias?: string;
   problemasOculares?: string;
   cirurgiaRecente?: boolean;
   sensibilidadeLuz?: boolean;
-  gestanteLactante?: boolean;
   disturbioHormonal?: boolean;
   usaLentes?: boolean;
-  dormeDeLado?: 'Direito' | 'Esquerdo' | 'Ambos' | 'Costas';
   maquiagemDiaria?: boolean;
   observacoesSaude?: string;
   

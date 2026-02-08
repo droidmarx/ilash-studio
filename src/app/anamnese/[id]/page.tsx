@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -7,7 +6,9 @@ import { getClient, updateClient, Client, Anamnese } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Loader2, Crown, CheckCircle2, User, Camera, Eraser, PenLine } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Loader2, Crown, CheckCircle2, User, Camera, Eraser, PenLine, Sparkles } from "lucide-react"
 
 export default function ClientAnamnesePage() {
   const { id } = useParams()
@@ -26,7 +27,7 @@ export default function ClientAnamnesePage() {
       try {
         const data = await getClient(id)
         setClient(data)
-        setFormData(data.anamnese || { autorizaImagem: true })
+        setFormData(data.anamnese || { autorizaImagem: true, dormeDeLado: 'Não' })
       } catch (error) {
         console.error("Erro ao carregar cliente", error)
       } finally {
@@ -36,7 +37,6 @@ export default function ClientAnamnesePage() {
     loadClient()
   }, [id])
 
-  // Ajusta a resolução interna do canvas para bater com o tamanho exibido na tela
   useEffect(() => {
     const canvas = canvasRef.current
     if (canvas) {
@@ -90,11 +90,7 @@ export default function ClientAnamnesePage() {
 
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing || !canvasRef.current) return
-    
-    // Evita scroll enquanto desenha no mobile
-    if ('touches' in e) {
-      e.preventDefault()
-    }
+    if ('touches' in e) e.preventDefault()
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
@@ -114,13 +110,12 @@ export default function ClientAnamnesePage() {
   const clearSignature = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
     const canvas = canvasRef.current
     if (canvas) {
       const ctx = canvas.getContext('2d')
       if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.beginPath() // Reseta o path
+        ctx.beginPath()
       }
       setFormData(prev => ({ ...prev, assinatura: undefined }))
     }
@@ -238,38 +233,72 @@ export default function ClientAnamnesePage() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             <h3 className="text-primary flex items-center gap-3 font-bold text-lg border-b border-primary/10 pb-2">
-              <AlertTriangle size={24} /> Saúde e Alergias
+              <AlertTriangle size={24} /> Saúde e Cuidados
             </h3>
+            
+            <div className="space-y-6">
+              {[
+                { id: 'procedimento', label: 'Fez algum procedimento recentemente nos olhos?', field: 'procedimentoRecenteOlhos' },
+                { id: 'alergiaCosm', label: 'Possui alergia à esmaltes/cosméticos/cianoacrilato?', field: 'alergiaCosmeticos' },
+                { id: 'tireoide', label: 'Possui problemas de tireóide?', field: 'problemaTireoide' },
+                { id: 'ocular', label: 'Possui glaucoma/blefarite/algum problema ocular?', field: 'problemaOcular' },
+                { id: 'onco', label: 'Está em tratamento oncológico?', field: 'tratamentoOncologico' },
+                { id: 'gestante', label: 'Está gestante ou lactante?', field: 'gestanteLactante' }
+              ].map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 bg-muted/20 p-4 rounded-2xl border border-border/50">
+                  <Label htmlFor={item.id} className="text-sm cursor-pointer flex-1">{item.label}</Label>
+                  <div className="flex gap-4 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <Checkbox 
+                        id={`${item.id}-sim`}
+                        checked={!!(formData as any)[item.field]}
+                        onCheckedChange={(c) => setFormData({...formData, [item.field]: true})}
+                        className="rounded-full"
+                      />
+                      <span className="text-xs font-bold text-primary">Sim</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox 
+                        id={`${item.id}-nao`}
+                        checked={!(formData as any)[item.field]}
+                        onCheckedChange={(c) => setFormData({...formData, [item.field]: false})}
+                        className="rounded-full"
+                      />
+                      <span className="text-xs text-muted-foreground">Não</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">Possui alergia a cosméticos ou cianoacrilato?</Label>
-                <input 
-                  value={formData.alergias || ""} 
-                  onChange={(e) => setFormData({...formData, alergias: e.target.value})}
-                  className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="Descreva se houver..."
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-4 bg-muted/20 p-4 rounded-2xl border border-border/50">
-                  <Checkbox 
-                    id="cirurgia" 
-                    checked={formData.cirurgiaRecente} 
-                    onCheckedChange={(c) => setFormData({...formData, cirurgiaRecente: !!c})}
-                  />
-                  <Label htmlFor="cirurgia" className="text-sm cursor-pointer">Cirurgia ocular recente?</Label>
-                </div>
-                <div className="flex items-center gap-4 bg-muted/20 p-4 rounded-2xl border border-border/50">
-                  <Checkbox 
-                    id="gestante" 
-                    checked={formData.gestanteLactante} 
-                    onCheckedChange={(c) => setFormData({...formData, gestanteLactante: !!c})}
-                  />
-                  <Label htmlFor="gestante" className="text-sm cursor-pointer">Gestante ou Lactante?</Label>
-                </div>
-              </div>
+              <Label className="text-sm font-semibold flex items-center gap-2"><Sparkles size={16} className="text-primary"/> Dorme de lado?</Label>
+              <Select 
+                value={formData.dormeDeLado || 'Não'} 
+                onValueChange={(val: any) => setFormData({...formData, dormeDeLado: val})}
+              >
+                <SelectTrigger className="w-full rounded-2xl h-12 bg-muted/30 border-border">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl">
+                  <SelectItem value="Não">Não</SelectItem>
+                  <SelectItem value="Sim, Lado Direito">Sim, Lado Direito</SelectItem>
+                  <SelectItem value="Sim, Lado Esquerdo">Sim, Lado Esquerdo</SelectItem>
+                  <SelectItem value="Sim, Ambos os lados">Sim, Ambos os lados</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Existe algum problema que julgue ser necessário informar?</Label>
+              <Textarea 
+                value={formData.observacoesGerais || ""} 
+                onChange={(e) => setFormData({...formData, observacoesGerais: e.target.value})}
+                className="rounded-2xl bg-muted/30 border-border min-h-[100px]"
+                placeholder="Descreva aqui..."
+              />
             </div>
           </div>
 

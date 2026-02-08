@@ -14,8 +14,9 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Send, Check, User, Camera, PenLine } from "lucide-react"
+import { ClipboardList, Save, AlertTriangle, Send, Check, User, Camera, PenLine, Sparkles, HeartPulse } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 interface AnamneseModalProps {
   client: Client | null
@@ -31,7 +32,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
 
   useEffect(() => {
     if (client) {
-      setFormData(client.anamnese || {})
+      setFormData(client.anamnese || { autorizaImagem: true, dormeDeLado: 'Não' })
     }
   }, [client, isOpen])
 
@@ -54,11 +55,11 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
     
     window.open(url, "_blank")
     
-    navigator.clipboard.text = link
+    navigator.clipboard.writeText(link)
     setCopied(true)
     toast({
       title: "Link enviado!",
-      description: "WhatsApp aberto e link copiado.",
+      description: "WhatsApp aberto e link copiado para área de transferência.",
     })
     setTimeout(() => setCopied(false), 3000)
   }
@@ -67,7 +68,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[95vw] sm:max-w-[700px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto text-foreground">
+      <DialogContent className="w-[95vw] sm:max-w-[750px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto text-foreground">
         <DialogHeader className="flex flex-row items-center justify-between gap-4">
           <div className="space-y-1">
             <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
@@ -83,54 +84,96 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
             className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/10"
           >
             {copied ? <Check size={16} /> : <Send size={16} />}
-            <span className="hidden sm:inline">{copied ? "Link Enviado" : "Link p/ Cliente"}</span>
+            <span className="hidden sm:inline">{copied ? "Link Copiado" : "Link p/ Cliente"}</span>
           </Button>
         </DialogHeader>
 
-        <div className="space-y-8 py-6">
+        <div className="space-y-10 py-6">
           {/* Dados Cadastrais */}
           <div className="space-y-4">
-            <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
+            <h3 className="text-primary flex items-center gap-2 font-bold text-sm border-b border-primary/10 pb-1">
               <User size={18} /> Dados Cadastrais
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">CPF</Label>
-                <Input value={formData.cpf || ""} onChange={(e) => setFormData({...formData, cpf: e.target.value})} className="h-9 rounded-xl" />
+                <Input value={formData.cpf || ""} onChange={(e) => setFormData({...formData, cpf: e.target.value})} className="h-9 rounded-xl text-xs" />
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">RG</Label>
-                <Input value={formData.rg || ""} onChange={(e) => setFormData({...formData, rg: e.target.value})} className="h-9 rounded-xl" />
+                <Input value={formData.rg || ""} onChange={(e) => setFormData({...formData, rg: e.target.value})} className="h-9 rounded-xl text-xs" />
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">Profissão</Label>
-                <Input value={formData.profissao || ""} onChange={(e) => setFormData({...formData, profissao: e.target.value})} className="h-9 rounded-xl" />
+                <Input value={formData.profissao || ""} onChange={(e) => setFormData({...formData, profissao: e.target.value})} className="h-9 rounded-xl text-xs" />
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">Data Nasc.</Label>
-                <Input type="date" value={formData.dataNascimento || ""} onChange={(e) => setFormData({...formData, dataNascimento: e.target.value})} className="h-9 rounded-xl" />
+                <Input type="date" value={formData.dataNascimento || ""} onChange={(e) => setFormData({...formData, dataNascimento: e.target.value})} className="h-9 rounded-xl text-xs" />
               </div>
             </div>
           </div>
 
+          {/* Saúde */}
           <div className="space-y-4">
-            <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
-              <AlertTriangle size={18} /> Alergias e Saúde
+            <h3 className="text-primary flex items-center gap-2 font-bold text-sm border-b border-primary/10 pb-1">
+              <HeartPulse size={18} /> Saúde e Histórico
             </h3>
-            <Input 
-              value={formData.alergias || ""} 
-              onChange={(e) => setFormData({...formData, alergias: e.target.value})}
-              className="rounded-xl"
-              placeholder="Alergias..."
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl">
-                <Checkbox checked={formData.cirurgiaRecente} onCheckedChange={(c) => setFormData({...formData, cirurgiaRecente: !!c})} />
-                <Label className="text-xs">Cirurgia ocular?</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+              {[
+                { label: 'Proc. Olhos Recente', field: 'procedimentoRecenteOlhos' },
+                { label: 'Alergia Cosméticos', field: 'alergiaCosmeticos' },
+                { label: 'Prob. Tireóide', field: 'problemaTireoide' },
+                { label: 'Prob. Oculares', field: 'problemaOcular' },
+                { label: 'Trat. Oncológico', field: 'tratamentoOncologico' },
+                { label: 'Gestante/Lactante', field: 'gestanteLactante' }
+              ].map((item) => (
+                <div key={item.field} className="flex items-center justify-between p-2 rounded-lg bg-muted/20">
+                  <span className="text-[11px] font-medium">{item.label}</span>
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <Checkbox 
+                        checked={!!(formData as any)[item.field]} 
+                        onCheckedChange={() => setFormData({...formData, [item.field]: true})} 
+                        className="h-4 w-4 rounded-full"
+                      />
+                      <span className="text-[10px] text-primary">Sim</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Checkbox 
+                        checked={!(formData as any)[item.field]} 
+                        onCheckedChange={() => setFormData({...formData, [item.field]: false})} 
+                        className="h-4 w-4 rounded-full"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Não</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase flex items-center gap-1"><Sparkles size={10}/> Dorme de lado?</Label>
+                <Select value={formData.dormeDeLado || 'Não'} onValueChange={(v: any) => setFormData({...formData, dormeDeLado: v})}>
+                  <SelectTrigger className="h-9 rounded-xl text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="Não">Não</SelectItem>
+                    <SelectItem value="Sim, Lado Direito">Lado Direito</SelectItem>
+                    <SelectItem value="Sim, Lado Esquerdo">Lado Esquerdo</SelectItem>
+                    <SelectItem value="Sim, Ambos os lados">Ambos os lados</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl">
-                <Checkbox checked={formData.gestanteLactante} onCheckedChange={(c) => setFormData({...formData, gestanteLactante: !!c})} />
-                <Label className="text-xs">Gestante/Lactante?</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase">Observações Adicionais</Label>
+                <Textarea 
+                  value={formData.observacoesGerais || ""} 
+                  onChange={(e) => setFormData({...formData, observacoesGerais: e.target.value})}
+                  className="rounded-xl h-20 text-xs"
+                />
               </div>
             </div>
           </div>
@@ -149,7 +192,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
             
             <div className="space-y-4">
               <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
-                <PenLine size={18} /> Assinatura
+                <PenLine size={18} /> Assinatura Digital
               </h3>
               {formData.assinatura ? (
                 <div className="border rounded-xl bg-white p-2">
