@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Client } from "@/lib/api"
@@ -61,10 +60,10 @@ Agradeço pela confiança 💕`;
   }
 
   return (
-    <Card className="rounded-[2.5rem] border-white/10 shadow-2xl bg-white/5 backdrop-blur-md overflow-hidden animate-in slide-in-from-right duration-700">
+    <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card backdrop-blur-md overflow-hidden animate-in slide-in-from-right duration-700">
       <CardHeader className="bg-gold-gradient py-8">
-        <CardTitle className="flex items-center gap-3 font-headline text-4xl text-black">
-          <Star className="fill-black" size={24} />
+        <CardTitle className="flex items-center gap-3 font-headline text-4xl text-primary-foreground">
+          <Star className="fill-primary-foreground" size={24} />
           Agenda Vip
         </CardTitle>
       </CardHeader>
@@ -80,14 +79,14 @@ Agradeço pela confiança 💕`;
                 <div 
                   key={app.id} 
                   className={cn(
-                    "group relative flex items-center gap-4 p-4 rounded-3xl transition-all duration-500 border border-white/5",
-                    isFirst ? "bg-primary/10 border-primary/30 shadow-[0_0_15px_rgba(179,135,40,0.1)]" : "hover:bg-white/5"
+                    "group relative flex items-center gap-4 p-4 rounded-3xl transition-all duration-500 border border-border/50",
+                    isFirst ? "bg-primary/10 border-primary/30 shadow-[0_0_15px_rgba(var(--primary),0.1)]" : "hover:bg-foreground/5"
                   )}
                 >
                   {/* Bloco de Data */}
                   <div className={cn(
                     "flex flex-col items-center justify-center min-w-[56px] h-[56px] rounded-2xl font-bold transition-transform group-hover:scale-105",
-                    isFirst ? "bg-gold-gradient text-black" : "bg-zinc-900 text-primary border border-primary/20"
+                    isFirst ? "bg-gold-gradient text-primary-foreground" : "bg-muted text-primary border border-primary/20"
                   )}>
                     <span className="text-[10px] uppercase font-black leading-none">{format(date, 'MMM', { locale: ptBR })}</span>
                     <span className="text-xl leading-none">{format(date, 'dd')}</span>
@@ -96,7 +95,7 @@ Agradeço pela confiança 💕`;
                   {/* Informações Centrais */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                      <h4 className="font-bold text-base md:text-lg text-white/90 truncate group-hover:text-primary transition-colors">
+                      <h4 className="font-bold text-base md:text-lg text-foreground truncate group-hover:text-primary transition-colors">
                         {app.nome}
                       </h4>
                       {isBday && (
@@ -104,13 +103,13 @@ Agradeço pela confiança 💕`;
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span className="text-[10px] md:text-xs text-primary/60 flex items-center gap-1">
+                      <span className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1">
                         <Clock size={12} className="shrink-0" />
                         {app.servico}
                       </span>
                       <span className={cn(
                         "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border",
-                        app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : "bg-white/5 border-white/10 text-white/40"
+                        app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : "bg-muted border-border text-muted-foreground"
                       )}>
                         {app.tipo}
                       </span>

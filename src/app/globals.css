@@ -112,7 +112,7 @@
   }
 
   .calendar-day {
-    @apply relative flex flex-col items-center justify-center p-2 rounded-2xl border border-border/50 transition-all duration-300 min-h-[90px] cursor-pointer hover:bg-white/5 active:scale-95;
+    @apply relative flex flex-col items-center justify-center p-2 rounded-2xl border border-border/50 transition-all duration-300 min-h-[90px] cursor-pointer hover:bg-foreground/5 active:scale-95;
   }
 
   .calendar-day.today {

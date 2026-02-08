@@ -104,7 +104,7 @@ export default function AgendaPage() {
       
       <Button
         onClick={() => handleOpenAddModal()}
-        className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(var(--primary),0.5)] bg-gold-gradient text-black hover:scale-110 transition-transform duration-300"
+        className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(var(--primary),0.5)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300"
       >
         <Plus size={32} />
       </Button>
@@ -133,11 +133,11 @@ export default function AgendaPage() {
         ) : (
           <Tabs defaultValue="agenda" className="w-full space-y-8">
             <div className="flex justify-center">
-              <TabsList className="bg-white/5 border border-white/10 p-1.5 rounded-[2rem] h-16 w-full max-w-md shadow-2xl">
-                <TabsTrigger value="agenda" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-black h-full transition-all text-base font-semibold">
+              <TabsList className="bg-muted border border-border p-1.5 rounded-[2rem] h-16 w-full max-w-md shadow-2xl">
+                <TabsTrigger value="agenda" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-primary-foreground h-full transition-all text-base font-semibold">
                   <CalendarIcon size={20} /> Agenda
                 </TabsTrigger>
-                <TabsTrigger value="clientes" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-black h-full transition-all text-base font-semibold">
+                <TabsTrigger value="clientes" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-primary-foreground h-full transition-all text-base font-semibold">
                   <Users size={20} /> Clientes
                 </TabsTrigger>
               </TabsList>
@@ -146,7 +146,7 @@ export default function AgendaPage() {
             <TabsContent value="agenda" className="animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <Card className="rounded-[2.5rem] border-white/10 shadow-2xl bg-card backdrop-blur-2xl">
+                  <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card backdrop-blur-2xl">
                     <CardHeader className="flex flex-row items-center justify-between px-8 py-10">
                       <Button variant="ghost" size="icon" onClick={prevMonth} className="hover:bg-primary/10 text-primary">
                         <ChevronLeft size={36} />
@@ -223,10 +223,10 @@ export default function AgendaPage() {
       />
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-background border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
+        <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-background border-border p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
-            <DialogDescription className="text-primary/50 text-sm md:text-base">
+            <DialogDescription className="text-muted-foreground text-sm md:text-base">
               Personalize a experiência para sua cliente.
             </DialogDescription>
           </DialogHeader>

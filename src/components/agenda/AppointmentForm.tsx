@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from "react"
@@ -14,10 +13,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -103,7 +100,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                   <Input 
                     placeholder="Ex: Maria Oliveira" 
                     {...field} 
-                    className="rounded-2xl h-14 bg-white/5 border-white/10 text-white focus:border-primary text-lg" 
+                    className="rounded-2xl h-14 bg-muted/50 border-border text-foreground focus:border-primary text-lg" 
                     autoComplete="off"
                     onChange={(e) => {
                       field.onChange(e)
@@ -114,15 +111,15 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 </div>
               </FormControl>
               {suggestions.length > 0 && (
-                <div className="absolute z-50 w-full bg-zinc-900 border border-primary/20 rounded-2xl mt-2 shadow-2xl overflow-hidden backdrop-blur-3xl">
+                <div className="absolute z-50 w-full bg-card border border-primary/20 rounded-2xl mt-2 shadow-2xl overflow-hidden backdrop-blur-3xl">
                   {suggestions.map((s) => (
                     <button
                       key={s.id}
                       type="button"
-                      className="w-full text-left px-6 py-4 hover:bg-primary/10 transition-colors flex flex-col gap-1 border-b border-white/5 last:border-none"
+                      className="w-full text-left px-6 py-4 hover:bg-primary/10 transition-colors flex flex-col gap-1 border-b border-border last:border-none"
                       onClick={() => handleSelectClient(s)}
                     >
-                      <span className="font-bold text-white text-lg">{s.nome}</span>
+                      <span className="font-bold text-foreground text-lg">{s.nome}</span>
                       {s.whatsapp && <span className="text-xs text-primary/60">{s.whatsapp}</span>}
                     </button>
                   ))}
@@ -141,7 +138,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><CalendarIcon size={18} /> Data e Hora</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
+                  <Input type="datetime-local" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -155,7 +152,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Nascimento</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
+                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -172,11 +169,11 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-2xl h-12 bg-white/5 border-white/10 text-white">
+                    <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="rounded-2xl bg-zinc-900 border-white/10 text-white">
+                  <SelectContent className="rounded-2xl bg-card border-border text-foreground">
                     <SelectItem value="Aplicação">Aplicação</SelectItem>
                     <SelectItem value="Manutenção">Manutenção</SelectItem>
                     <SelectItem value="Remoção">Remoção</SelectItem>
@@ -195,11 +192,11 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Técnica</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-2xl h-12 bg-white/5 border-white/10 text-white">
+                    <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Escolha a técnica" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="rounded-2xl bg-zinc-900 border-white/10 text-white">
+                  <SelectContent className="rounded-2xl bg-card border-border text-foreground">
                     {TECHNIQUES.map((tech) => (
                       <SelectItem key={tech} value={tech}>
                         {tech}
@@ -221,7 +218,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Phone size={18} /> WhatsApp</FormLabel>
                 <FormControl>
-                  <Input placeholder="5511999999999" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
+                  <Input placeholder="5511999999999" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -235,7 +232,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor (R$)</FormLabel>
                 <FormControl>
-                  <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-white/5 border-white/10 text-white" />
+                  <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -244,10 +241,10 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         </div>
 
         <div className="flex gap-4 pt-6 pb-2">
-          <Button type="button" variant="ghost" onClick={onCancel} className="flex-1 rounded-2xl h-14 text-white/50 hover:text-white hover:bg-white/5">
+          <Button type="button" variant="ghost" onClick={onCancel} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
             Cancelar
           </Button>
-          <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-black font-bold text-lg hover:scale-[1.02] transition-transform">
+          <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform">
             {initialData ? "Salvar" : "Confirmar"}
           </Button>
         </div>

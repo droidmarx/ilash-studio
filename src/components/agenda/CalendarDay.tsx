@@ -1,4 +1,3 @@
-
 "use client"
 
 import { format, isToday } from "date-fns"
@@ -33,14 +32,14 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
       <div className="flex flex-col items-center justify-start w-full">
         <span className={cn(
           "text-lg font-bold transition-colors leading-none mb-1",
-          isTodayDate ? "text-primary" : "text-white/80 group-hover:text-primary"
+          isTodayDate ? "text-primary" : "text-foreground group-hover:text-primary"
         )}>
           {format(day, 'd')}
         </span>
         {hasBirthdays && isCurrentMonth && (
           <div className="relative mt-0.5">
             <Cake size={18} className="text-primary animate-pulse" />
-            <Sparkles size={12} className="absolute -top-1 -right-1 text-white animate-bounce" />
+            <Sparkles size={12} className="absolute -top-1 -right-1 text-foreground animate-bounce" />
           </div>
         )}
       </div>
@@ -52,8 +51,8 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
               <div 
                 key={idx}
                 className={cn(
-                  "w-2.5 h-2.5 rounded-full border border-black shadow-lg",
-                  e.tipo === 'Aplicação' ? "bg-primary" : "bg-white/40"
+                  "w-2.5 h-2.5 rounded-full border border-background shadow-lg",
+                  e.tipo === 'Aplicação' ? "bg-primary" : "bg-primary/40"
                 )}
               />
             ))}
