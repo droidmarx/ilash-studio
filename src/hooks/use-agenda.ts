@@ -3,7 +3,7 @@ import { getClients, createClient, updateClient, deleteClient, Client } from '@/
 import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-export type AgendaTheme = 'black' | 'white';
+export type AgendaTheme = 'black' | 'white' | 'rose' | 'emerald' | 'blue';
 export type VibrationIntensity = 'none' | 'weak' | 'medium' | 'strong';
 
 export function useAgenda() {
@@ -32,10 +32,10 @@ export function useAgenda() {
 
   const applyTheme = useCallback((theme: AgendaTheme, persist: boolean = false) => {
     const root = document.documentElement;
-    root.classList.remove('theme-white');
+    root.classList.remove('theme-white', 'theme-rose', 'theme-emerald', 'theme-blue');
     
-    if (theme === 'white') {
-      root.classList.add('theme-white');
+    if (theme !== 'black') {
+      root.classList.add(`theme-${theme}`);
     }
     
     setActiveTheme(theme);

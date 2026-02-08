@@ -30,6 +30,9 @@ interface SettingsModalProps {
 const THEMES: { id: AgendaTheme; name: string; class: string }[] = [
   { id: 'black', name: 'Black Luxury', class: 'bg-black border-primary' },
   { id: 'white', name: 'Pure White', class: 'bg-white border-zinc-200' },
+  { id: 'rose', name: 'Rose Luxury', class: 'bg-[#1a0a10] border-[#f472b6]' },
+  { id: 'emerald', name: 'Emerald Luxe', class: 'bg-[#0a1a14] border-[#34d399]' },
+  { id: 'blue', name: 'Midnight Blue', class: 'bg-[#0a0f1a] border-[#60a5fa]' },
 ]
 
 const VIBRATIONS: { id: VibrationIntensity; name: string }[] = [
@@ -72,14 +75,12 @@ export function SettingsModal({
 
   const handleVibrationPreview = (intensity: VibrationIntensity) => {
     setSelectedVibration(intensity)
-    // Temporariamente salva no localStorage para que o hapticFeedback use a nova intensidade no clique de teste
     localStorage.setItem('vibration-intensity', intensity)
     hapticFeedback(intensity === 'strong' ? 40 : intensity === 'medium' ? 20 : 10)
   }
 
   const handleCancel = () => {
     onThemeChange(initialTheme, false)
-    // Restaura a vibração original se cancelado
     localStorage.setItem('vibration-intensity', vibrationIntensity)
     onClose()
   }
@@ -99,7 +100,7 @@ export function SettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
-      <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
             <Settings className="text-primary" size={28} />
@@ -116,7 +117,7 @@ export function SettingsModal({
               <Palette size={20} className="text-primary" />
               Estilo da Agenda
             </Label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {THEMES.map((theme) => (
                 <button
                   key={theme.id}
@@ -128,16 +129,16 @@ export function SettingsModal({
                       : "border-border bg-card/50 hover:border-primary/50"
                   )}
                 >
-                  <div className={cn("w-full h-12 rounded-xl shadow-md border", theme.class)} />
+                  <div className={cn("w-full h-10 rounded-xl shadow-md border", theme.class)} />
                   <span className={cn(
-                    "text-xs font-bold",
+                    "text-[10px] font-bold",
                     selectedTheme === theme.id ? "text-primary" : "text-muted-foreground"
                   )}>
                     {theme.name}
                   </span>
                   {selectedTheme === theme.id && (
                     <div className="absolute top-2 right-2 bg-primary rounded-full p-0.5">
-                      <Check size={12} className="text-primary-foreground" />
+                      <Check size={10} className="text-primary-foreground" />
                     </div>
                   )}
                 </button>

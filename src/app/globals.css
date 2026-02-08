@@ -49,6 +49,48 @@
     --ring: 45 100% 40%;
     --gold-grad: linear-gradient(to right, #AA771C, #B38728, #BF953F);
   }
+
+  .theme-rose {
+    --background: 340 30% 4%;
+    --foreground: 0 0% 98%;
+    --card: 340 30% 8%;
+    --card-foreground: 0 0% 98%;
+    --primary: 330 70% 65%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 340 30% 12%;
+    --accent: 330 70% 75%;
+    --border: 340 30% 15%;
+    --input: 340 30% 15%;
+    --gold-grad: linear-gradient(to right, #9d174d, #f472b6, #db2777, #f472b6, #9d174d);
+  }
+
+  .theme-emerald {
+    --background: 160 40% 4%;
+    --foreground: 0 0% 98%;
+    --card: 160 40% 8%;
+    --card-foreground: 0 0% 98%;
+    --primary: 150 70% 50%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 160 40% 12%;
+    --accent: 150 70% 60%;
+    --border: 160 40% 15%;
+    --input: 160 40% 15%;
+    --gold-grad: linear-gradient(to right, #065f46, #34d399, #10b981, #34d399, #065f46);
+  }
+
+  .theme-blue {
+    --background: 220 40% 5%;
+    --foreground: 0 0% 98%;
+    --card: 220 40% 10%;
+    --card-foreground: 0 0% 98%;
+    --primary: 210 80% 60%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 40% 15%;
+    --accent: 210 80% 70%;
+    --border: 220 40% 20%;
+    --input: 220 40% 20%;
+    --gold-grad: linear-gradient(to right, #1e3a8a, #60a5fa, #3b82f6, #60a5fa, #1e3a8a);
+  }
 }
 
 @layer components {
