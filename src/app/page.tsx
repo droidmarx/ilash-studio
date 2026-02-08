@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -67,7 +66,7 @@ export default function AgendaPage() {
 
     const timer = setTimeout(() => {
       setShowSplash(false)
-    }, 3500)
+    }, 4000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -117,25 +116,32 @@ export default function AgendaPage() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="relative flex flex-col items-center gap-12 animate-luxury-zoom">
-          <div className="relative group">
-            <div className="animate-blink">
-              <svg 
-                width="200" 
-                height="100" 
-                viewBox="0 0 100 40" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-primary drop-shadow-[0_0_30px_rgba(var(--primary),0.8)]"
-              >
-                <path d="M20 25C40 5 60 5 80 25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M25 18L20 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                <path d="M35 12L32 2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                <path d="M50 10V0" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                <path d="M65 12L68 2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                <path d="M75 18L80 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-              </svg>
-            </div>
-            <div className="absolute inset-0 bg-primary/10 blur-[60px] rounded-full scale-150 -z-10 animate-pulse" />
+          <div className="relative group animate-float-luxury">
+            <svg 
+              width="240" 
+              height="120" 
+              viewBox="0 0 100 40" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)]"
+            >
+              {/* Luxury Eyelash Path - Sophisticated Curves */}
+              <path 
+                d="M10 30C25 15 75 15 90 30" 
+                stroke="currentColor" 
+                strokeWidth="0.8" 
+                strokeLinecap="round" 
+                className="opacity-40"
+              />
+              <path d="M15 22L12 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <path d="M25 18L22 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <path d="M35 15L34 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <path d="M50 14V0" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <path d="M65 15L66 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <path d="M75 18L78 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <path d="M85 22L88 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+            </svg>
+            <div className="absolute inset-0 bg-primary/10 blur-[70px] rounded-full scale-150 -z-10 animate-pulse" />
           </div>
 
           <div className="flex flex-col items-center gap-3">

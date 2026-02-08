@@ -153,24 +153,24 @@
   }
 
   /* Animações de Entrada (Splash) */
-  @keyframes eye-blink {
-    0%, 80%, 100% { transform: scaleY(1); }
-    85%, 95% { transform: scaleY(0.1); }
-  }
-
   @keyframes luxury-zoom {
     0% { transform: scale(0.6); opacity: 0; filter: blur(8px); }
     40% { transform: scale(1.15); opacity: 1; filter: blur(0); }
     100% { transform: scale(1); opacity: 1; }
   }
 
-  .animate-blink {
-    animation: eye-blink 4s infinite ease-in-out;
-    transform-origin: center;
+  @keyframes float-luxury {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
   }
 
   .animate-luxury-zoom {
     animation: luxury-zoom 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-float-luxury {
+    animation: float-luxury 3.5s ease-in-out infinite;
   }
 }
 
