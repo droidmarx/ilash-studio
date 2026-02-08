@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -62,6 +63,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     if (deleteConfirmId) {
       await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
+      window.location.reload();
     }
   }
 

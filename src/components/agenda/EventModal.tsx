@@ -96,6 +96,7 @@ Aproveite muito seu dia! 💕`;
     if (deleteConfirmId) {
       await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
+      window.location.reload();
     }
   }
 
