@@ -29,37 +29,47 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
         isCurrentMonth && "group"
       )}
     >
-      <div className="flex flex-col items-center justify-start w-full">
-        <span className={cn(
-          "text-lg font-bold transition-colors leading-none mb-1",
-          isTodayDate ? "text-primary" : "text-foreground group-hover:text-primary"
-        )}>
-          {format(day, 'd')}
-        </span>
+      {/* Área Superior: Aniversariantes */}
+      <div className="h-6 flex items-center justify-center w-full">
         {hasBirthdays && isCurrentMonth && (
-          <div className="relative mt-0.5">
-            <Cake size={18} className="text-primary animate-pulse" />
-            <Sparkles size={12} className="absolute -top-1 -right-1 text-foreground animate-bounce" />
+          <div className="relative animate-in fade-in zoom-in duration-500">
+            <Cake size={16} className="text-primary animate-pulse" />
+            <Sparkles size={10} className="absolute -top-1 -right-1 text-foreground animate-bounce" />
           </div>
         )}
       </div>
       
-      {hasEvents && isCurrentMonth && (
-        <div className="flex flex-col items-center gap-2 mt-auto pb-1 w-full">
-          <div className="flex -space-x-1.5 justify-center">
-            {events.slice(0, 4).map((e, idx) => (
+      {/* Área Central: Número do Dia */}
+      <div className="flex-1 flex items-center justify-center w-full">
+        <span className={cn(
+          "text-xl font-bold transition-all duration-300 leading-none",
+          isTodayDate ? "text-primary scale-110" : "text-foreground group-hover:text-primary group-hover:scale-110"
+        )}>
+          {format(day, 'd')}
+        </span>
+      </div>
+      
+      {/* Área Inferior: Indicadores de Eventos */}
+      <div className="h-6 flex items-center justify-center w-full">
+        {hasEvents && isCurrentMonth && (
+          <div className="flex -space-x-1 justify-center items-center">
+            {events.slice(0, 3).map((e, idx) => (
               <div 
                 key={idx}
                 className={cn(
-                  "w-2.5 h-2.5 rounded-full border border-background shadow-lg",
+                  "w-2 h-2 rounded-full border border-background shadow-sm transition-transform group-hover:scale-110",
                   e.tipo === 'Aplicação' ? "bg-primary" : "bg-primary/40"
                 )}
               />
             ))}
+            {events.length > 3 && (
+              <span className="text-[8px] font-black text-primary ml-1 leading-none">
+                +{events.length - 3}
+              </span>
+            )}
           </div>
-          {/* O texto indicando a quantidade de 'Jobs' foi removido para um visual mais limpo */}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
