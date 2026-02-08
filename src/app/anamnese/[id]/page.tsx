@@ -241,7 +241,7 @@ export default function ClientAnamnesePage() {
             <div className="space-y-6">
               {[
                 { id: 'procedimento', label: 'Fez algum procedimento recentemente nos olhos?', field: 'procedimentoRecenteOlhos' },
-                { id: 'alergiaCosm', label: 'Possui alergia à esmaltes/cosméticos/cianoacrilato?', field: 'alergiaCosmeticos' },
+                { id: 'alergiaCosm', label: 'Possui alergia à esmaltes/cianoacrilato?', field: 'alergiaCosmeticos' },
                 { id: 'tireoide', label: 'Possui problemas de tireóide?', field: 'problemaTireoide' },
                 { id: 'ocular', label: 'Possui glaucoma/blefarite/algum problema ocular?', field: 'problemaOcular' },
                 { id: 'onco', label: 'Está em tratamento oncológico?', field: 'tratamentoOncologico' },

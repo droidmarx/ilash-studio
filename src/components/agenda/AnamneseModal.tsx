@@ -122,7 +122,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
               {[
                 { label: 'Proc. Olhos Recente', field: 'procedimentoRecenteOlhos' },
-                { label: 'Alergia Cosméticos', field: 'alergiaCosmeticos' },
+                { label: 'Alergia Esmaltes/Ciano.', field: 'alergiaCosmeticos' },
                 { label: 'Prob. Tireóide', field: 'problemaTireoide' },
                 { label: 'Prob. Oculares', field: 'problemaOcular' },
                 { label: 'Trat. Oncológico', field: 'tratamentoOncologico' },
