@@ -57,9 +57,7 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
               />
             ))}
           </div>
-          <span className="text-[9px] font-black uppercase tracking-tighter text-primary/60">
-            {events.length} {events.length === 1 ? 'Job' : 'Jobs'}
-          </span>
+          {/* O texto indicando a quantidade de 'Jobs' foi removido para um visual mais limpo */}
         </div>
       )}
     </div>
