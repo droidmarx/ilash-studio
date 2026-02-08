@@ -53,19 +53,18 @@ export default function ClientBookingPage() {
     try {
       const dateTime = `${formData.data}T${formData.hora}`
       
-      // 1. Salva no banco de dados
+      // 1. Salva no banco de dados com confirmado: false
       await createClient({
         nome: formData.nome,
         whatsapp: formData.whatsapp,
         servico: formData.servico,
         tipo: formData.tipo,
         data: dateTime,
-        observacoes: "Agendamento realizado via link Instagram"
+        observacoes: "Agendamento realizado via link Instagram",
+        confirmado: false
       })
 
       // 2. Notifica o administrador via Telegram
-      // Como o cliente não tem as credenciais no localStorage, usamos o fallback do servidor
-      // Se você estiver testando localmente como admin, as credenciais do localStorage poderiam ser passadas aqui.
       await notifyNewBooking({
         nome: formData.nome,
         whatsapp: formData.whatsapp,
@@ -98,7 +97,7 @@ export default function ClientBookingPage() {
               {format(new Date(formData.data), "dd 'de' MMMM", { locale: ptBR })} às {formData.hora}
             </p>
           </div>
-          <p className="text-[10px] text-muted-foreground">Em breve entraremos em contato via WhatsApp.</p>
+          <p className="text-[10px] text-muted-foreground">Em breve entraremos em contato via WhatsApp para confirmar.</p>
           <div className="pt-4">
             <Crown className="text-primary mx-auto opacity-40" size={32} />
           </div>

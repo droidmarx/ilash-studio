@@ -1,3 +1,4 @@
+
 "use client"
 
 import { format, isToday } from "date-fns"
@@ -18,9 +19,14 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
   const hasEvents = events.length > 0
   const hasBirthdays = birthdays.length > 0
   
-  // Verifica se há algum agendamento feito via Instagram no dia
-  const hasInstagramBooking = events.some(e => 
-    e.observacoes?.toLowerCase().includes("instagram")
+  // Agendamentos Instagram pendentes (não confirmados)
+  const pendingInstagramEvents = events.filter(e => 
+    e.confirmado === false && e.observacoes?.toLowerCase().includes("instagram")
+  )
+
+  // Agendamentos confirmados ou manuais
+  const confirmedEvents = events.filter(e => 
+    e.confirmado !== false
   )
 
   return (
@@ -59,13 +65,16 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
       <div className="h-6 flex items-center justify-center w-full">
         {hasEvents && isCurrentMonth && (
           <div className="flex -space-x-1 justify-center items-center">
-            {hasInstagramBooking && (
+            {/* Somente a bolinha pulsante se houver agendamento Instagram pendente */}
+            {pendingInstagramEvents.length > 0 && (
               <div 
                 className="w-2.5 h-2.5 rounded-full border border-background shadow-lg animate-instagram-pulse z-10 mr-1.5" 
-                title="Novo Agendamento Instagram"
+                title="Novo Agendamento Instagram Pendente"
               />
             )}
-            {events.slice(0, 3).map((e, idx) => (
+            
+            {/* Pontos normais apenas para agendamentos confirmados */}
+            {confirmedEvents.slice(0, 3).map((e, idx) => (
               <div 
                 key={idx}
                 className={cn(
@@ -74,9 +83,10 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
                 )}
               />
             ))}
-            {events.length > 3 && (
+            
+            {(confirmedEvents.length > 3) && (
               <span className="text-[8px] font-black text-primary ml-1 leading-none">
-                +{events.length - 3}
+                +{confirmedEvents.length - 3}
               </span>
             )}
           </div>

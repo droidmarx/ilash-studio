@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -22,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
@@ -53,6 +54,10 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
       await onEdit(editingEvent.id, data)
       setEditingEvent(null)
     }
+  }
+
+  const handleConfirmBooking = async (event: Client) => {
+    await onEdit(event.id, { confirmado: true });
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
@@ -179,13 +184,15 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                     events.map((event) => {
                       const bdayMonth = isBirthdayMonth(event);
                       const isAnamneseFilled = !!event.anamnese?.assinatura;
+                      const isPending = event.confirmado === false;
                       
                       return (
                         <div 
                           key={event.id} 
                           className={cn(
                             "group p-4 rounded-2xl border bg-card/40 backdrop-blur-md hover:bg-foreground/5 transition-all shadow-sm relative",
-                            bdayMonth && "border-primary/40 bg-primary/5"
+                            bdayMonth && "border-primary/40 bg-primary/5",
+                            isPending && "border-primary border-dashed animate-pulse-subtle bg-primary/5"
                           )}
                         >
                           <div className="flex justify-between items-start mb-2">
@@ -194,7 +201,12 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 <User size={16} className="text-primary/60" />
                                 {event.nome}
                               </h4>
-                              {bdayMonth && (
+                              {isPending && (
+                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase animate-instagram-pulse px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 w-fit">
+                                  <Sparkles size={10} /> Novo (Link Instagram)
+                                </div>
+                              )}
+                              {bdayMonth && !isPending && (
                                 <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase">
                                   <Cake size={12} /> Mês de Aniversário! ✨
                                 </div>
@@ -245,15 +257,27 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                           )}
 
                           <div className="mt-4 border-t border-border pt-4 space-y-4">
-                            <div className="flex flex-col gap-2">
-                              <span className="text-[10px] font-bold text-primary/40 uppercase flex items-center gap-1">
-                                <RotateCw size={12} /> Remarcar para:
-                              </span>
-                              <div className="flex flex-wrap gap-2">
-                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-col gap-2">
+                                <span className="text-[10px] font-bold text-primary/40 uppercase flex items-center gap-1">
+                                  <RotateCw size={12} /> Remarcar para:
+                                </span>
+                                <div className="flex flex-wrap gap-2">
+                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
+                                </div>
                               </div>
+                              
+                              {isPending && (
+                                <Button 
+                                  size="sm" 
+                                  className="rounded-full bg-gold-gradient text-primary-foreground font-bold gap-2 px-4 shadow-lg animate-bounce-subtle"
+                                  onClick={() => handleConfirmBooking(event)}
+                                >
+                                  <CheckCircle size={14} /> Confirmar
+                                </Button>
+                              )}
                             </div>
 
                             <div className="flex justify-end gap-2">

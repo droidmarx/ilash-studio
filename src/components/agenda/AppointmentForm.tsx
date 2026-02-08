@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2 } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2, CheckCircle } from "lucide-react"
 import { format, parseISO, isValid } from "date-fns"
 
 const formSchema = z.object({
@@ -43,6 +43,7 @@ const formSchema = z.object({
   observacoes: z.string().optional(),
   isUnifiedValue: z.boolean().default(false),
   unifiedValue: z.string().optional(),
+  confirmado: z.boolean().default(true),
   servicosAdicionais: z.array(z.object({
     nome: z.string(),
     valor: z.string(),
@@ -104,6 +105,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       observacoes: initialData?.observacoes || "",
       isUnifiedValue: initialData?.isUnifiedValue || false,
       unifiedValue: initialData?.unifiedValue || "",
+      confirmado: initialData?.confirmado ?? true,
       servicosAdicionais: defaultAdicionais
     },
   })
@@ -194,14 +196,12 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       selectedAdicionais = selectedAdicionais.map(a => ({ nome: a.nome, valor: a.valor }));
     }
 
-    // Prepare update payload with bidirectional sync
     const payload: any = { 
       ...rest, 
       data: `${date}T${time}`,
       servicosAdicionais: selectedAdicionais
     };
 
-    // Sync aniversario with anamnese dataNascimento
     if (initialData?.anamnese) {
       payload.anamnese = {
         ...initialData.anamnese,
@@ -264,6 +264,13 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             </FormItem>
           )}
         />
+
+        {initialData?.confirmado === false && (
+          <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
+             <div className="w-2.5 h-2.5 rounded-full bg-primary animate-instagram-pulse shrink-0" />
+             <p className="text-xs font-bold text-primary uppercase">Agendamento Pendente de Confirmação</p>
+          </div>
+        )}
 
         <div className="space-y-4 p-4 rounded-2xl border border-primary/10 bg-primary/5">
           <FormLabel className="text-primary font-bold flex items-center gap-2 mb-2">

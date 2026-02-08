@@ -54,6 +54,7 @@ export interface Client {
   anamnese?: Anamnese;
   isUnifiedValue?: boolean;
   unifiedValue?: string;
+  confirmado?: boolean;
 }
 
 function getApiUrl(): string {
