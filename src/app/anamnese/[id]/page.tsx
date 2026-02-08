@@ -5,11 +5,8 @@ import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
 import { getClient, updateClient, Client, Anamnese } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Loader2, Crown, CheckCircle2, User, Camera, Eraser, PenLine } from "lucide-react"
 
 export default function ClientAnamnesePage() {
@@ -39,12 +36,51 @@ export default function ClientAnamnesePage() {
     loadClient()
   }, [id])
 
+  // Ajusta a resolução interna do canvas para bater com o tamanho exibido na tela
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = rect.width
+      canvas.height = rect.height
+    }
+  }, [loading])
+
+  const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current
+    if (!canvas) return { x: 0, y: 0 }
+    
+    const rect = canvas.getBoundingClientRect()
+    let clientX, clientY
+
+    if ('touches' in e) {
+      clientX = e.touches[0].clientX
+      clientY = e.touches[0].clientY
+    } else {
+      clientX = (e as React.MouseEvent).clientX
+      clientY = (e as React.MouseEvent).clientY
+    }
+
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    }
+  }
+
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current
+    const ctx = canvas?.getContext('2d')
+    if (!ctx) return
+
+    const { x, y } = getCoordinates(e)
+    
+    ctx.beginPath()
+    ctx.moveTo(x, y)
     setIsDrawing(true)
-    draw(e)
   }
 
   const stopDrawing = () => {
+    if (!isDrawing) return
     setIsDrawing(false)
     const canvas = canvasRef.current
     if (canvas) {
@@ -54,32 +90,38 @@ export default function ClientAnamnesePage() {
 
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing || !canvasRef.current) return
+    
+    // Evita scroll enquanto desenha no mobile
+    if ('touches' in e) {
+      e.preventDefault()
+    }
+
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const rect = canvas.getBoundingClientRect()
-    const x = ('touches' in e) ? e.touches[0].clientX - rect.left : (e as React.MouseEvent).clientX - rect.left
-    const y = ('touches' in e) ? e.touches[0].clientY - rect.top : (e as React.MouseEvent).clientY - rect.top
+    const { x, y } = getCoordinates(e)
 
     ctx.lineWidth = 2
     ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
     ctx.strokeStyle = '#b76e79'
 
-    if (!isDrawing) {
-      ctx.beginPath()
-      ctx.moveTo(x, y)
-    } else {
-      ctx.lineTo(x, y)
-      ctx.stroke()
-    }
+    ctx.lineTo(x, y)
+    ctx.stroke()
   }
 
-  const clearSignature = () => {
+  const clearSignature = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
     const canvas = canvasRef.current
     if (canvas) {
       const ctx = canvas.getContext('2d')
-      ctx?.clearRect(0, 0, canvas.width, canvas.height)
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.beginPath() // Reseta o path
+      }
       setFormData(prev => ({ ...prev, assinatura: undefined }))
     }
   }
@@ -88,7 +130,6 @@ export default function ClientAnamnesePage() {
     if (!client || typeof id !== 'string') return
     setSaving(true)
     try {
-      // Sync dataNascimento with aniversario field
       await updateClient(id, { 
         anamnese: formData,
         aniversario: formData.dataNascimento 
@@ -261,10 +302,9 @@ export default function ClientAnamnesePage() {
               <div className="relative border-2 border-dashed border-primary/30 rounded-3xl bg-white overflow-hidden">
                 <canvas 
                   ref={canvasRef}
-                  width={600}
-                  height={200}
                   onMouseDown={startDrawing}
                   onMouseUp={stopDrawing}
+                  onMouseOut={stopDrawing}
                   onMouseMove={draw}
                   onTouchStart={startDrawing}
                   onTouchEnd={stopDrawing}
@@ -275,7 +315,7 @@ export default function ClientAnamnesePage() {
                   variant="ghost" 
                   size="icon" 
                   onClick={clearSignature}
-                  className="absolute bottom-4 right-4 text-primary hover:bg-primary/10 rounded-full"
+                  className="absolute bottom-4 right-4 text-primary hover:bg-primary/10 rounded-full h-10 w-10"
                 >
                   <Eraser size={20} />
                 </Button>
