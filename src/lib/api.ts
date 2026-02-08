@@ -1,4 +1,4 @@
-export const DEFAULT_API_URL = 'https://683d14e6199a0039e9e427bd.mockapi.io/Dados';
+export const DEFAULT_API_URL = 'https://6987bee8780e8375a686ec39.mockapi.io/Clientes/Clientes';
 
 export interface ServicoAdicional {
   nome: string;
