@@ -75,9 +75,9 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
     const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
     const formattedTime = format(dateObj, "HH:mm");
     
-    const message = `💖 *Lembrete de agendamento*
+    const message = `💖*Lembrete de agendamento*
 
-Olá *${event.nome}*, tudo bem?
+Olá *${event.nome.trim()}*, tudo bem?
 
 ✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
 
@@ -100,7 +100,7 @@ Agradeço pela confiança 💕`;
 
   const handleSendBirthdayGreeting = (client: Client) => {
     if (!client.whatsapp) return;
-    const message = `🎈 *Feliz Aniversário, ${client.nome}!* 🎈
+    const message = `🎈*Feliz Aniversário, ${client.nome.trim()}!* 🎈
 
 ✨ Que seu dia seja tão radiante quanto seu olhar! Desejamos muitas felicidades, saúde e sucesso.
 

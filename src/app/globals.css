@@ -27,7 +27,6 @@
     --radius: 2rem;
     
     --gold-grad: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-    --theme-primary: #B38728;
   }
 
   .theme-white {
@@ -49,7 +48,6 @@
     --input: 0 0% 90%;
     --ring: 45 100% 40%;
     --gold-grad: linear-gradient(to right, #AA771C, #B38728, #BF953F);
-    --theme-primary: #AA771C;
   }
 }
 
@@ -84,8 +82,4 @@
 
 body {
   @apply bg-background text-foreground min-h-screen selection:bg-primary/30 transition-colors duration-700 font-body;
-}
-
-h1 {
-  @apply font-headline;
 }

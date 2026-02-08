@@ -36,9 +36,9 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
     const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
     const formattedTime = format(dateObj, "HH:mm");
     
-    const message = `💖 *Lembrete de agendamento*
+    const message = `💖*Lembrete de agendamento*
 
-Olá *${event.nome}*, tudo bem?
+Olá *${event.nome.trim()}*, tudo bem?
 
 ✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
 
@@ -83,7 +83,6 @@ Agradeço pela confiança 💕`;
                     isFirst ? "bg-primary/10 border-primary/30 shadow-[0_0_15px_rgba(var(--primary),0.1)]" : "hover:bg-foreground/5"
                   )}
                 >
-                  {/* Bloco de Data */}
                   <div className={cn(
                     "flex flex-col items-center justify-center min-w-[56px] h-[56px] rounded-2xl font-bold transition-transform group-hover:scale-105",
                     isFirst ? "bg-gold-gradient text-primary-foreground" : "bg-muted text-primary border border-primary/20"
@@ -92,7 +91,6 @@ Agradeço pela confiança 💕`;
                     <span className="text-xl leading-none">{format(date, 'dd')}</span>
                   </div>
                   
-                  {/* Informações Centrais */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <h4 className="font-bold text-base md:text-lg text-foreground truncate group-hover:text-primary transition-colors">
@@ -116,7 +114,6 @@ Agradeço pela confiança 💕`;
                     </div>
                   </div>
 
-                  {/* Ações Integradas */}
                   <div className="flex items-center shrink-0">
                     {app.whatsapp && (
                       <Button 

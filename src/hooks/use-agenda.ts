@@ -30,11 +30,9 @@ export function useAgenda() {
 
   const applyTheme = useCallback((theme: AgendaTheme, persist: boolean = false) => {
     const root = document.documentElement;
-    root.classList.remove('theme-white', 'dark');
+    root.classList.remove('theme-white');
     
-    if (theme === 'black') {
-      root.classList.add('dark');
-    } else {
+    if (theme === 'white') {
       root.classList.add('theme-white');
     }
     

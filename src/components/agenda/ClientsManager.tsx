@@ -63,9 +63,9 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
     const formattedTime = format(dateObj, "HH:mm");
     
-    const message = `💖 *Lembrete de agendamento*
+    const message = `💖*Lembrete de agendamento*
 
-Olá *${event.nome}*, tudo bem?
+Olá *${event.nome.trim()}*, tudo bem?
 
 ✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
 
