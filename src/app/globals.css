@@ -151,6 +151,18 @@
     background: linear-gradient(to right, transparent, #BF953F);
     box-shadow: 0 0 20px #B38728;
   }
+
+  /* Zoom In Out Splash */
+  @keyframes zoom-in-out {
+    0% { transform: scale(0.6); opacity: 0; }
+    40% { transform: scale(1.1); opacity: 1; }
+    60% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .animate-zoom-in-out {
+    animation: zoom-in-out 2.5s ease-in-out infinite alternate;
+  }
 }
 
 * {

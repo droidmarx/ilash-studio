@@ -53,6 +53,7 @@ export default function AgendaPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined)
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [showSplash, setShowSplash] = useState(true)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark'
@@ -60,9 +61,14 @@ export default function AgendaPage() {
       setTheme(savedTheme)
       document.documentElement.classList.toggle('dark', savedTheme === 'dark')
     } else {
-      // Default to dark as per layout
       document.documentElement.classList.add('dark')
     }
+
+    // Splash timeout
+    const timer = setTimeout(() => {
+      setShowSplash(false)
+    }, 2500)
+    return () => clearTimeout(timer)
   }, [])
 
   const toggleTheme = () => {
@@ -107,8 +113,47 @@ export default function AgendaPage() {
 
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
+  if (showSplash) {
+    return (
+      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background animate-in fade-out duration-1000 fill-mode-forwards delay-2000">
+        <div className="relative flex flex-col items-center gap-8 animate-zoom-in-out">
+          <div className="relative">
+            <svg 
+              width="120" 
+              height="80" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+            >
+              <path d="M3 10C3 10 6 15 12 15C18 15 21 10 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 15V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M7 14L5 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M17 14L19 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10 15L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M14 15L15 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 -z-10" />
+          </div>
+          <h1 className="text-6xl md:text-8xl font-headline text-gold-gradient py-4">
+            I Lash Studio
+          </h1>
+          <div className="flex gap-2">
+            {[...Array(3)].map((_, i) => (
+              <div 
+                key={i} 
+                className="w-2 h-2 rounded-full bg-primary animate-bounce" 
+                style={{ animationDelay: `${i * 0.1}s` }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground">
+    <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <Button
