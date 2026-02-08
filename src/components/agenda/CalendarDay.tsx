@@ -17,6 +17,11 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
   const isTodayDate = isToday(day)
   const hasEvents = events.length > 0
   const hasBirthdays = birthdays.length > 0
+  
+  // Verifica se há algum agendamento feito via Instagram no dia
+  const hasInstagramBooking = events.some(e => 
+    e.observacoes?.toLowerCase().includes("instagram")
+  )
 
   return (
     <div
@@ -54,6 +59,12 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
       <div className="h-6 flex items-center justify-center w-full">
         {hasEvents && isCurrentMonth && (
           <div className="flex -space-x-1 justify-center items-center">
+            {hasInstagramBooking && (
+              <div 
+                className="w-2.5 h-2.5 rounded-full border border-background shadow-lg animate-instagram-pulse z-10 mr-1.5" 
+                title="Novo Agendamento Instagram"
+              />
+            )}
             {events.slice(0, 3).map((e, idx) => (
               <div 
                 key={idx}
