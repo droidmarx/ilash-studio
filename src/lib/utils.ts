@@ -48,7 +48,7 @@ export function generateWhatsAppMessage(event: Client, tipoOverride?: string) {
     valorAdicionais = parseCurrency(event.unifiedValue);
     if (adicionais.length > 0) {
       const nomesUnificados = adicionais.map(a => a.nome).join("+");
-      msgAdicionais = `\n✨ *Adicionais (Valor Único):* ${nomesUnificados}: R$ ${event.unifiedValue}`;
+      msgAdicionais = `\n✨ *Adicionais (Valor Único):* ${nomesUnificados}: R$ ${event.unifiedValue || '0,00'}`;
     }
   } else {
     valorAdicionais = adicionais.reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);

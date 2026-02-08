@@ -26,8 +26,8 @@
     --ring: 12 45% 70%;
     --radius: 2rem;
     
-    --gold-grad: linear-gradient(to right, #b76e79, #f2bdcd, #e29a86); /* Rose Gold Grad */
-    --rose-gold-grad: linear-gradient(to right, #b76e79, #f2bdcd, #e29a86, #f7c5b6);
+    --gold-grad: linear-gradient(to right, #b76e79, #f2bdcd, #e29a86, #f7c5b6); /* Rose Gold Grad */
+    --sparkle-opacity: 0.6;
   }
 
   .dark {
@@ -53,6 +53,7 @@
     --ring: 45 100% 50%;
     
     --gold-grad: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+    --sparkle-opacity: 0.8;
   }
 }
 
@@ -95,16 +96,12 @@
 
   .sparkle {
     position: absolute;
-    background: white;
+    background: var(--gold-grad);
     border-radius: 50%;
     opacity: 0;
     animation: sparkle-float linear infinite;
     filter: blur(0.5px);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-  }
-
-  .dark .sparkle {
-    box-shadow: 0 0 10px rgba(191, 149, 63, 0.6);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
   }
 
   @keyframes sparkle-float {
@@ -113,14 +110,14 @@
       opacity: 0; 
     }
     10% { 
-      opacity: 0.8; 
+      opacity: var(--sparkle-opacity); 
     }
     50% { 
       opacity: 1; 
       transform: translateY(50vh) translateX(30px) scale(1.1); 
     }
     90% { 
-      opacity: 0.8; 
+      opacity: var(--sparkle-opacity); 
     }
     100% { 
       transform: translateY(-20vh) translateX(-30px) scale(0); 
@@ -132,7 +129,7 @@
   @keyframes shooting-star-anim {
     0% { transform: translate(120vw, -20vh) rotate(-45deg); opacity: 0; }
     2% { opacity: 1; }
-    15% { transform: translate(-20vw, 120vh) rotate(-45deg); opacity: 0; }
+    8% { transform: translate(-20vw, 120vh) rotate(-45deg); opacity: 0; }
     100% { transform: translate(-20vw, 120vh) rotate(-45deg); opacity: 0; }
   }
 
@@ -140,19 +137,19 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 180px;
+    width: 250px;
     height: 2px;
     background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9));
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
     z-index: -1;
     pointer-events: none;
     opacity: 0;
-    animation: shooting-star-anim 25s infinite ease-in;
+    animation: shooting-star-anim 20s infinite ease-in;
   }
 
   .dark .shooting-star {
     background: linear-gradient(to right, transparent, #BF953F);
-    box-shadow: 0 0 15px #B38728;
+    box-shadow: 0 0 20px #B38728;
   }
 }
 

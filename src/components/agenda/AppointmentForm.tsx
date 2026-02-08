@@ -40,6 +40,8 @@ const formSchema = z.object({
   whatsapp: z.string().optional(),
   aniversario: z.string().optional(),
   observacoes: z.string().optional(),
+  isUnifiedValue: z.boolean().default(false),
+  unifiedValue: z.string().optional(),
   servicosAdicionais: z.array(z.object({
     nome: z.string(),
     valor: z.string(),
@@ -60,8 +62,6 @@ const OPTIONAL_SERVICES = ["Sobrancelha", "Buço", "Tintura na Sobrancelha"]
 
 export function AppointmentForm({ initialData, clients = [], prefilledDate, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
-  const [isUnifiedValue, setIsUnifiedValue] = useState(initialData?.isUnifiedValue || false)
-  const [unifiedValue, setUnifiedValue] = useState(initialData?.unifiedValue || "")
   
   const getInitialDateTime = () => {
     const source = initialData?.data || prefilledDate || new Date().toISOString();
@@ -101,6 +101,8 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       whatsapp: initialData?.whatsapp || "",
       aniversario: initialData?.aniversario || "",
       observacoes: initialData?.observacoes || "",
+      isUnifiedValue: initialData?.isUnifiedValue || false,
+      unifiedValue: initialData?.unifiedValue || "",
       servicosAdicionais: defaultAdicionais
     },
   })
@@ -113,6 +115,8 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
   const watchedTipo = form.watch("tipo");
   const watchedValores = form.watch(["valorAplicacao", "valorManutencao", "valorRemocao"]);
   const watchedAdicionais = form.watch("servicosAdicionais");
+  const isUnifiedValue = form.watch("isUnifiedValue");
+  const unifiedValue = form.watch("unifiedValue");
 
   const parseCurrency = (val?: string) => {
     if (!val) return 0;
@@ -168,8 +172,8 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     if (client.valorRemocao) form.setValue("valorRemocao", client.valorRemocao)
     
     if (client.isUnifiedValue !== undefined) {
-      setIsUnifiedValue(client.isUnifiedValue)
-      setUnifiedValue(client.unifiedValue || "")
+      form.setValue("isUnifiedValue", client.isUnifiedValue)
+      form.setValue("unifiedValue", client.unifiedValue || "")
     }
     
     setNameSearch("")
@@ -180,10 +184,11 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     
     let selectedAdicionais = (servicosAdicionais || []).filter(a => a.selected);
 
-    if (isUnifiedValue && selectedAdicionais.length > 0) {
+    // Se unificado, o primeiro serviço carrega o valor unificado para o banco, e os outros 0
+    if (values.isUnifiedValue && selectedAdicionais.length > 0) {
       selectedAdicionais = selectedAdicionais.map((a, i) => ({
         nome: a.nome,
-        valor: i === 0 ? unifiedValue : "0,00"
+        valor: i === 0 ? (values.unifiedValue || "0,00") : "0,00"
       }));
     } else {
       selectedAdicionais = selectedAdicionais.map(a => ({ nome: a.nome, valor: a.valor }));
@@ -192,9 +197,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     await onSubmit({ 
       ...rest, 
       data: `${date}T${time}`,
-      servicosAdicionais: selectedAdicionais,
-      isUnifiedValue,
-      unifiedValue: isUnifiedValue ? unifiedValue : ""
+      servicosAdicionais: selectedAdicionais
     });
   }
 
@@ -408,15 +411,21 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             </FormLabel>
             
             {selectedAdicionaisCount > 1 && (
-              <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                <Checkbox 
-                  id="unified" 
-                  checked={isUnifiedValue} 
-                  onCheckedChange={(c) => { setIsUnifiedValue(!!c); }}
-                  className="rounded-sm border-primary"
-                />
-                <label htmlFor="unified" className="text-[10px] font-black uppercase text-primary cursor-pointer">Valor Único</label>
-              </div>
+              <FormField
+                control={form.control}
+                name="isUnifiedValue"
+                render={({ field }) => (
+                  <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <Checkbox 
+                      id="unified" 
+                      checked={field.value} 
+                      onCheckedChange={field.onChange}
+                      className="rounded-sm border-primary"
+                    />
+                    <label htmlFor="unified" className="text-[10px] font-black uppercase text-primary cursor-pointer">Valor Único</label>
+                  </div>
+                )}
+              />
             )}
           </div>
 
@@ -434,15 +443,20 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                     );
                   })}
                 </div>
-                <div className="space-y-2">
-                  <FormLabel className="text-xs text-primary/60 flex items-center gap-1"><DollarSign size={14} /> Valor Total dos Adicionais</FormLabel>
-                  <Input 
-                    placeholder="Ex: 50,00" 
-                    value={unifiedValue} 
-                    onChange={(e) => setUnifiedValue(e.target.value)}
-                    className="h-12 rounded-xl bg-background border-primary/40 text-lg font-bold"
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="unifiedValue"
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <FormLabel className="text-xs text-primary/60 flex items-center gap-1"><DollarSign size={14} /> Valor Total dos Adicionais</FormLabel>
+                      <Input 
+                        placeholder="Ex: 50,00" 
+                        {...field}
+                        className="h-12 rounded-xl bg-background border-primary/40 text-lg font-bold"
+                      />
+                    </div>
+                  )}
+                />
               </div>
             ) : (
               fields.map((field, index) => (
@@ -455,9 +469,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                         <Checkbox
                           id={`service-${index}`}
                           checked={selectField.value}
-                          onCheckedChange={(checked) => {
-                            selectField.onChange(checked);
-                          }}
+                          onCheckedChange={selectField.onChange}
                           className="rounded-md border-primary"
                         />
                       )}
