@@ -1,0 +1,22 @@
+{
+  "name": "I Lash Studio",
+  "short_name": "LashAgenda",
+  "description": "Premium Agenda for Lash Designers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#BF953F",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/lash/192/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://picsum.photos/seed/lash/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

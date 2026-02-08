@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
 import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate } from 'date-fns';
@@ -32,9 +31,13 @@ export function useAgenda() {
   }, [toast]);
 
   const applyTheme = useCallback((theme: AgendaTheme, persist: boolean = false) => {
+    if (typeof document === 'undefined') return;
+    
     const root = document.documentElement;
+    // Remove todas as classes de tema anteriores
     root.classList.remove('theme-white', 'theme-rose', 'theme-emerald', 'theme-blue');
     
+    // Adiciona a nova classe se não for o padrão (black)
     if (theme !== 'black') {
       root.classList.add(`theme-${theme}`);
     }
@@ -54,10 +57,12 @@ export function useAgenda() {
 
   useEffect(() => {
     fetchClients();
-    const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'black';
-    applyTheme(savedTheme, false);
     
+    // Carrega preferências salvas
+    const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'black';
     const savedVibration = (localStorage.getItem('vibration-intensity') as VibrationIntensity) || 'medium';
+    
+    applyTheme(savedTheme, false);
     setVibrationIntensity(savedVibration);
   }, [fetchClients, applyTheme]);
 
@@ -110,30 +115,30 @@ export function useAgenda() {
   const addAppointment = async (data: Omit<Client, 'id'>) => {
     try {
       await createClient(data);
-      toast({ title: "Sucesso", description: "Agendamento criado com sucesso!" });
+      toast({ title: "Sucesso", description: "Agendamento criado!" });
       await fetchClients();
     } catch (error) {
-      toast({ variant: "destructive", title: "Erro", description: "Erro ao criar agendamento." });
+      toast({ variant: "destructive", title: "Erro", description: "Falha ao criar agendamento." });
     }
   };
 
   const editAppointment = async (id: string, data: Partial<Client>) => {
     try {
       await updateClient(id, data);
-      toast({ title: "Sucesso", description: "Agendamento atualizado com sucesso!" });
+      toast({ title: "Sucesso", description: "Atualizado!" });
       await fetchClients();
     } catch (error) {
-      toast({ variant: "destructive", title: "Erro", description: "Erro ao atualizar agendamento." });
+      toast({ variant: "destructive", title: "Erro", description: "Falha ao atualizar." });
     }
   };
 
   const removeAppointment = async (id: string) => {
     try {
       await deleteClient(id);
-      toast({ title: "Sucesso", description: "Agendamento excluído com sucesso!" });
+      toast({ title: "Excluído", description: "Agendamento removido." });
       await fetchClients();
     } catch (error) {
-      toast({ variant: "destructive", title: "Erro", description: "Erro ao excluir agendamento." });
+      toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
     }
   };
 

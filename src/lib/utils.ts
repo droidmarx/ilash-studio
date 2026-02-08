@@ -10,7 +10,6 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Fornece feedback tátil (vibração) em dispositivos compatíveis.
- * @param pattern Duração em ms ou padrão de vibração.
  */
 export function hapticFeedback(pattern: number | number[] = 10) {
   if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -31,7 +30,7 @@ export function hapticFeedback(pattern: number | number[] = 10) {
 
       navigator.vibrate(adjustedPattern);
     } catch (e) {
-      // Silenciosamente falha se o navegador bloquear vibração
+      // Ignora se o navegador bloquear
     }
   }
 }
