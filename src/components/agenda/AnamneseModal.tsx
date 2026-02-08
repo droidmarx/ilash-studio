@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Share2, Check } from "lucide-react"
+import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Share2, Check, Send } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface AnamneseModalProps {
@@ -42,16 +42,23 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
     }
   }
 
-  const handleCopyLink = () => {
+  const handleShareWhatsApp = () => {
     if (!client) return
     const baseUrl = window.location.origin
     const link = `${baseUrl}/anamnese/${client.id}`
     
+    const message = `Olá *${client.nome.trim()}*! ✨\n\nPara garantir sua segurança e o melhor resultado no seu procedimento, por favor preencha sua ficha de anamnese digital no link abaixo:\n\n🔗 ${link}\n\nEstamos ansiosas para ver você no *I Lash Studio*! 💖`
+    
+    const cleanPhone = client.whatsapp?.replace(/\D/g, "") || ""
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+    
+    window.open(url, "_blank")
+    
     navigator.clipboard.writeText(link)
     setCopied(true)
     toast({
-      title: "Link Copiado!",
-      description: "Envie este link para a cliente preencher a ficha.",
+      title: "Link enviado!",
+      description: "WhatsApp aberto e link copiado para a área de transferência.",
     })
     setTimeout(() => setCopied(false), 3000)
   }
@@ -72,11 +79,11 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={handleCopyLink}
+            onClick={handleShareWhatsApp}
             className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/10"
           >
-            {copied ? <Check size={16} /> : <Share2 size={16} />}
-            <span className="hidden sm:inline">{copied ? "Copiado" : "Link p/ Cliente"}</span>
+            {copied ? <Check size={16} /> : <Send size={16} />}
+            <span className="hidden sm:inline">{copied ? "Link Enviado" : "Enviar p/ Cliente"}</span>
           </Button>
         </DialogHeader>
 
