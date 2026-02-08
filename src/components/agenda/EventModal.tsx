@@ -36,8 +36,8 @@ interface EventModalProps {
   isOpen: boolean
   onClose: () => void
   onAddNew?: (date: Date) => void
-  onEdit: (id: string, data: any) => void
-  onDelete: (id: string) => void
+  onEdit: (id: string, data: any) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }
 
 export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, onEdit, onDelete }: EventModalProps) {
@@ -48,21 +48,21 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
 
   if (!day) return null
 
-  const handleEditSubmit = (data: any) => {
+  const handleEditSubmit = async (data: any) => {
     if (editingEvent) {
-      onEdit(editingEvent.id, data)
+      await onEdit(editingEvent.id, data)
       setEditingEvent(null)
     }
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
-    onEdit(id, { anamnese });
+    await onEdit(id, { anamnese });
   }
 
-  const handleQuickReschedule = (event: Client, daysToAdd: number) => {
+  const handleQuickReschedule = async (event: Client, daysToAdd: number) => {
     const currentAppDate = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
     const newDate = addDays(currentAppDate, daysToAdd);
-    onEdit(event.id, {
+    await onEdit(event.id, {
       ...event,
       data: newDate.toISOString().slice(0, 16)
     });
@@ -88,9 +88,9 @@ Aproveite muito seu dia! 💕`;
     window.open(url, "_blank");
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteConfirmId) {
-      onDelete(deleteConfirmId);
+      await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
     }
   }

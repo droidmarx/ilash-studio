@@ -51,7 +51,7 @@ interface AppointmentFormProps {
   initialData?: Client
   clients?: Client[]
   prefilledDate?: string
-  onSubmit: (data: any) => void
+  onSubmit: (data: any) => Promise<void>
   onCancel: () => void
 }
 
@@ -166,7 +166,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     setNameSearch("")
   }
 
-  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleFormSubmit = async (values: z.infer<typeof formSchema>) => {
     const { date, time, servicosAdicionais, ...rest } = values;
     
     let selectedAdicionais = (servicosAdicionais || []).filter(a => a.selected);
@@ -180,7 +180,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       selectedAdicionais = selectedAdicionais.map(a => ({ nome: a.nome, valor: a.valor }));
     }
 
-    onSubmit({ 
+    await onSubmit({ 
       ...rest, 
       data: `${date}T${time}`,
       servicosAdicionais: selectedAdicionais
