@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList, Check } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
   AlertDialog, 
@@ -67,7 +67,6 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
-    // Sync dataNascimento with aniversario when pro saves anamnesis
     await onEdit(id, { 
       anamnese,
       aniversario: anamnese.dataNascimento
@@ -106,66 +105,77 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
               </TableHeader>
               <TableBody>
                 {filteredClients.length > 0 ? (
-                  filteredClients.map((client) => (
-                    <TableRow key={client.id} className="border-border hover:bg-foreground/5">
-                      <TableCell className="font-bold text-foreground">{client.nome}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-sm text-foreground/70">{client.servico}</span>
-                          <span className="text-xs text-primary/50">R$ {client.valor || '0,00'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="flex items-center gap-2 text-xs text-foreground/60">
-                          <Cake size={14} className="text-primary/40" />
-                          {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-[10px] leading-tight text-foreground/40">{safeFormatDate(client.data)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1 md:gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => { setAnamneseClient(client); }}
-                            className="h-8 w-8 text-primary hover:bg-primary/10"
-                            title="Ficha de Anamnese"
-                          >
-                            <ClipboardList size={16} />
-                          </Button>
-                          {client.whatsapp && (
+                  filteredClients.map((client) => {
+                    const isAnamneseFilled = !!client.anamnese?.assinatura;
+                    
+                    return (
+                      <TableRow key={client.id} className="border-border hover:bg-foreground/5">
+                        <TableCell className="font-bold text-foreground">{client.nome}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm text-foreground/70">{client.servico}</span>
+                            <span className="text-xs text-primary/50">R$ {client.valor || '0,00'}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="flex items-center gap-2 text-xs text-foreground/60">
+                            <Cake size={14} className="text-primary/40" />
+                            {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-[10px] leading-tight text-foreground/40">{safeFormatDate(client.data)}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1 md:gap-2">
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => { setReminderClient(client); }}
-                              title="Enviar Lembrete"
-                              className="h-8 w-8 text-green-500 hover:bg-green-500/10"
+                              onClick={() => { setAnamneseClient(client); }}
+                              className="h-8 w-8 text-primary hover:bg-primary/10 relative"
+                              title={isAnamneseFilled ? "Ficha Preenchida" : "Ficha Pendente"}
                             >
-                              <Send size={16} />
+                              <div className="relative">
+                                <ClipboardList size={16} />
+                                {isAnamneseFilled && (
+                                  <div className="absolute -top-1.5 -right-1.5 bg-green-500 rounded-full p-0.5 border border-background">
+                                    <Check size={8} className="text-white" />
+                                  </div>
+                                )}
+                              </div>
                             </Button>
-                          )}
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => { setEditingClient(client); }}
-                            className="h-8 w-8 text-primary hover:bg-primary/10"
-                            title="Editar"
-                          >
-                            <Edit2 size={16} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => { setDeleteConfirmId(client.id); }}
-                            className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                            title="Excluir"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                            {client.whatsapp && (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => { setReminderClient(client); }}
+                                title="Enviar Lembrete"
+                                className="h-8 w-8 text-green-500 hover:bg-green-500/10"
+                              >
+                                <Send size={16} />
+                              </Button>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => { setEditingClient(client); }}
+                              className="h-8 w-8 text-primary hover:bg-primary/10"
+                              title="Editar"
+                            >
+                              <Edit2 size={16} />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => { setDeleteConfirmId(client.id); }}
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                              title="Excluir"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-10 text-primary/20 italic">

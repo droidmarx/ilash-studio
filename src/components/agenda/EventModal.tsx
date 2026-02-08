@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
@@ -57,7 +57,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
-    // Sync dataNascimento with aniversario when pro saves anamnesis
     await onEdit(id, { 
       anamnese,
       aniversario: anamnese.dataNascimento
@@ -82,13 +81,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
 
   const handleSendBirthdayGreeting = (client: Client) => {
     if (!client.whatsapp) return;
-    const message = `🎈*Feliz Aniversário, ${client.nome.trim()}!* 🎈
-
-✨ Que seu dia seja tão radiante quanto seu olhar! Desejamos muitas felicidades, saúde e sucesso.
-
-Para celebrar seu mês especial, temos mimos exclusivos esperando por você no Studio Lash! 💖
-
-Aproveite muito seu dia! 💕`;
+    const message = `🎈*Feliz Aniversário, ${client.nome.trim()}!* 🎈\n\n✨ Que seu dia seja tão radiante quanto seu olhar! Desejamos muitas felicidades, saúde e sucesso.\n\nPara celebrar seu mês especial, temos mimos exclusivos esperando por você no Studio Lash! 💖\n\nAproveite muito seu dia! 💕`;
     const cleanPhone = client.whatsapp.replace(/\D/g, "");
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
@@ -186,6 +179,8 @@ Aproveite muito seu dia! 💕`;
                   {events.length > 0 ? (
                     events.map((event) => {
                       const bdayMonth = isBirthdayMonth(event);
+                      const isAnamneseFilled = !!event.anamnese?.assinatura;
+                      
                       return (
                         <div 
                           key={event.id} 
@@ -267,10 +262,17 @@ Aproveite muito seu dia! 💕`;
                                 variant="outline" 
                                 size="icon" 
                                 onClick={() => { setAnamneseClient(event); }}
-                                className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10"
-                                title="Ficha de Anamnese"
+                                className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10 relative"
+                                title={isAnamneseFilled ? "Ficha Preenchida" : "Ficha Pendente"}
                               >
-                                <ClipboardList size={16} />
+                                <div className="relative">
+                                  <ClipboardList size={16} />
+                                  {isAnamneseFilled && (
+                                    <div className="absolute -top-1.5 -right-1.5 bg-green-500 rounded-full p-0.5 border border-background">
+                                      <Check size={8} className="text-white" />
+                                    </div>
+                                  )}
+                                </div>
                               </Button>
                               {event.whatsapp && (
                                 <Button 
