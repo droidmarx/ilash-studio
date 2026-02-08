@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -23,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, Check } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
@@ -262,17 +261,13 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 variant="outline" 
                                 size="icon" 
                                 onClick={() => { setAnamneseClient(event); }}
-                                className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10 relative"
+                                className={cn(
+                                  "h-9 w-9 rounded-full border-primary/20 hover:bg-primary/10 relative",
+                                  isAnamneseFilled ? "text-green-500 border-green-500/20" : "text-primary"
+                                )}
                                 title={isAnamneseFilled ? "Ficha Preenchida" : "Ficha Pendente"}
                               >
-                                <div className="relative">
-                                  <ClipboardList size={16} />
-                                  {isAnamneseFilled && (
-                                    <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-[1px] border border-background">
-                                      <Check size={6} className="text-white" />
-                                    </div>
-                                  )}
-                                </div>
+                                <ClipboardList size={16} />
                               </Button>
                               {event.whatsapp && (
                                 <Button 

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -14,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList, Check } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
   AlertDialog, 
@@ -31,6 +30,7 @@ import { AnamneseModal } from "./AnamneseModal"
 import { ReminderDialog } from "./ReminderDialog"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { cn } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
@@ -130,17 +130,13 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                               variant="ghost" 
                               size="icon" 
                               onClick={() => { setAnamneseClient(client); }}
-                              className="h-8 w-8 text-primary hover:bg-primary/10 relative"
+                              className={cn(
+                                "h-8 w-8 hover:bg-primary/10",
+                                isAnamneseFilled ? "text-green-500" : "text-primary"
+                              )}
                               title={isAnamneseFilled ? "Ficha Preenchida" : "Ficha Pendente"}
                             >
-                              <div className="relative">
-                                <ClipboardList size={16} />
-                                {isAnamneseFilled && (
-                                  <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-[1px] border border-background">
-                                    <Check size={6} className="text-white" />
-                                  </div>
-                                )}
-                              </div>
+                              <ClipboardList size={16} />
                             </Button>
                             {client.whatsapp && (
                               <Button 
