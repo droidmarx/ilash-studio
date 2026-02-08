@@ -1,8 +1,7 @@
-
 "use client"
 
-import { useState, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useState, useMemo, useEffect } from "react"
+import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Client } from "@/lib/api"
@@ -23,7 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Plus } from "lucide-react"
 import { hapticFeedback } from "@/lib/utils"
 import { format, parseISO, isValid } from "date-fns"
 
@@ -37,6 +37,11 @@ const formSchema = z.object({
   whatsapp: z.string().optional(),
   aniversario: z.string().optional(),
   observacoes: z.string().optional(),
+  servicosAdicionais: z.array(z.object({
+    nome: z.string(),
+    valor: z.string(),
+    selected: z.boolean().default(false)
+  })).optional()
 })
 
 interface AppointmentFormProps {
@@ -48,6 +53,7 @@ interface AppointmentFormProps {
 }
 
 const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
+const OPTIONAL_SERVICES = ["Sobrancelha", "Buço", "Tintura na Sobrancelha"]
 
 export function AppointmentForm({ initialData, clients = [], prefilledDate, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
@@ -66,6 +72,15 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
 
   const initialD = getInitialDateTime();
   
+  const defaultAdicionais = OPTIONAL_SERVICES.map(name => {
+    const existing = initialData?.servicosAdicionais?.find(a => a.nome === name);
+    return {
+      nome: name,
+      valor: existing?.valor || "0,00",
+      selected: !!existing
+    };
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -78,8 +93,14 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       whatsapp: initialData?.whatsapp || "",
       aniversario: initialData?.aniversario || "",
       observacoes: initialData?.observacoes || "",
+      servicosAdicionais: defaultAdicionais
     },
   })
+
+  const { fields } = useFieldArray({
+    control: form.control,
+    name: "servicosAdicionais"
+  });
 
   const uniqueClients = useMemo(() => {
     const map = new Map<string, Client>()
@@ -106,9 +127,18 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     hapticFeedback([20, 50, 20])
-    const { date, time, ...rest } = values;
-    // Combinamos os campos separados de volta para o formato esperado pela API
-    onSubmit({ ...rest, data: `${date}T${time}` })
+    const { date, time, servicosAdicionais, ...rest } = values;
+    
+    // Filtrar apenas os selecionados para enviar à API
+    const selectedAdicionais = (servicosAdicionais || [])
+      .filter(a => a.selected)
+      .map(a => ({ nome: a.nome, valor: a.valor }));
+
+    onSubmit({ 
+      ...rest, 
+      data: `${date}T${time}`,
+      servicosAdicionais: selectedAdicionais
+    });
   }
 
   return (
@@ -272,7 +302,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
           name="valor"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor (R$)</FormLabel>
+              <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor do Procedimento (R$)</FormLabel>
               <FormControl>
                 <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
               </FormControl>
@@ -280,6 +310,53 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             </FormItem>
           )}
         />
+
+        <div className="space-y-4 pt-2">
+          <FormLabel className="text-primary font-bold flex items-center gap-2 px-1">
+            <Sparkles size={18} /> Serviços Adicionais
+          </FormLabel>
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-2xl border border-border/50">
+                <div className="flex items-center gap-3 flex-1">
+                  <FormField
+                    control={form.control}
+                    name={`servicosAdicionais.${index}.selected`}
+                    render={({ field: selectField }) => (
+                      <Checkbox
+                        id={`service-${index}`}
+                        checked={selectField.value}
+                        onCheckedChange={(checked) => {
+                          hapticFeedback(5);
+                          selectField.onChange(checked);
+                        }}
+                        className="rounded-md border-primary"
+                      />
+                    )}
+                  />
+                  <label htmlFor={`service-${index}`} className="text-sm font-semibold text-foreground cursor-pointer">
+                    {field.nome}
+                  </label>
+                </div>
+                
+                <div className="w-full sm:w-32 flex items-center gap-2">
+                  <DollarSign size={14} className="text-primary/40 shrink-0" />
+                  <FormField
+                    control={form.control}
+                    name={`servicosAdicionais.${index}.valor`}
+                    render={({ field: valueField }) => (
+                      <Input
+                        placeholder="0,00"
+                        {...valueField}
+                        className="h-10 rounded-xl bg-background border-border text-right"
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="flex gap-4 pt-6 pb-2">
           <Button type="button" variant="ghost" onClick={() => { hapticFeedback(10); onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">

@@ -1,5 +1,10 @@
 export const DEFAULT_API_URL = 'https://683d14e6199a0039e9e427bd.mockapi.io/Dados';
 
+export interface ServicoAdicional {
+  nome: string;
+  valor: string;
+}
+
 export interface Client {
   id: string;
   nome: string;
@@ -10,6 +15,7 @@ export interface Client {
   whatsapp?: string;
   observacoes?: string;
   aniversario?: string; // Format YYYY-MM-DD
+  servicosAdicionais?: ServicoAdicional[];
 }
 
 function getApiUrl(): string {

@@ -5,7 +5,7 @@ import { format, parseISO, parse, isValid, getMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { List, Clock, Send, Cake, Star } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, generateWhatsAppMessage } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 interface AppointmentsListProps {
@@ -29,31 +29,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
 
   const handleSendReminder = (event: Client) => {
     if (!event.whatsapp) return;
-
-    let dateObj = getEventDate(event.data);
-    if (!isValid(dateObj)) dateObj = new Date();
-
-    const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
-    const formattedTime = format(dateObj, "HH:mm");
-    
-    const message = `💖*Lembrete de agendamento*
-
-Olá *${event.nome.trim()}*, tudo bem?
-
-✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
-
-Confira os detalhes abaixo:
-
-⏰ Horário: ${formattedTime}
-💸 Valor: R$ ${event.valor || 'A combinar'}
-
-📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.
-
-📌 Se houver necessidade de remarcar, peço que avise com no mínimo 1 dia de antecedência.
-
-Em caso de dúvidas ou imprevistos, é só me chamar! 💬
-Agradeço pela confiança 💕`;
-
+    const message = generateWhatsAppMessage(event);
     const cleanPhone = event.whatsapp.replace(/\D/g, "");
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");

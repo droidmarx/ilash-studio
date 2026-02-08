@@ -22,10 +22,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
-import { cn, hapticFeedback } from "@/lib/utils"
+import { cn, hapticFeedback, generateWhatsAppMessage } from "@/lib/utils"
 
 interface EventModalProps {
   day: Date | null
@@ -71,31 +71,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   const handleSendReminder = (event: Client) => {
     hapticFeedback(15)
     if (!event.whatsapp) return;
-
-    let dateObj = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
-    if (!isValid(dateObj)) dateObj = new Date();
-
-    const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
-    const formattedTime = format(dateObj, "HH:mm");
-    
-    const message = `💖*Lembrete de agendamento*
-
-Olá *${event.nome.trim()}*, tudo bem?
-
-✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
-
-Confira os detalhes abaixo:
-
-⏰ Horário: ${formattedTime}
-💸 Valor: R$ ${event.valor || 'A combinar'}
-
-📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.
-
-📌 Se houver necessidade de remarcar, peço que avise com no mínimo 1 dia de antecedência.
-
-Em caso de dúvidas or imprevistos, é só me chamar! 💬
-Agradeço pela confiança 💕`;
-
+    const message = generateWhatsAppMessage(event);
     const cleanPhone = event.whatsapp.replace(/\D/g, "");
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
@@ -248,6 +224,17 @@ Aproveite muito seu dia! 💕`;
                             )}
                           </div>
                           
+                          {event.servicosAdicionais && event.servicosAdicionais.length > 0 && (
+                            <div className="mt-3 text-[11px] flex flex-wrap gap-2">
+                              <span className="text-primary/60 font-bold flex items-center gap-1"><Sparkles size={12} /> Adicionais:</span>
+                              {event.servicosAdicionais.map((a, i) => (
+                                <Badge key={i} variant="secondary" className="text-[9px] h-5 py-0 px-2 rounded-lg bg-primary/5 border-primary/20 text-primary">
+                                  {a.nome} (+R$ {a.valor})
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
                           {event.observacoes && (
                             <div className="mt-3 text-[11px] flex items-start gap-2 bg-muted/50 p-2 rounded-lg text-muted-foreground">
                               <Info size={12} className="mt-0.5" />
