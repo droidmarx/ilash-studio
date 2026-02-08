@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Client } from "@/lib/api"
+import { Client, Anamnese } from "@/lib/api"
 import { 
   Table, 
   TableBody, 
@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, User, Send, Cake } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
   AlertDialog, 
@@ -26,6 +26,7 @@ import {
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog"
 import { AppointmentForm } from "./AppointmentForm"
+import { AnamneseModal } from "./AnamneseModal"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { generateWhatsAppMessage } from "@/lib/utils"
@@ -39,6 +40,7 @@ interface ClientsManagerProps {
 export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const filteredClients = clients.filter(client => 
@@ -70,8 +72,12 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     }
   }
 
+  const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
+    await onEdit(id, { anamnese });
+  }
+
   return (
-    <Card className="rounded-[2rem] md:rounded-3xl border-none shadow-2xl bg-card backdrop-blur-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+    <Card className="rounded-[2rem] md:rounded-3xl border-none shadow-2xl bg-card backdrop-blur-md overflow-hidden">
       <CardHeader className="p-4 md:p-8 space-y-4">
         <CardTitle className="text-2xl md:text-3xl font-headline text-gold-gradient flex items-center gap-2">
           <User className="text-primary" />
@@ -120,6 +126,15 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                       <TableCell className="text-[10px] leading-tight text-foreground/40">{safeFormatDate(client.data)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1 md:gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => { setAnamneseClient(client); }}
+                            className="h-8 w-8 text-primary hover:bg-primary/10"
+                            title="Ficha de Anamnese"
+                          >
+                            <ClipboardList size={16} />
+                          </Button>
                           {client.whatsapp && (
                             <Button 
                               variant="ghost" 
@@ -165,6 +180,13 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
           </div>
         </div>
       </CardContent>
+
+      <AnamneseModal 
+        client={anamneseClient}
+        isOpen={!!anamneseClient}
+        onClose={() => setAnamneseClient(null)}
+        onSave={handleSaveAnamnese}
+      />
 
       <Dialog open={!!editingClient} onOpenChange={(open) => { if (!open) { setEditingClient(null); } }}>
         <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-border p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">

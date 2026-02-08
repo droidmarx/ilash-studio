@@ -5,17 +5,31 @@ export interface ServicoAdicional {
   valor: string;
 }
 
+export interface Anamnese {
+  alergias?: string;
+  problemasOculares?: string;
+  cirurgiaRecente?: boolean;
+  sensibilidadeLuz?: boolean;
+  gestanteLactante?: boolean;
+  disturbioHormonal?: boolean;
+  usaLentes?: boolean;
+  dormeDeLado?: 'Direito' | 'Esquerdo' | 'Ambos' | 'Costas';
+  maquiagemDiaria?: boolean;
+  observacoesSaude?: string;
+}
+
 export interface Client {
   id: string;
   nome: string;
-  data: string; // Expecting ISO or DD/MM/YYYY format
+  data: string;
   servico: string;
   tipo: 'Aplicação' | 'Manutenção' | 'Remoção' | string;
   valor?: string;
   whatsapp?: string;
   observacoes?: string;
-  aniversario?: string; // Format YYYY-MM-DD
+  aniversario?: string;
   servicosAdicionais?: ServicoAdicional[];
+  anamnese?: Anamnese;
 }
 
 function getApiUrl(): string {

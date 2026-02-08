@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { format, parseISO, isValid, addDays, getMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Client } from "@/lib/api"
+import { Client, Anamnese } from "@/lib/api"
 import {
   Dialog,
   DialogContent,
@@ -22,9 +22,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
+import { AnamneseModal } from "./AnamneseModal"
 import { cn, generateWhatsAppMessage } from "@/lib/utils"
 
 interface EventModalProps {
@@ -40,6 +41,7 @@ interface EventModalProps {
 
 export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, onEdit, onDelete }: EventModalProps) {
   const [editingEvent, setEditingEvent] = useState<Client | null>(null)
+  const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   if (!day) return null
@@ -49,6 +51,10 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
       onEdit(editingEvent.id, data)
       setEditingEvent(null)
     }
+  }
+
+  const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
+    onEdit(id, { anamnese });
   }
 
   const handleQuickReschedule = (event: Client, daysToAdd: number) => {
@@ -249,6 +255,15 @@ Aproveite muito seu dia! 💕`;
                             </div>
 
                             <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                onClick={() => { setAnamneseClient(event); }}
+                                className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10"
+                                title="Ficha de Anamnese"
+                              >
+                                <ClipboardList size={16} />
+                              </Button>
                               {event.whatsapp && (
                                 <Button 
                                   variant="outline" 
@@ -304,6 +319,13 @@ Aproveite muito seu dia! 💕`;
           </div>
         </DialogContent>
       </Dialog>
+
+      <AnamneseModal 
+        client={anamneseClient}
+        isOpen={!!anamneseClient}
+        onClose={() => setAnamneseClient(null)}
+        onSave={handleSaveAnamnese}
+      />
 
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
