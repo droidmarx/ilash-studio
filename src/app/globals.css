@@ -4,28 +4,52 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 45 100% 50%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 45 100% 50%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 45 100% 60%;
-    --accent-foreground: 0 0% 0%;
+    /* Pure Off-White Theme */
+    --background: 30 20% 98%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 45 100% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 20% 96%;
+    --secondary-foreground: 45 100% 42%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 45 100% 42%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 45 100% 50%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 45 100% 42%;
     --radius: 2rem;
     
     --gold-grad: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+  }
+
+  .dark {
+    /* Luxury Anthracite Theme (Preto Acinzentado) */
+    --background: 220 15% 7%;
+    --foreground: 0 0% 98%;
+    --card: 220 15% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 220 15% 5%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 45 100% 50%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 220 15% 5%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 45 100% 50%;
   }
 }
 
@@ -52,6 +76,37 @@
   .calendar-day.not-current-month {
     @apply opacity-20 pointer-events-none;
   }
+
+  /* Animação de Brilhos */
+  .sparkle-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, transparent 0%, var(--background) 100%);
+  }
+
+  .sparkle {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: sparkle-float 15s infinite linear;
+    filter: blur(1px);
+    box-shadow: 0 0 10px #BF953F;
+  }
+
+  @keyframes sparkle-float {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    25% { opacity: 0.3; }
+    50% { opacity: 0.6; transform: translateY(50vh) translateX(20px) scale(1); }
+    75% { opacity: 0.3; }
+    100% { transform: translateY(-10vh) translateX(-20px) scale(0); opacity: 0; }
+  }
 }
 
 * {
@@ -59,5 +114,5 @@
 }
 
 body {
-  @apply bg-background text-foreground min-h-screen selection:bg-primary/30 font-body;
+  @apply bg-background text-foreground min-h-screen selection:bg-primary/30 font-body transition-colors duration-500;
 }

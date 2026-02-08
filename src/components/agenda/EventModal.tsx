@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -23,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
@@ -64,8 +63,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
     const currentAppDate = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
     const newDate = addDays(currentAppDate, daysToAdd);
     
-    // Abre o formulário de edição com a nova data pré-preenchida
-    // Isso permite ao usuário confirmar/trocar o procedimento e adicionais
     setEditingEvent({
       ...event,
       data: newDate.toISOString().slice(0, 16)
@@ -153,7 +150,7 @@ Aproveite muito seu dia! 💕`;
                       Aniversariantes 🎈
                     </h3>
                     {birthdays.map((bday) => (
-                      <div key={`bday-${bday.id}`} className="bg-card border border-border p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                      <div key={`bday-${bday.id}`} className="bg-card/50 backdrop-blur-md border border-border p-4 rounded-2xl flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                             <Cake size={20} />
@@ -189,7 +186,7 @@ Aproveite muito seu dia! 💕`;
                         <div 
                           key={event.id} 
                           className={cn(
-                            "group p-4 rounded-2xl border bg-card hover:bg-foreground/5 transition-all shadow-sm relative",
+                            "group p-4 rounded-2xl border bg-card/40 backdrop-blur-md hover:bg-foreground/5 transition-all shadow-sm relative",
                             bdayMonth && "border-primary/40 bg-primary/5"
                           )}
                         >
@@ -224,18 +221,26 @@ Aproveite muito seu dia! 💕`;
                           </div>
                           
                           {event.servicosAdicionais && event.servicosAdicionais.length > 0 && (
-                            <div className="mt-3 text-[11px] flex flex-wrap gap-2">
+                            <div className="mt-3 text-[11px] flex flex-col gap-2">
                               <span className="text-primary/60 font-bold flex items-center gap-1"><Sparkles size={12} /> Adicionais:</span>
-                              {event.servicosAdicionais.map((a, i) => (
-                                <Badge key={i} variant="secondary" className="text-[9px] h-5 py-0 px-2 rounded-lg bg-primary/5 border-primary/20 text-primary">
-                                  {a.nome} (+R$ {a.valor})
-                                </Badge>
-                              ))}
+                              <div className="flex flex-wrap gap-2">
+                                {event.isUnifiedValue ? (
+                                  <Badge variant="secondary" className="text-[9px] h-5 py-0 px-2 rounded-lg bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
+                                    <DollarSign size={8} /> {event.servicosAdicionais.map(a => a.nome).join(" + ")} (Unificado: R$ {event.unifiedValue})
+                                  </Badge>
+                                ) : (
+                                  event.servicosAdicionais.map((a, i) => (
+                                    <Badge key={i} variant="secondary" className="text-[9px] h-5 py-0 px-2 rounded-lg bg-primary/5 border-primary/20 text-primary">
+                                      {a.nome} (+R$ {a.valor})
+                                    </Badge>
+                                  ))
+                                )}
+                              </div>
                             </div>
                           )}
 
                           {event.observacoes && (
-                            <div className="mt-3 text-[11px] flex items-start gap-2 bg-muted/50 p-2 rounded-lg text-muted-foreground">
+                            <div className="mt-3 text-[11px] flex items-start gap-2 bg-muted/30 p-2 rounded-lg text-muted-foreground">
                               <Info size={12} className="mt-0.5" />
                               <span>{event.observacoes}</span>
                             </div>

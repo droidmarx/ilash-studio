@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAgenda } from "@/hooks/use-agenda"
 import { 
   format, 
@@ -20,6 +20,7 @@ import { SettingsModal } from "@/components/agenda/SettingsModal"
 import { AppointmentForm } from "@/components/agenda/AppointmentForm"
 import { AppointmentsList } from "@/components/agenda/AppointmentsList"
 import { ClientsManager } from "@/components/agenda/ClientsManager"
+import { ThemeToggle } from "@/components/agenda/ThemeToggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -51,6 +52,22 @@ export default function AgendaPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined)
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark'
+    if (savedTheme) {
+      setTheme(savedTheme)
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark')
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme)
+    localStorage.setItem('theme', newTheme)
+    document.documentElement.classList.toggle('dark', newTheme === 'dark')
+  }
 
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(monthStart)
@@ -88,8 +105,9 @@ export default function AgendaPage() {
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background text-foreground">
-      <div className="fixed top-6 right-6 z-50">
+    <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground">
+      <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <Button
           variant="outline"
           size="icon"
@@ -131,7 +149,7 @@ export default function AgendaPage() {
         ) : (
           <Tabs defaultValue="agenda" className="w-full space-y-8">
             <div className="flex justify-center">
-              <TabsList className="bg-muted border border-border p-1.5 rounded-[2rem] h-16 w-full max-w-md shadow-2xl">
+              <TabsList className="bg-muted/50 backdrop-blur-md border border-border p-1.5 rounded-[2rem] h-16 w-full max-w-md shadow-2xl">
                 <TabsTrigger value="agenda" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-primary-foreground h-full transition-all text-base font-semibold">
                   <CalendarIcon size={20} /> Agenda
                 </TabsTrigger>
@@ -144,7 +162,7 @@ export default function AgendaPage() {
             <TabsContent value="agenda" className="animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card backdrop-blur-2xl">
+                  <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card/60 backdrop-blur-2xl">
                     <CardHeader className="flex flex-row items-center justify-between px-8 py-10">
                       <Button variant="ghost" size="icon" onClick={() => prevMonth()} className="hover:bg-primary/10 text-primary">
                         <ChevronLeft size={36} />
