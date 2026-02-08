@@ -37,16 +37,30 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen selection:bg-primary/30 transition-colors duration-500 overflow-x-hidden">
         <div className="sparkle-bg">
-          {[...Array(30)].map((_, i) => (
+          {/* Brilhos Flutuantes */}
+          {[...Array(40)].map((_, i) => (
             <div 
-              key={i} 
+              key={`sparkle-${i}`} 
               className="sparkle bg-gold-gradient" 
               style={{
                 left: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 12}s`,
-                width: `${Math.random() * 5 + 3}px`,
-                height: `${Math.random() * 5 + 3}px`,
-                opacity: 0.3 + Math.random() * 0.5
+                width: `${Math.random() * 6 + 3}px`,
+                height: `${Math.random() * 6 + 3}px`,
+                opacity: 0.4 + Math.random() * 0.5
+              }}
+            />
+          ))}
+
+          {/* Estrelas Cadentes Discretas */}
+          {[...Array(4)].map((_, i) => (
+            <div 
+              key={`star-${i}`}
+              className="shooting-star"
+              style={{
+                top: `${Math.random() * 40}%`,
+                animationDelay: `${i * 7 + Math.random() * 5}s`,
+                animationDuration: `${15 + Math.random() * 10}s`
               }}
             />
           ))}
