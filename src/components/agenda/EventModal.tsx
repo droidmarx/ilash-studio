@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -128,7 +127,7 @@ Aproveite muito seu dia! 💕`;
           setEditingEvent(null)
         }
       }}>
-        <DialogContent className="w-[95vw] sm:max-w-[600px] rounded-[2rem] md:rounded-3xl overflow-hidden p-0 max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-[600px] rounded-[2rem] md:rounded-3xl overflow-hidden p-0 max-h-[95vh] overflow-y-auto bg-background text-foreground border-border">
           <DialogHeader className="p-6 md:p-8 pb-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
@@ -138,7 +137,7 @@ Aproveite muito seu dia! 💕`;
                     ? `Editando Agendamento` 
                     : `Agenda de ${format(day, "dd/MM", { locale: ptBR })}`}
                 </DialogTitle>
-                <DialogDescription className="text-xs md:text-sm">
+                <DialogDescription className="text-xs md:text-sm text-muted-foreground">
                   {editingEvent 
                     ? "Atualize as informações do agendamento." 
                     : "Compromissos e aniversariantes."}
@@ -147,7 +146,7 @@ Aproveite muito seu dia! 💕`;
               {!editingEvent && onAddNew && (
                 <Button 
                   onClick={() => onAddNew(day)}
-                  className="rounded-full gap-2 shadow-lg bg-gold-gradient text-black font-bold h-10 w-fit"
+                  className="rounded-full gap-2 shadow-lg bg-gold-gradient text-primary-foreground font-bold h-10 w-fit"
                   size="sm"
                 >
                   <PlusCircle size={18} />
@@ -173,13 +172,13 @@ Aproveite muito seu dia! 💕`;
                       Aniversariantes 🎈
                     </h3>
                     {birthdays.map((bday) => (
-                      <div key={`bday-${bday.id}`} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                      <div key={`bday-${bday.id}`} className="bg-card border border-border p-4 rounded-2xl flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                             <Cake size={20} />
                           </div>
                           <div>
-                            <p className="font-bold text-white text-sm">{bday.nome}</p>
+                            <p className="font-bold text-foreground text-sm">{bday.nome}</p>
                             <p className="text-[10px] text-primary/60">Aniversário hoje! ✨</p>
                           </div>
                         </div>
@@ -209,13 +208,13 @@ Aproveite muito seu dia! 💕`;
                         <div 
                           key={event.id} 
                           className={cn(
-                            "group p-4 rounded-2xl border bg-white/5 hover:bg-white/10 transition-all shadow-sm relative",
+                            "group p-4 rounded-2xl border bg-card hover:bg-foreground/5 transition-all shadow-sm relative",
                             bdayMonth && "border-primary/40 bg-primary/5"
                           )}
                         >
                           <div className="flex justify-between items-start mb-2">
                             <div className="space-y-1">
-                              <h4 className="font-bold text-base md:text-lg flex items-center gap-2 text-white/90">
+                              <h4 className="font-bold text-base md:text-lg flex items-center gap-2 text-foreground">
                                 <User size={16} className="text-primary/60" />
                                 {event.nome}
                               </h4>
@@ -230,7 +229,7 @@ Aproveite muito seu dia! 💕`;
                             </Badge>
                           </div>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-white/60 mt-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-muted-foreground mt-3">
                             <div className="flex items-center gap-2">
                               <Clock size={14} className="text-primary/40" />
                               <span>{event.servico} - R$ {event.valor || '0,00'}</span>
@@ -244,21 +243,21 @@ Aproveite muito seu dia! 💕`;
                           </div>
                           
                           {event.observacoes && (
-                            <div className="mt-3 text-[11px] flex items-start gap-2 bg-white/5 p-2 rounded-lg text-white/40">
+                            <div className="mt-3 text-[11px] flex items-start gap-2 bg-muted/50 p-2 rounded-lg text-muted-foreground">
                               <Info size={12} className="mt-0.5" />
                               <span>{event.observacoes}</span>
                             </div>
                           )}
 
-                          <div className="mt-4 border-t border-white/10 pt-4 space-y-4">
+                          <div className="mt-4 border-t border-border pt-4 space-y-4">
                             <div className="flex flex-col gap-2">
                               <span className="text-[10px] font-bold text-primary/40 uppercase flex items-center gap-1">
                                 <RotateCw size={12} /> Remarcar:
                               </span>
                               <div className="flex flex-wrap gap-2">
-                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-white/10 hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-white/10 hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-white/10 hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
                               </div>
                             </div>
 
@@ -298,7 +297,7 @@ Aproveite muito seu dia! 💕`;
                       )
                     })
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-12 text-primary/20 italic border-dashed border-2 border-white/10 rounded-2xl gap-4">
+                    <div className="flex flex-col items-center justify-center py-12 text-primary/20 italic border-dashed border-2 border-border rounded-2xl gap-4">
                       <p className="text-sm">Nenhum agendamento.</p>
                       {onAddNew && (
                         <Button 
@@ -320,20 +319,20 @@ Aproveite muito seu dia! 💕`;
       </Dialog>
 
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <AlertDialogContent className="rounded-[2rem] border-white/10 bg-zinc-950 p-8">
+        <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60">
+            <AlertDialogDescription className="text-muted-foreground">
               Esta ação é irreversível. Todas as informações deste agendamento serão removidas permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-white/10 bg-transparent text-white hover:bg-white/5">
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDelete}
-              className="flex-1 rounded-xl bg-destructive text-white hover:bg-destructive/90"
+              className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Excluir
             </AlertDialogAction>
