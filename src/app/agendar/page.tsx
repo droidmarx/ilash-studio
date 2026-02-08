@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -52,7 +53,7 @@ export default function ClientBookingPage() {
     try {
       const dateTime = `${formData.data}T${formData.hora}`
       
-      // 1. Salva no banco de dados (MockAPI)
+      // 1. Salva no banco de dados
       await createClient({
         nome: formData.nome,
         whatsapp: formData.whatsapp,
@@ -62,7 +63,9 @@ export default function ClientBookingPage() {
         observacoes: "Agendamento realizado via link Instagram"
       })
 
-      // 2. Notifica o administrador via Telegram (Processo em background)
+      // 2. Notifica o administrador via Telegram
+      // Como o cliente não tem as credenciais no localStorage, usamos o fallback do servidor
+      // Se você estiver testando localmente como admin, as credenciais do localStorage poderiam ser passadas aqui.
       await notifyNewBooking({
         nome: formData.nome,
         whatsapp: formData.whatsapp,

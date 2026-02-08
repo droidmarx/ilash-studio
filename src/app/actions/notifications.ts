@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -11,10 +12,13 @@ export async function notifyNewBooking(bookingData: {
   servico: string;
   data: string;
   hora: string;
+}, config?: {
+  token?: string;
+  chatId?: string;
 }) {
-  // Credenciais configuradas para o I Lash Studio
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8284313149:AAEQ9uiq8do8t6mxtINtyeT-tynURpP789s';
-  const CHAT_ID = process.env.TELEGRAM_CHAT_ID || '5759760387';
+  // Prioridade: 1. Config passada na chamada, 2. Variável de ambiente, 3. Hardcoded (Fallback)
+  const BOT_TOKEN = config?.token || process.env.TELEGRAM_BOT_TOKEN || '8284313149:AAEQ9uiq8do8t6mxtINtyeT-tynURpP789s';
+  const CHAT_ID = config?.chatId || process.env.TELEGRAM_CHAT_ID || '5759760387';
 
   const message = `✨ *Novo Agendamento no I Lash Studio!* ✨\n\n` +
     `👤 *Cliente:* ${bookingData.nome}\n` +
@@ -25,7 +29,7 @@ export async function notifyNewBooking(bookingData: {
     `🚀 _Agendado via link do Instagram_`;
 
   try {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -34,6 +38,11 @@ export async function notifyNewBooking(bookingData: {
         parse_mode: 'Markdown',
       }),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Erro na API do Telegram:', errorData);
+    }
   } catch (error) {
     console.error('Erro ao enviar notificação para o Telegram:', error);
   }
