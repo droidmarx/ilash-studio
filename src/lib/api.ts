@@ -33,6 +33,8 @@ export interface Client {
   aniversario?: string;
   servicosAdicionais?: ServicoAdicional[];
   anamnese?: Anamnese;
+  isUnifiedValue?: boolean;
+  unifiedValue?: string;
 }
 
 function getApiUrl(): string {

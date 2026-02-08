@@ -33,7 +33,6 @@ export function generateWhatsAppMessage(event: Client, tipoOverride?: string) {
 
   const tipo = tipoOverride || event.tipo;
   
-  // Determinar o valor correto com base no tipo
   let valorBaseStr = event.valor || '0,00';
   if (tipo === 'Aplicação' && event.valorAplicacao) valorBaseStr = event.valorAplicacao;
   if (tipo === 'Manutenção' && event.valorManutencao) valorBaseStr = event.valorManutencao;
@@ -41,15 +40,25 @@ export function generateWhatsAppMessage(event: Client, tipoOverride?: string) {
 
   const valorBase = parseCurrency(valorBaseStr);
   const adicionais = event.servicosAdicionais || [];
-  const valorAdicionais = adicionais.reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);
-  const total = valorBase + valorAdicionais;
-
+  
+  let valorAdicionais = 0;
   let msgAdicionais = "";
-  if (adicionais.length > 0) {
-    const nomesUnificados = adicionais.map(a => a.nome).join("+");
-    const valorUnificadoFormatted = valorAdicionais.toFixed(2).replace(".", ",");
-    msgAdicionais = `\n✨ *Adicionais:* ${nomesUnificados}: R$ ${valorUnificadoFormatted}`;
+
+  if (event.isUnifiedValue) {
+    valorAdicionais = parseCurrency(event.unifiedValue);
+    if (adicionais.length > 0) {
+      const nomesUnificados = adicionais.map(a => a.nome).join("+");
+      msgAdicionais = `\n✨ *Adicionais (Valor Único):* ${nomesUnificados}: R$ ${event.unifiedValue}`;
+    }
+  } else {
+    valorAdicionais = adicionais.reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);
+    if (adicionais.length > 0) {
+      const listaAdicionais = adicionais.map(a => `${a.nome} (R$ ${a.valor})`).join(", ");
+      msgAdicionais = `\n✨ *Adicionais:* ${listaAdicionais}`;
+    }
   }
+
+  const total = valorBase + valorAdicionais;
 
   const message = `💖*Lembrete de agendamento*
 

@@ -60,8 +60,8 @@ const OPTIONAL_SERVICES = ["Sobrancelha", "Buço", "Tintura na Sobrancelha"]
 
 export function AppointmentForm({ initialData, clients = [], prefilledDate, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
-  const [isUnifiedValue, setIsUnifiedValue] = useState(false)
-  const [unifiedValue, setUnifiedValue] = useState("")
+  const [isUnifiedValue, setIsUnifiedValue] = useState(initialData?.isUnifiedValue || false)
+  const [unifiedValue, setUnifiedValue] = useState(initialData?.unifiedValue || "")
   
   const getInitialDateTime = () => {
     const source = initialData?.data || prefilledDate || new Date().toISOString();
@@ -110,7 +110,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     name: "servicosAdicionais"
   });
 
-  // Watch values for auto-calculation
   const watchedTipo = form.watch("tipo");
   const watchedValores = form.watch(["valorAplicacao", "valorManutencao", "valorRemocao"]);
   const watchedAdicionais = form.watch("servicosAdicionais");
@@ -127,14 +126,18 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     else if (watchedTipo === "Manutenção") base = parseCurrency(watchedValores[1]);
     else if (watchedTipo === "Remoção") base = parseCurrency(watchedValores[2]);
 
-    const additionalTotal = (watchedAdicionais || [])
-      .filter(a => a.selected)
-      .reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);
+    let additionalTotal = 0;
+    if (isUnifiedValue) {
+      additionalTotal = parseCurrency(unifiedValue);
+    } else {
+      additionalTotal = (watchedAdicionais || [])
+        .filter(a => a.selected)
+        .reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);
+    }
 
     return (base + additionalTotal).toFixed(2).replace(".", ",");
-  }, [watchedTipo, watchedValores, watchedAdicionais]);
+  }, [watchedTipo, watchedValores, watchedAdicionais, isUnifiedValue, unifiedValue]);
 
-  // Sync calculatedTotal to form "valor" field
   useEffect(() => {
     form.setValue("valor", calculatedTotal);
   }, [calculatedTotal, form]);
@@ -163,6 +166,12 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     if (client.valorAplicacao) form.setValue("valorAplicacao", client.valorAplicacao)
     if (client.valorManutencao) form.setValue("valorManutencao", client.valorManutencao)
     if (client.valorRemocao) form.setValue("valorRemocao", client.valorRemocao)
+    
+    if (client.isUnifiedValue !== undefined) {
+      setIsUnifiedValue(client.isUnifiedValue)
+      setUnifiedValue(client.unifiedValue || "")
+    }
+    
     setNameSearch("")
   }
 
@@ -183,7 +192,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     await onSubmit({ 
       ...rest, 
       data: `${date}T${time}`,
-      servicosAdicionais: selectedAdicionais
+      servicosAdicionais: selectedAdicionais,
+      isUnifiedValue,
+      unifiedValue: isUnifiedValue ? unifiedValue : ""
     });
   }
 
