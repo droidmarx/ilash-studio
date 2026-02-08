@@ -99,7 +99,8 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido." });
-      await fetchClients();
+      // Carrega a página inteira novamente após excluir, conforme solicitado
+      window.location.reload();
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
     }
