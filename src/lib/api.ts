@@ -55,6 +55,12 @@ export async function getClients(): Promise<Client[]> {
   }
 }
 
+export async function getClient(id: string): Promise<Client> {
+  const res = await fetch(`${getApiUrl()}/${id}`);
+  if (!res.ok) throw new Error('Falha ao buscar cliente');
+  return await res.json();
+}
+
 export async function createClient(data: Omit<Client, 'id'>): Promise<Client> {
   const res = await fetch(getApiUrl(), {
     method: 'POST',

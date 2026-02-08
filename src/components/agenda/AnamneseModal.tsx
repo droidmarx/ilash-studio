@@ -14,7 +14,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle } from "lucide-react"
+import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Share2, Check } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 interface AnamneseModalProps {
   client: Client | null
@@ -25,6 +26,8 @@ interface AnamneseModalProps {
 
 export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModalProps) {
   const [formData, setFormData] = useState<Anamnese>({})
+  const [copied, setCopied] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (client) {
@@ -39,17 +42,42 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
     }
   }
 
+  const handleCopyLink = () => {
+    if (!client) return
+    const baseUrl = window.location.origin
+    const link = `${baseUrl}/anamnese/${client.id}`
+    
+    navigator.clipboard.writeText(link)
+    setCopied(true)
+    toast({
+      title: "Link Copiado!",
+      description: "Envie este link para a cliente preencher a ficha.",
+    })
+    setTimeout(() => setCopied(false), 3000)
+  }
+
   if (!client) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[95vw] sm:max-w-[600px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto text-foreground">
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
-            <ClipboardList className="text-primary" size={28} />
-            Ficha de Anamnese
-          </DialogTitle>
-          <p className="text-primary/60 font-bold uppercase text-[10px] tracking-widest">{client.nome}</p>
+        <DialogHeader className="flex flex-row items-center justify-between gap-4">
+          <div className="space-y-1">
+            <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
+              <ClipboardList className="text-primary" size={28} />
+              Ficha de Anamnese
+            </DialogTitle>
+            <p className="text-primary/60 font-bold uppercase text-[10px] tracking-widest">{client.nome}</p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleCopyLink}
+            className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/10"
+          >
+            {copied ? <Check size={16} /> : <Share2 size={16} />}
+            <span className="hidden sm:inline">{copied ? "Copiado" : "Link p/ Cliente"}</span>
+          </Button>
         </DialogHeader>
 
         <div className="space-y-8 py-6">
