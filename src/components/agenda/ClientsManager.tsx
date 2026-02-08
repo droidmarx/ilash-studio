@@ -136,8 +136,8 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                               <div className="relative">
                                 <ClipboardList size={16} />
                                 {isAnamneseFilled && (
-                                  <div className="absolute -top-1.5 -right-1.5 bg-green-500 rounded-full p-0.5 border border-background">
-                                    <Check size={8} className="text-white" />
+                                  <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-[1px] border border-background">
+                                    <Check size={6} className="text-white" />
                                   </div>
                                 )}
                               </div>
