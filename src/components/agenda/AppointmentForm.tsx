@@ -527,7 +527,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             Cancelar
           </Button>
           <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform">
-            {initialData ? "Salvar" : "Confirmar Agendamento"}
+            {initialData ? "Salvar" : "Agendar"}
           </Button>
         </div>
       </form>
