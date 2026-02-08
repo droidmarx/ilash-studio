@@ -4,12 +4,14 @@ import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getM
 import { useToast } from '@/hooks/use-toast';
 
 export type AgendaTheme = 'black' | 'white';
+export type VibrationIntensity = 'none' | 'weak' | 'medium' | 'strong';
 
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activeTheme, setActiveTheme] = useState<AgendaTheme>('black');
+  const [vibrationIntensity, setVibrationIntensity] = useState<VibrationIntensity>('medium');
   const { toast } = useToast();
 
   const fetchClients = useCallback(async () => {
@@ -42,10 +44,20 @@ export function useAgenda() {
     }
   }, []);
 
+  const applyVibration = useCallback((intensity: VibrationIntensity, persist: boolean = false) => {
+    setVibrationIntensity(intensity);
+    if (persist) {
+      localStorage.setItem('vibration-intensity', intensity);
+    }
+  }, []);
+
   useEffect(() => {
     fetchClients();
     const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'black';
     applyTheme(savedTheme, false);
+    
+    const savedVibration = (localStorage.getItem('vibration-intensity') as VibrationIntensity) || 'medium';
+    setVibrationIntensity(savedVibration);
   }, [fetchClients, applyTheme]);
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -129,7 +141,9 @@ export function useAgenda() {
     loading,
     currentMonth,
     activeTheme,
+    vibrationIntensity,
     applyTheme,
+    applyVibration,
     nextMonth,
     prevMonth,
     getDayEvents,

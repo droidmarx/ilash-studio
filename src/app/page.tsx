@@ -41,6 +41,8 @@ export default function AgendaPage() {
     upcomingAppointments,
     activeTheme,
     applyTheme,
+    vibrationIntensity,
+    applyVibration,
     refresh,
     addAppointment,
     editAppointment,
@@ -254,6 +256,8 @@ export default function AgendaPage() {
         onSave={refresh}
         currentTheme={activeTheme}
         onThemeChange={applyTheme}
+        vibrationIntensity={vibrationIntensity}
+        onVibrationChange={applyVibration}
       />
     </div>
   )
