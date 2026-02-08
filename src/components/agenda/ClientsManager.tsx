@@ -106,16 +106,16 @@ Agradeço pela confiança 💕`;
             placeholder="Pesquisar por nome ou serviço..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 rounded-xl bg-background/50 border-white/10 h-12"
+            className="pl-10 rounded-xl bg-background/50 border-border h-12"
           />
         </div>
       </CardHeader>
       <CardContent className="p-0 md:p-8">
-        <div className="rounded-xl border border-white/10 bg-background/30 overflow-hidden">
+        <div className="rounded-xl border border-border bg-background/30 overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-white/5">
-                <TableRow className="border-white/10">
+              <TableHeader className="bg-foreground/5">
+                <TableRow className="border-border">
                   <TableHead className="text-primary/60 font-bold">Nome</TableHead>
                   <TableHead className="text-primary/60 font-bold">Serviço</TableHead>
                   <TableHead className="text-primary/60 font-bold hidden md:table-cell">Aniversário</TableHead>
@@ -126,21 +126,21 @@ Agradeço pela confiança 💕`;
               <TableBody>
                 {filteredClients.length > 0 ? (
                   filteredClients.map((client) => (
-                    <TableRow key={client.id} className="border-white/5 hover:bg-white/5">
-                      <TableCell className="font-bold text-white/90">{client.nome}</TableCell>
+                    <TableRow key={client.id} className="border-border hover:bg-foreground/5">
+                      <TableCell className="font-bold text-foreground">{client.nome}</TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="text-sm text-white/70">{client.servico}</span>
+                          <span className="text-sm text-foreground/70">{client.servico}</span>
                           <span className="text-xs text-primary/50">R$ {client.valor || '0,00'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        <div className="flex items-center gap-2 text-xs text-white/60">
+                        <div className="flex items-center gap-2 text-xs text-foreground/60">
                           <Cake size={14} className="text-primary/40" />
                           {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
                         </div>
                       </TableCell>
-                      <TableCell className="text-[10px] leading-tight text-white/40">{safeFormatDate(client.data)}</TableCell>
+                      <TableCell className="text-[10px] leading-tight text-foreground/40">{safeFormatDate(client.data)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1 md:gap-2">
                           {client.whatsapp && (
@@ -190,7 +190,7 @@ Agradeço pela confiança 💕`;
       </CardContent>
 
       <Dialog open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)}>
-        <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-white/10 p-4 md:p-8 max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-border p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Editar Cliente</DialogTitle>
           </DialogHeader>
@@ -210,15 +210,15 @@ Agradeço pela confiança 💕`;
       </Dialog>
 
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <AlertDialogContent className="rounded-[2rem] border-white/10 bg-background p-8">
+        <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60">
+            <AlertDialogDescription className="text-muted-foreground">
               Esta ação é irreversível. Todas as informações desta cliente e seus agendamentos serão removidos permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-white/10 bg-transparent text-white hover:bg-white/5">
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 

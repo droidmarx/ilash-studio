@@ -70,7 +70,7 @@
 
   .calendar-day.today {
     @apply border-primary bg-primary/10;
-    box-shadow: 0 0 15px rgba(var(--primary), 0.2);
+    box-shadow: 0 0 15px rgba(179, 135, 40, 0.2);
   }
 
   .calendar-day.not-current-month {
