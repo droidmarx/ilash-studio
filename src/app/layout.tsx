@@ -37,20 +37,28 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen selection:bg-primary/30 transition-colors duration-500 overflow-x-hidden">
         <div className="sparkle-bg">
-          {/* Brilhos Flutuantes */}
-          {[...Array(40)].map((_, i) => (
-            <div 
-              key={`sparkle-${i}`} 
-              className="sparkle bg-gold-gradient" 
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 12}s`,
-                width: `${Math.random() * 6 + 3}px`,
-                height: `${Math.random() * 6 + 3}px`,
-                opacity: 0.4 + Math.random() * 0.5
-              }}
-            />
-          ))}
+          {/* Purpurina Dourada (Glitter) Flutuante */}
+          {[...Array(80)].map((_, i) => {
+            const size = Math.random() * 4 + 1; // Partículas menores para efeito de purpurina
+            const delay = Math.random() * 15;
+            const duration = 8 + Math.random() * 10;
+            const left = Math.random() * 100;
+            
+            return (
+              <div 
+                key={`sparkle-${i}`} 
+                className="sparkle bg-gold-gradient" 
+                style={{
+                  left: `${left}%`,
+                  animationDelay: `${delay}s`,
+                  animationDuration: `${duration}s`,
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  opacity: 0.3 + Math.random() * 0.7
+                }}
+              />
+            );
+          })}
 
           {/* Estrelas Cadentes Discretas */}
           {[...Array(4)].map((_, i) => (
