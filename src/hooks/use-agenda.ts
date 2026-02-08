@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
-import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate } from 'date-fns';
+import { addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export type AgendaTheme = 'black' | 'white' | 'rose' | 'emerald' | 'blue';
@@ -34,10 +34,8 @@ export function useAgenda() {
     if (typeof document === 'undefined') return;
     
     const root = document.documentElement;
-    // Remove todas as classes de tema anteriores
     root.classList.remove('theme-white', 'theme-rose', 'theme-emerald', 'theme-blue');
     
-    // Adiciona a nova classe se não for o padrão (black)
     if (theme !== 'black') {
       root.classList.add(`theme-${theme}`);
     }
@@ -58,7 +56,6 @@ export function useAgenda() {
   useEffect(() => {
     fetchClients();
     
-    // Carrega preferências salvas
     const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'black';
     const savedVibration = (localStorage.getItem('vibration-intensity') as VibrationIntensity) || 'medium';
     
@@ -136,7 +133,10 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido." });
-      await fetchClients();
+      // Força o recarregamento da página conforme solicitado
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
     }
