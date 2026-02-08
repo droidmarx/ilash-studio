@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState } from "react"
-import { format, parseISO, isValid, addDays, getMonth } from "date-fns"
+import { format, parseISO, addDays, getMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Client, Anamnese } from "@/lib/api"
 import {
@@ -59,10 +60,13 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
     await onEdit(id, { anamnese });
   }
 
-  const handleQuickReschedule = async (event: Client, daysToAdd: number) => {
+  const handleQuickReschedule = (event: Client, daysToAdd: number) => {
     const currentAppDate = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
     const newDate = addDays(currentAppDate, daysToAdd);
-    await onEdit(event.id, {
+    
+    // Abre o formulário de edição com a nova data pré-preenchida
+    // Isso permite ao usuário confirmar/trocar o procedimento e adicionais
+    setEditingEvent({
       ...event,
       data: newDate.toISOString().slice(0, 16)
     });
@@ -110,12 +114,12 @@ Aproveite muito seu dia! 💕`;
                 <DialogTitle className="text-xl md:text-2xl font-headline text-gold-gradient flex items-center gap-2">
                   <Calendar className="text-primary" size={20} />
                   {editingEvent 
-                    ? `Editando Agendamento` 
+                    ? `Configurar Remarcação` 
                     : `Agenda de ${format(day, "dd/MM", { locale: ptBR })}`}
                 </DialogTitle>
                 <DialogDescription className="text-xs md:text-sm text-muted-foreground">
                   {editingEvent 
-                    ? "Atualize as informações do agendamento." 
+                    ? "Confirme o procedimento e adicionais para a nova data." 
                     : "Compromissos e aniversariantes."}
                 </DialogDescription>
               </div>
@@ -239,7 +243,7 @@ Aproveite muito seu dia! 💕`;
                           <div className="mt-4 border-t border-border pt-4 space-y-4">
                             <div className="flex flex-col gap-2">
                               <span className="text-[10px] font-bold text-primary/40 uppercase flex items-center gap-1">
-                                <RotateCw size={12} /> Remarcar:
+                                <RotateCw size={12} /> Remarcar para:
                               </span>
                               <div className="flex flex-wrap gap-2">
                                 <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
