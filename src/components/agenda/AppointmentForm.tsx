@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from "react"
@@ -7,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Client } from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   Form,
   FormControl,
