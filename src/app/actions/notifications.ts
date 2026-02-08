@@ -2,7 +2,7 @@
 
 /**
  * Server Action para enviar notificações de novos agendamentos.
- * Utiliza a API do Telegram por ser gratuita e instantânea.
+ * Utiliza a API do Telegram para notificações instantâneas e gratuitas.
  */
 
 export async function notifyNewBooking(bookingData: {
@@ -12,14 +12,9 @@ export async function notifyNewBooking(bookingData: {
   data: string;
   hora: string;
 }) {
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
-  // Se não houver configuração, apenas ignora para não quebrar o fluxo do cliente
-  if (!BOT_TOKEN || !CHAT_ID) {
-    console.warn('Telegram Bot não configurado. Adicione TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID nas variáveis de ambiente.');
-    return;
-  }
+  // Credenciais configuradas para o I Lash Studio
+  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8284313149:AAEQ9uiq8do8t6mxtINtyeT-tynURpP789s';
+  const CHAT_ID = process.env.TELEGRAM_CHAT_ID || '5759760387';
 
   const message = `✨ *Novo Agendamento no I Lash Studio!* ✨\n\n` +
     `👤 *Cliente:* ${bookingData.nome}\n` +
