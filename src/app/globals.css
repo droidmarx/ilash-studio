@@ -80,7 +80,7 @@
     @apply opacity-20 pointer-events-none;
   }
 
-  /* Animação de Brilhos - Ajustada para ser mais clara e discreta */
+  /* Animação de Brilhos - Mais aparentes e intensos */
   .sparkle-bg {
     position: fixed;
     top: 0;
@@ -98,21 +98,21 @@
     background: white;
     border-radius: 50%;
     opacity: 0;
-    animation: sparkle-float 15s infinite linear;
-    filter: blur(2px);
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    animation: sparkle-float 12s infinite linear;
+    filter: blur(1px);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
   }
 
   .dark .sparkle {
-    box-shadow: 0 0 10px #BF953F;
+    box-shadow: 0 0 12px #BF953F;
   }
 
   @keyframes sparkle-float {
-    0% { transform: translateY(100vh) scale(0); opacity: 0; }
-    25% { opacity: 0.2; }
-    50% { opacity: 0.4; transform: translateY(50vh) translateX(30px) scale(1); }
-    75% { opacity: 0.2; }
-    100% { transform: translateY(-10vh) translateX(-30px) scale(0); opacity: 0; }
+    0% { transform: translateY(105vh) scale(0); opacity: 0; }
+    10% { opacity: 0.5; }
+    50% { opacity: 0.8; transform: translateY(50vh) translateX(40px) scale(1.2); }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-10vh) translateX(-40px) scale(0); opacity: 0; }
   }
 }
 
@@ -120,6 +120,6 @@
   @apply border-border;
 }
 
-body {
+ body {
   @apply bg-background text-foreground min-h-screen selection:bg-primary/30 font-body transition-colors duration-500;
 }

@@ -37,16 +37,16 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen selection:bg-primary/30 transition-colors duration-500 overflow-x-hidden">
         <div className="sparkle-bg">
-          {[...Array(20)].map((_, i) => (
+          {[...Array(30)].map((_, i) => (
             <div 
               key={i} 
               className="sparkle bg-gold-gradient" 
               style={{
                 left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 15}s`,
-                width: `${Math.random() * 4 + 2}px`,
-                height: `${Math.random() * 4 + 2}px`,
-                opacity: Math.random() * 0.5
+                animationDelay: `${Math.random() * 12}s`,
+                width: `${Math.random() * 5 + 3}px`,
+                height: `${Math.random() * 5 + 3}px`,
+                opacity: 0.3 + Math.random() * 0.5
               }}
             />
           ))}
