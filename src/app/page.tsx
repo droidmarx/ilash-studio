@@ -59,6 +59,9 @@ export default function AgendaPage() {
     if (savedTheme) {
       setTheme(savedTheme)
       document.documentElement.classList.toggle('dark', savedTheme === 'dark')
+    } else {
+      // Default to dark as per layout
+      document.documentElement.classList.add('dark')
     }
   }, [])
 
