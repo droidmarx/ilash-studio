@@ -1,6 +1,7 @@
+
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Plus } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles } from "lucide-react"
 import { hapticFeedback } from "@/lib/utils"
 import { format, parseISO, isValid } from "date-fns"
 
@@ -57,6 +58,8 @@ const OPTIONAL_SERVICES = ["Sobrancelha", "Buço", "Tintura na Sobrancelha"]
 
 export function AppointmentForm({ initialData, clients = [], prefilledDate, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
+  const [isUnifiedValue, setIsUnifiedValue] = useState(false)
+  const [unifiedValue, setUnifiedValue] = useState("")
   
   const getInitialDateTime = () => {
     const source = initialData?.data || prefilledDate || new Date().toISOString();
@@ -102,6 +105,8 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     name: "servicosAdicionais"
   });
 
+  const selectedAdicionaisCount = form.watch("servicosAdicionais")?.filter(a => a.selected).length || 0;
+
   const uniqueClients = useMemo(() => {
     const map = new Map<string, Client>()
     clients.forEach(c => {
@@ -129,10 +134,16 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     hapticFeedback([20, 50, 20])
     const { date, time, servicosAdicionais, ...rest } = values;
     
-    // Filtrar apenas os selecionados para enviar à API
-    const selectedAdicionais = (servicosAdicionais || [])
-      .filter(a => a.selected)
-      .map(a => ({ nome: a.nome, valor: a.valor }));
+    let selectedAdicionais = (servicosAdicionais || []).filter(a => a.selected);
+
+    if (isUnifiedValue && selectedAdicionais.length > 0) {
+      selectedAdicionais = selectedAdicionais.map((a, i) => ({
+        nome: a.nome,
+        valor: i === 0 ? unifiedValue : "0,00"
+      }));
+    } else {
+      selectedAdicionais = selectedAdicionais.map(a => ({ nome: a.nome, valor: a.valor }));
+    }
 
     onSubmit({ 
       ...rest, 
@@ -312,49 +323,89 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         />
 
         <div className="space-y-4 pt-2">
-          <FormLabel className="text-primary font-bold flex items-center gap-2 px-1">
-            <Sparkles size={18} /> Serviços Adicionais
-          </FormLabel>
+          <div className="flex items-center justify-between px-1">
+            <FormLabel className="text-primary font-bold flex items-center gap-2">
+              <Sparkles size={18} /> Serviços Adicionais
+            </FormLabel>
+            
+            {selectedAdicionaisCount > 1 && (
+              <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                <Checkbox 
+                  id="unified" 
+                  checked={isUnifiedValue} 
+                  onCheckedChange={(c) => { hapticFeedback(10); setIsUnifiedValue(!!c); }}
+                  className="rounded-sm border-primary"
+                />
+                <label htmlFor="unified" className="text-[10px] font-black uppercase text-primary cursor-pointer">Valor Único</label>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-2xl border border-border/50">
-                <div className="flex items-center gap-3 flex-1">
-                  <FormField
-                    control={form.control}
-                    name={`servicosAdicionais.${index}.selected`}
-                    render={({ field: selectField }) => (
-                      <Checkbox
-                        id={`service-${index}`}
-                        checked={selectField.value}
-                        onCheckedChange={(checked) => {
-                          hapticFeedback(5);
-                          selectField.onChange(checked);
-                        }}
-                        className="rounded-md border-primary"
-                      />
-                    )}
-                  />
-                  <label htmlFor={`service-${index}`} className="text-sm font-semibold text-foreground cursor-pointer">
-                    {field.nome}
-                  </label>
+            {isUnifiedValue && selectedAdicionaisCount > 1 ? (
+              <div className="bg-muted/30 p-4 rounded-2xl border border-primary/30 space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {fields.map((field, index) => {
+                    const isSelected = form.watch(`servicosAdicionais.${index}.selected`);
+                    if (!isSelected) return null;
+                    return (
+                      <Badge key={field.id} variant="secondary" className="bg-primary/20 text-primary border-primary/30">
+                        {field.nome}
+                      </Badge>
+                    );
+                  })}
                 </div>
-                
-                <div className="w-full sm:w-32 flex items-center gap-2">
-                  <DollarSign size={14} className="text-primary/40 shrink-0" />
-                  <FormField
-                    control={form.control}
-                    name={`servicosAdicionais.${index}.valor`}
-                    render={({ field: valueField }) => (
-                      <Input
-                        placeholder="0,00"
-                        {...valueField}
-                        className="h-10 rounded-xl bg-background border-border text-right"
-                      />
-                    )}
+                <div className="space-y-2">
+                  <FormLabel className="text-xs text-primary/60 flex items-center gap-1"><DollarSign size={14} /> Valor Total dos Adicionais</FormLabel>
+                  <Input 
+                    placeholder="Ex: 50,00" 
+                    value={unifiedValue} 
+                    onChange={(e) => setUnifiedValue(e.target.value)}
+                    className="h-12 rounded-xl bg-background border-primary/40 text-lg font-bold"
                   />
                 </div>
               </div>
-            ))}
+            ) : (
+              fields.map((field, index) => (
+                <div key={field.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-2xl border border-border/50">
+                  <div className="flex items-center gap-3 flex-1">
+                    <FormField
+                      control={form.control}
+                      name={`servicosAdicionais.${index}.selected`}
+                      render={({ field: selectField }) => (
+                        <Checkbox
+                          id={`service-${index}`}
+                          checked={selectField.value}
+                          onCheckedChange={(checked) => {
+                            hapticFeedback(5);
+                            selectField.onChange(checked);
+                          }}
+                          className="rounded-md border-primary"
+                        />
+                      )}
+                    />
+                    <label htmlFor={`service-${index}`} className="text-sm font-semibold text-foreground cursor-pointer">
+                      {field.nome}
+                    </label>
+                  </div>
+                  
+                  <div className="w-full sm:w-32 flex items-center gap-2">
+                    <DollarSign size={14} className="text-primary/40 shrink-0" />
+                    <FormField
+                      control={form.control}
+                      name={`servicosAdicionais.${index}.valor`}
+                      render={({ field: valueField }) => (
+                        <Input
+                          placeholder="0,00"
+                          {...valueField}
+                          className="h-10 rounded-xl bg-background border-border text-right"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
