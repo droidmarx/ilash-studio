@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2 } from "lucide-react"
 import { format, parseISO, isValid } from "date-fns"
 
 const formSchema = z.object({
@@ -34,6 +34,9 @@ const formSchema = z.object({
   servico: z.string().min(1, "Serviço é obrigatório"),
   tipo: z.enum(["Aplicação", "Manutenção", "Remoção"]),
   valor: z.string().optional(),
+  valorAplicacao: z.string().optional(),
+  valorManutencao: z.string().optional(),
+  valorRemocao: z.string().optional(),
   whatsapp: z.string().optional(),
   aniversario: z.string().optional(),
   observacoes: z.string().optional(),
@@ -92,6 +95,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       servico: initialData?.servico || "",
       tipo: (initialData?.tipo as any) || "Aplicação",
       valor: initialData?.valor || "",
+      valorAplicacao: initialData?.valorAplicacao || "",
+      valorManutencao: initialData?.valorManutencao || "",
+      valorRemocao: initialData?.valorRemocao || "",
       whatsapp: initialData?.whatsapp || "",
       aniversario: initialData?.aniversario || "",
       observacoes: initialData?.observacoes || "",
@@ -103,6 +109,19 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     control: form.control,
     name: "servicosAdicionais"
   });
+
+  const selectedTipo = form.watch("tipo");
+
+  // Auto-fill valor based on tipo if specific values exist
+  useEffect(() => {
+    if (selectedTipo === "Aplicação" && form.getValues("valorAplicacao")) {
+      form.setValue("valor", form.getValues("valorAplicacao"));
+    } else if (selectedTipo === "Manutenção" && form.getValues("valorManutencao")) {
+      form.setValue("valor", form.getValues("valorManutencao"));
+    } else if (selectedTipo === "Remoção" && form.getValues("valorRemocao")) {
+      form.setValue("valor", form.getValues("valorRemocao"));
+    }
+  }, [selectedTipo, form]);
 
   const selectedAdicionaisCount = form.watch("servicosAdicionais")?.filter(a => a.selected).length || 0;
 
@@ -125,6 +144,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     form.setValue("nome", client.nome)
     if (client.whatsapp) form.setValue("whatsapp", client.whatsapp)
     if (client.aniversario) form.setValue("aniversario", client.aniversario)
+    if (client.valorAplicacao) form.setValue("valorAplicacao", client.valorAplicacao)
+    if (client.valorManutencao) form.setValue("valorManutencao", client.valorManutencao)
+    if (client.valorRemocao) form.setValue("valorRemocao", client.valorRemocao)
     setNameSearch("")
   }
 
@@ -184,7 +206,10 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                       className="w-full text-left px-6 py-4 hover:bg-primary/10 transition-colors flex flex-col gap-1 border-b border-border last:border-none"
                       onClick={() => handleSelectClient(s)}
                     >
-                      <span className="font-bold text-foreground text-lg">{s.nome}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-foreground text-lg">{s.nome}</span>
+                        <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">CLIENTE SALVA</Badge>
+                      </div>
                       {s.whatsapp && <span className="text-xs text-primary/60">{s.whatsapp}</span>}
                     </button>
                   ))}
@@ -194,6 +219,50 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             </FormItem>
           )}
         />
+
+        <div className="space-y-4 p-4 rounded-2xl border border-primary/10 bg-primary/5">
+          <FormLabel className="text-primary font-bold flex items-center gap-2 mb-2">
+            <DollarSign size={18} /> Valores por Procedimento
+          </FormLabel>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="valorAplicacao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] text-primary/60 flex items-center gap-1 uppercase tracking-wider"><Zap size={12}/> Aplicação</FormLabel>
+                  <FormControl>
+                    <Input placeholder="150,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="valorManutencao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] text-primary/60 flex items-center gap-1 uppercase tracking-wider"><RotateCw size={12}/> Manutenção</FormLabel>
+                  <FormControl>
+                    <Input placeholder="100,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="valorRemocao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] text-primary/60 flex items-center gap-1 uppercase tracking-wider"><Trash2 size={12}/> Remoção</FormLabel>
+                  <FormControl>
+                    <Input placeholder="50,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -228,24 +297,10 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="aniversario"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Nascimento</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="tipo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo do Agendamento</FormLabel>
                 <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
@@ -262,6 +317,20 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="valor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor Cobrado (R$)</FormLabel>
+                <FormControl>
+                  <Input placeholder="0,00" {...field} className="rounded-2xl h-12 bg-primary/10 border-primary/30 text-primary font-bold" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,7 +339,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             name="servico"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Técnica</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Sparkles size={18} /> Técnica</FormLabel>
                 <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
@@ -307,12 +376,12 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
 
         <FormField
           control={form.control}
-          name="valor"
+          name="aniversario"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor do Procedimento (R$)</FormLabel>
+              <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Data de Nascimento</FormLabel>
               <FormControl>
-                <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -410,7 +479,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             Cancelar
           </Button>
           <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform">
-            {initialData ? "Salvar" : "Confirmar"}
+            {initialData ? "Salvar" : "Confirmar Agendamento"}
           </Button>
         </div>
       </form>

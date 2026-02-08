@@ -27,9 +27,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
+import { ReminderDialog } from "./ReminderDialog"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { generateWhatsAppMessage } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
@@ -41,6 +41,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   const [searchTerm, setSearchTerm] = useState("")
   const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
+  const [reminderClient, setReminderClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const filteredClients = clients.filter(client => 
@@ -55,14 +56,6 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     } catch (e) {
       return dateStr
     }
-  }
-
-  const handleSendReminder = (event: Client) => {
-    if (!event.whatsapp) return;
-    const message = generateWhatsAppMessage(event);
-    const cleanPhone = event.whatsapp.replace(/\D/g, "");
-    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
   }
 
   const handleDelete = async () => {
@@ -139,7 +132,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => handleSendReminder(client)}
+                              onClick={() => { setReminderClient(client); }}
                               title="Enviar Lembrete"
                               className="h-8 w-8 text-green-500 hover:bg-green-500/10"
                             >
@@ -186,6 +179,12 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
         isOpen={!!anamneseClient}
         onClose={() => setAnamneseClient(null)}
         onSave={handleSaveAnamnese}
+      />
+
+      <ReminderDialog 
+        client={reminderClient}
+        isOpen={!!reminderClient}
+        onClose={() => setReminderClient(null)}
       />
 
       <Dialog open={!!editingClient} onOpenChange={(open) => { if (!open) { setEditingClient(null); } }}>

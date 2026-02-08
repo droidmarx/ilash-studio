@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Gera a mensagem de lembrete personalizada para o WhatsApp
  */
-export function generateWhatsAppMessage(event: Client) {
+export function generateWhatsAppMessage(event: Client, tipoOverride?: string) {
   const getEventDate = (dataStr: string) => {
     try {
       if (dataStr.includes('T')) return parseISO(dataStr);
@@ -31,7 +31,15 @@ export function generateWhatsAppMessage(event: Client) {
     return parseFloat(clean) || 0;
   };
 
-  const valorBase = parseCurrency(event.valor);
+  const tipo = tipoOverride || event.tipo;
+  
+  // Determinar o valor correto com base no tipo
+  let valorBaseStr = event.valor || '0,00';
+  if (tipo === 'Aplicação' && event.valorAplicacao) valorBaseStr = event.valorAplicacao;
+  if (tipo === 'Manutenção' && event.valorManutencao) valorBaseStr = event.valorManutencao;
+  if (tipo === 'Remoção' && event.valorRemocao) valorBaseStr = event.valorRemocao;
+
+  const valorBase = parseCurrency(valorBaseStr);
   const adicionais = event.servicosAdicionais || [];
   const valorAdicionais = adicionais.reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);
   const total = valorBase + valorAdicionais;
@@ -47,12 +55,12 @@ export function generateWhatsAppMessage(event: Client) {
 
 Olá *${event.nome.trim()}*, tudo bem?
 
-✨ Sua ${event.tipo.toLowerCase()} de cílios está agendada para *${formattedDate}*.
+✨ Sua *${tipo.toLowerCase()}* de cílios está agendada para *${formattedDate}*.
 
 Confira os detalhes abaixo:
 
 ⏰ Horário: ${formattedTime}
-💸 Valor: R$ ${event.valor || '0,00'}${msgAdicionais}
+💸 Procedimento: R$ ${valorBaseStr}${msgAdicionais}
 💰 *Total: R$ ${total.toFixed(2).replace(".", ",")}*
 
 📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.

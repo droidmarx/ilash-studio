@@ -25,6 +25,9 @@ export interface Client {
   servico: string;
   tipo: 'Aplicação' | 'Manutenção' | 'Remoção' | string;
   valor?: string;
+  valorAplicacao?: string;
+  valorManutencao?: string;
+  valorRemocao?: string;
   whatsapp?: string;
   observacoes?: string;
   aniversario?: string;

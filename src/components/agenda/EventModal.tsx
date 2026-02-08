@@ -26,7 +26,8 @@ import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, 
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
-import { cn, generateWhatsAppMessage } from "@/lib/utils"
+import { ReminderDialog } from "./ReminderDialog"
+import { cn } from "@/lib/utils"
 
 interface EventModalProps {
   day: Date | null
@@ -42,6 +43,7 @@ interface EventModalProps {
 export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, onEdit, onDelete }: EventModalProps) {
   const [editingEvent, setEditingEvent] = useState<Client | null>(null)
   const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
+  const [reminderClient, setReminderClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   if (!day) return null
@@ -70,14 +72,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
     if (!client.aniversario || !day) return false;
     const birthDate = parseISO(client.aniversario);
     return getMonth(day) === getMonth(birthDate);
-  }
-
-  const handleSendReminder = (event: Client) => {
-    if (!event.whatsapp) return;
-    const message = generateWhatsAppMessage(event);
-    const cleanPhone = event.whatsapp.replace(/\D/g, "");
-    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
   }
 
   const handleSendBirthdayGreeting = (client: Client) => {
@@ -268,7 +262,7 @@ Aproveite muito seu dia! 💕`;
                                 <Button 
                                   variant="outline" 
                                   size="icon" 
-                                  onClick={() => handleSendReminder(event)}
+                                  onClick={() => { setReminderClient(event); }}
                                   className="h-9 w-9 rounded-full border-green-500/20 text-green-500 hover:bg-green-500/10"
                                   title="Enviar Lembrete"
                                 >
@@ -325,6 +319,12 @@ Aproveite muito seu dia! 💕`;
         isOpen={!!anamneseClient}
         onClose={() => setAnamneseClient(null)}
         onSave={handleSaveAnamnese}
+      />
+
+      <ReminderDialog 
+        client={reminderClient}
+        isOpen={!!reminderClient}
+        onClose={() => setReminderClient(null)}
       />
 
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
