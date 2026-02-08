@@ -66,7 +66,9 @@ export function generateWhatsAppMessage(event: Client) {
 
   let msgAdicionais = "";
   if (adicionais.length > 0) {
-    msgAdicionais = "\n✨ *Adicionais:*\n" + adicionais.map(a => `- ${a.nome}: R$ ${a.valor || '0,00'}`).join("\n");
+    const nomesUnificados = adicionais.map(a => a.nome).join("+");
+    const valorUnificadoFormatted = valorAdicionais.toFixed(2).replace(".", ",");
+    msgAdicionais = `\n✨ *Adicionais:* ${nomesUnificados}: R$ ${valorUnificadoFormatted}`;
   }
 
   const message = `💖*Lembrete de agendamento*
@@ -78,7 +80,7 @@ Olá *${event.nome.trim()}*, tudo bem?
 Confira os detalhes abaixo:
 
 ⏰ Horário: ${formattedTime}
-💸 Procedimento: R$ ${event.valor || '0,00'}${msgAdicionais}
+💸 Valor: R$ ${event.valor || '0,00'}${msgAdicionais}
 💰 *Total: R$ ${total.toFixed(2).replace(".", ",")}*
 
 📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.
