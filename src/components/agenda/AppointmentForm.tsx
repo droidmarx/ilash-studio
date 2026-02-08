@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search } from "lucide-react"
+import { hapticFeedback } from "@/lib/utils"
 
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -78,15 +79,21 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
   }, [nameSearch, uniqueClients])
 
   const handleSelectClient = (client: Client) => {
+    hapticFeedback(10)
     form.setValue("nome", client.nome)
     if (client.whatsapp) form.setValue("whatsapp", client.whatsapp)
     if (client.aniversario) form.setValue("aniversario", client.aniversario)
     setNameSearch("")
   }
 
+  const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
+    hapticFeedback([20, 50, 20])
+    onSubmit(data)
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4 md:px-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 px-4 md:px-6">
         <FormField
           control={form.control}
           name="nome"
@@ -167,7 +174,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={(val) => { hapticFeedback(5); field.onChange(val); }} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Selecione o tipo" />
@@ -190,7 +197,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Técnica</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={(val) => { hapticFeedback(5); field.onChange(val); }} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Escolha a técnica" />
@@ -241,7 +248,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         </div>
 
         <div className="flex gap-4 pt-6 pb-2">
-          <Button type="button" variant="ghost" onClick={onCancel} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
+          <Button type="button" variant="ghost" onClick={() => { hapticFeedback(10); onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
             Cancelar
           </Button>
           <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform">

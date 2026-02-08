@@ -28,6 +28,7 @@ import {
 import { AppointmentForm } from "./AppointmentForm"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { hapticFeedback } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
@@ -55,6 +56,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   }
 
   const handleSendReminder = (event: Client) => {
+    hapticFeedback(15)
     if (!event.whatsapp) return;
 
     let dateObj = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
@@ -87,6 +89,7 @@ Agradeço pela confiança 💕`;
   }
 
   const handleDelete = async () => {
+    hapticFeedback([30, 100, 30])
     if (deleteConfirmId) {
       await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
@@ -157,7 +160,7 @@ Agradeço pela confiança 💕`;
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => setEditingClient(client)}
+                            onClick={() => { hapticFeedback(10); setEditingClient(client); }}
                             className="h-8 w-8 text-primary hover:bg-primary/10"
                             title="Editar"
                           >
@@ -166,7 +169,7 @@ Agradeço pela confiança 💕`;
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => setDeleteConfirmId(client.id)}
+                            onClick={() => { hapticFeedback(15); setDeleteConfirmId(client.id); }}
                             className="h-8 w-8 text-destructive hover:bg-destructive/10"
                             title="Excluir"
                           >
@@ -189,7 +192,7 @@ Agradeço pela confiança 💕`;
         </div>
       </CardContent>
 
-      <Dialog open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)}>
+      <Dialog open={!!editingClient} onOpenChange={(open) => { if (!open) { hapticFeedback(10); setEditingClient(null); } }}>
         <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-border p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Editar Cliente</DialogTitle>
@@ -218,7 +221,7 @@ Agradeço pela confiança 💕`;
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted">
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => hapticFeedback(10)}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
