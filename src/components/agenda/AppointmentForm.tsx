@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from "react"
@@ -24,10 +25,12 @@ import {
 } from "@/components/ui/select"
 import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search } from "lucide-react"
 import { hapticFeedback } from "@/lib/utils"
+import { format, parseISO, isValid } from "date-fns"
 
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
-  data: z.string().min(1, "Data/Hora é obrigatória"),
+  date: z.string().min(1, "Data é obrigatória"),
+  time: z.string().min(1, "Hora é obrigatória"),
   servico: z.string().min(1, "Serviço é obrigatório"),
   tipo: z.enum(["Aplicação", "Manutenção", "Remoção"]),
   valor: z.string().optional(),
@@ -40,7 +43,7 @@ interface AppointmentFormProps {
   initialData?: Client
   clients?: Client[]
   prefilledDate?: string
-  onSubmit: (data: z.infer<typeof formSchema>) => void
+  onSubmit: (data: any) => void
   onCancel: () => void
 }
 
@@ -49,11 +52,26 @@ const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
 export function AppointmentForm({ initialData, clients = [], prefilledDate, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
   
+  const getInitialDateTime = () => {
+    const source = initialData?.data || prefilledDate || new Date().toISOString();
+    let d;
+    try {
+      d = source.includes('T') ? parseISO(source) : new Date(source);
+      if (!isValid(d)) d = new Date();
+    } catch {
+      d = new Date();
+    }
+    return d;
+  }
+
+  const initialD = getInitialDateTime();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: initialData?.nome || "",
-      data: initialData?.data || prefilledDate || new Date().toISOString().slice(0, 16),
+      date: format(initialD, "yyyy-MM-dd"),
+      time: format(initialD, "HH:mm"),
       servico: initialData?.servico || "",
       tipo: (initialData?.tipo as any) || "Aplicação",
       valor: initialData?.valor || "",
@@ -86,9 +104,11 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     setNameSearch("")
   }
 
-  const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     hapticFeedback([20, 50, 20])
-    onSubmit(data)
+    const { date, time, ...rest } = values;
+    // Combinamos os campos separados de volta para o formato esperado pela API
+    onSubmit({ ...rest, data: `${date}T${time}` })
   }
 
   return (
@@ -140,18 +160,34 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="data"
+            name="date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><CalendarIcon size={18} /> Data e Hora</FormLabel>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><CalendarIcon size={18} /> Data</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="time"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Hora</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="aniversario"
@@ -165,9 +201,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="tipo"
@@ -190,7 +224,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="servico"
@@ -215,9 +251,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="whatsapp"
@@ -231,21 +265,21 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="valor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor (R$)</FormLabel>
-                <FormControl>
-                  <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="valor"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor (R$)</FormLabel>
+              <FormControl>
+                <Input placeholder="100,00" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex gap-4 pt-6 pb-2">
           <Button type="button" variant="ghost" onClick={() => { hapticFeedback(10); onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
