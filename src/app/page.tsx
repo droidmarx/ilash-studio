@@ -67,7 +67,7 @@ export default function AgendaPage() {
     // Splash timeout
     const timer = setTimeout(() => {
       setShowSplash(false)
-    }, 2500)
+    }, 3000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -115,37 +115,64 @@ export default function AgendaPage() {
 
   if (showSplash) {
     return (
-      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background animate-in fade-out duration-1000 fill-mode-forwards delay-2000">
-        <div className="relative flex flex-col items-center gap-8 animate-zoom-in-out">
-          <div className="relative">
-            <svg 
-              width="120" 
-              height="80" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.5)]"
-            >
-              <path d="M3 10C3 10 6 15 12 15C18 15 21 10 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 15V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 14L5 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M17 14L19 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M10 15L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M14 15L15 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 -z-10" />
+      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
+        <div className="relative flex flex-col items-center gap-12 animate-luxury-zoom">
+          <div className="relative group">
+            {/* Olho com Cílios Animado (Blink Effect) */}
+            <div className="animate-blink">
+              <svg 
+                width="160" 
+                height="100" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary),0.6)]"
+              >
+                {/* Linha superior do olho */}
+                <path 
+                  d="M3 10C3 10 6 5 12 5C18 5 21 10 21 10" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round"
+                />
+                {/* Linha inferior do olho */}
+                <path 
+                  d="M3 10C3 10 6 15 12 15C18 15 21 10 21 10" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+                {/* Cílios Superiores (Flutter Effect) */}
+                <path d="M12 5V2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M7 6L5 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M17 6L19 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M10 5L9 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M14 5L15 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                
+                {/* Cílios Inferiores */}
+                <path d="M12 15V18" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M8 14.5L7 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M16 14.5L17 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+              </svg>
+            </div>
+            {/* Brilho Aura atrás do olho */}
+            <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150 -z-10 animate-pulse" />
           </div>
-          <h1 className="text-6xl md:text-8xl font-headline text-gold-gradient py-4">
-            I Lash Studio
-          </h1>
-          <div className="flex gap-2">
-            {[...Array(3)].map((_, i) => (
-              <div 
-                key={i} 
-                className="w-2 h-2 rounded-full bg-primary animate-bounce" 
-                style={{ animationDelay: `${i * 0.1}s` }}
-              />
-            ))}
+
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="text-6xl md:text-9xl font-headline text-gold-gradient py-4 drop-shadow-lg">
+              I Lash Studio
+            </h1>
+            <div className="flex gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-bounce" 
+                  style={{ animationDelay: `${i * 0.2}s` }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
