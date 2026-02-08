@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Save, Globe, Info, Palette, Check } from "lucide-react"
+import { Settings, Globe, Palette, Check } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { DEFAULT_API_URL } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { AgendaTheme } from "@/hooks/use-agenda"
 import { cn } from "@/lib/utils"
@@ -27,10 +26,8 @@ interface SettingsModalProps {
 }
 
 const THEMES: { id: AgendaTheme; name: string; class: string }[] = [
-  { id: 'gold', name: 'Luxury Gold', class: 'bg-gradient-to-r from-[#BF953F] to-[#FCF6BA]' },
-  { id: 'rose', name: 'Soft Rose', class: 'bg-gradient-to-r from-[#e29595] to-[#f8d7da]' },
-  { id: 'emerald', name: 'Emerald Luxe', class: 'bg-gradient-to-r from-[#064e3b] to-[#10b981]' },
-  { id: 'blue', name: 'Midnight Blue', class: 'bg-gradient-to-r from-[#1e3a8a] to-[#60a5fa]' },
+  { id: 'black', name: 'Black Luxury', class: 'bg-black border-primary' },
+  { id: 'white', name: 'Pure White', class: 'bg-white border-zinc-200' },
 ]
 
 export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeChange }: SettingsModalProps) {
@@ -41,7 +38,6 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
 
   useEffect(() => {
     if (isOpen) {
-      // Deixa em branco por padrão se não houver URL salva no localStorage
       const savedUrl = localStorage.getItem("mock_api_url") || ""
       setApiUrl(savedUrl)
       setInitialTheme(currentTheme)
@@ -51,18 +47,17 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
 
   const handleThemePreview = (themeId: AgendaTheme) => {
     setSelectedTheme(themeId)
-    onThemeChange(themeId, false) // Preview without saving to localStorage
+    onThemeChange(themeId, false)
   }
 
   const handleCancel = () => {
-    onThemeChange(initialTheme, false) // Revert UI to initial theme
+    onThemeChange(initialTheme, false)
     onClose()
   }
 
   const handleSave = () => {
-    // Permite salvar vazio para voltar ao padrão do sistema, ou valida se preenchido
     localStorage.setItem("mock_api_url", apiUrl.trim())
-    onThemeChange(selectedTheme, true) // Persist the selected theme
+    onThemeChange(selectedTheme, true)
     
     toast({
       title: "Configurações Salvas",
@@ -74,21 +69,20 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
-      <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-white/10 p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
             <Settings className="text-primary" size={28} />
             Configurações
           </DialogTitle>
-          <DialogDescription className="text-primary/50">
-            Personalize a aparência e conexão da sua agenda.
+          <DialogDescription className="text-muted-foreground">
+            Personalize sua experiência no I Lash Studio.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-8 py-6">
-          {/* Seleção de Temas */}
           <div className="space-y-4">
-            <Label className="text-lg font-bold flex items-center gap-2 text-white/80">
+            <Label className="text-lg font-bold flex items-center gap-2">
               <Palette size={20} className="text-primary" />
               Estilo da Agenda
             </Label>
@@ -100,20 +94,20 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
                   className={cn(
                     "relative group flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all duration-300",
                     selectedTheme === theme.id 
-                      ? "border-primary bg-primary/10" 
-                      : "border-white/5 bg-white/5 hover:border-white/20"
+                      ? "border-primary bg-primary/10 shadow-lg" 
+                      : "border-border bg-card/50 hover:border-primary/50"
                   )}
                 >
-                  <div className={cn("w-full h-12 rounded-xl shadow-lg", theme.class)} />
+                  <div className={cn("w-full h-12 rounded-xl shadow-md border", theme.class)} />
                   <span className={cn(
                     "text-xs font-bold",
-                    selectedTheme === theme.id ? "text-primary" : "text-white/40"
+                    selectedTheme === theme.id ? "text-primary" : "text-muted-foreground"
                   )}>
                     {theme.name}
                   </span>
                   {selectedTheme === theme.id && (
                     <div className="absolute top-2 right-2 bg-primary rounded-full p-0.5">
-                      <Check size={12} className="text-black" />
+                      <Check size={12} className="text-primary-foreground" />
                     </div>
                   )}
                 </button>
@@ -121,18 +115,17 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
             </div>
           </div>
 
-          {/* URL da API */}
           <div className="space-y-3">
-            <Label htmlFor="api-url" className="text-lg font-bold flex items-center gap-2 text-white/80">
+            <Label htmlFor="api-url" className="text-lg font-bold flex items-center gap-2">
               <Globe size={20} className="text-primary" />
               Banco de Dados (MockAPI)
             </Label>
             <Input
               id="api-url"
-              placeholder="https://mockapi.io/projects/..."
+              placeholder="Ex: https://mockapi.io/..."
               value={apiUrl}
               onChange={(e) => setApiUrl(e.target.value)}
-              className="rounded-xl h-12 bg-white/5 border-white/10 text-white focus:border-primary"
+              className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary"
             />
           </div>
         </div>
@@ -141,13 +134,13 @@ export function SettingsModal({ isOpen, onClose, onSave, currentTheme, onThemeCh
           <Button 
             variant="ghost" 
             onClick={handleCancel} 
-            className="rounded-xl text-white/40 hover:text-white"
+            className="rounded-xl"
           >
             Cancelar
           </Button>
           <Button 
             onClick={handleSave} 
-            className="flex-1 rounded-xl h-12 bg-gold-gradient text-black font-bold text-lg hover:scale-[1.02] transition-transform"
+            className="flex-1 rounded-xl h-12 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform"
           >
             Salvar Alterações
           </Button>

@@ -3,13 +3,13 @@ import { getClients, createClient, updateClient, deleteClient, Client } from '@/
 import { format, parseISO, addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-export type AgendaTheme = 'gold' | 'rose' | 'emerald' | 'blue';
+export type AgendaTheme = 'black' | 'white';
 
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [activeTheme, setActiveTheme] = useState<AgendaTheme>('gold');
+  const [activeTheme, setActiveTheme] = useState<AgendaTheme>('black');
   const { toast } = useToast();
 
   const fetchClients = useCallback(async () => {
@@ -30,12 +30,12 @@ export function useAgenda() {
 
   const applyTheme = useCallback((theme: AgendaTheme, persist: boolean = false) => {
     const root = document.documentElement;
-    // Remover temas anteriores de forma limpa
-    root.classList.remove('theme-rose', 'theme-emerald', 'theme-blue');
+    root.classList.remove('theme-white', 'dark');
     
-    // Adicionar novo tema (exceto gold que é o padrão do root)
-    if (theme !== 'gold') {
-      root.classList.add(`theme-${theme}`);
+    if (theme === 'black') {
+      root.classList.add('dark');
+    } else {
+      root.classList.add('theme-white');
     }
     
     setActiveTheme(theme);
@@ -46,9 +46,7 @@ export function useAgenda() {
 
   useEffect(() => {
     fetchClients();
-    
-    // Carregar tema salvo após o mount
-    const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'gold';
+    const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'black';
     applyTheme(savedTheme, false);
   }, [fetchClients, applyTheme]);
 
@@ -90,7 +88,12 @@ export function useAgenda() {
   };
 
   const upcomingAppointments = [...clients]
-    .filter(client => safeParseDate(client.data) >= new Date())
+    .filter(client => {
+      const appDate = safeParseDate(client.data);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return appDate >= today;
+    })
     .sort((a, b) => safeParseDate(a.data).getTime() - safeParseDate(b.data).getTime());
 
   const addAppointment = async (data: Omit<Client, 'id'>) => {
