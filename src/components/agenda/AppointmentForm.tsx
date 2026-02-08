@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
@@ -184,7 +185,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     
     let selectedAdicionais = (servicosAdicionais || []).filter(a => a.selected);
 
-    // Se unificado, o primeiro serviço carrega o valor unificado para o banco, e os outros 0
     if (values.isUnifiedValue && selectedAdicionais.length > 0) {
       selectedAdicionais = selectedAdicionais.map((a, i) => ({
         nome: a.nome,
@@ -194,11 +194,26 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
       selectedAdicionais = selectedAdicionais.map(a => ({ nome: a.nome, valor: a.valor }));
     }
 
-    await onSubmit({ 
+    // Prepare update payload with bidirectional sync
+    const payload: any = { 
       ...rest, 
       data: `${date}T${time}`,
       servicosAdicionais: selectedAdicionais
-    });
+    };
+
+    // Sync aniversario with anamnese dataNascimento
+    if (initialData?.anamnese) {
+      payload.anamnese = {
+        ...initialData.anamnese,
+        dataNascimento: values.aniversario
+      };
+    } else if (values.aniversario) {
+      payload.anamnese = {
+        dataNascimento: values.aniversario
+      };
+    }
+
+    await onSubmit(payload);
   }
 
   return (

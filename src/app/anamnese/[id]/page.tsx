@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -38,7 +39,6 @@ export default function ClientAnamnesePage() {
     loadClient()
   }, [id])
 
-  // Lógica da Assinatura
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDrawing(true)
     draw(e)
@@ -88,7 +88,11 @@ export default function ClientAnamnesePage() {
     if (!client || typeof id !== 'string') return
     setSaving(true)
     try {
-      await updateClient(id, { anamnese: formData })
+      // Sync dataNascimento with aniversario field
+      await updateClient(id, { 
+        anamnese: formData,
+        aniversario: formData.dataNascimento 
+      })
       setSuccess(true)
     } catch (error) {
       console.error("Erro ao salvar", error)
@@ -149,7 +153,6 @@ export default function ClientAnamnesePage() {
 
         <div className="bg-card/60 backdrop-blur-3xl rounded-[2.5rem] border border-border p-6 md:p-10 shadow-2xl space-y-10">
           
-          {/* Seção 1: Dados Pessoais */}
           <div className="space-y-6">
             <h3 className="text-primary flex items-center gap-3 font-bold text-lg border-b border-primary/10 pb-2">
               <User size={24} /> Dados Cadastrais
@@ -157,44 +160,43 @@ export default function ClientAnamnesePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wider">CPF</Label>
-                <Input 
+                <input 
                   value={formData.cpf || ""} 
                   onChange={(e) => setFormData({...formData, cpf: e.target.value})}
-                  className="rounded-2xl h-12 bg-muted/30 border-border"
+                  className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="000.000.000-00"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wider">RG</Label>
-                <Input 
+                <input 
                   value={formData.rg || ""} 
                   onChange={(e) => setFormData({...formData, rg: e.target.value})}
-                  className="rounded-2xl h-12 bg-muted/30 border-border"
+                  className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="00.000.000-0"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wider">Profissão</Label>
-                <Input 
+                <input 
                   value={formData.profissao || ""} 
                   onChange={(e) => setFormData({...formData, profissao: e.target.value})}
-                  className="rounded-2xl h-12 bg-muted/30 border-border"
+                  className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="Sua profissão"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wider">Data de Nascimento</Label>
-                <Input 
+                <input 
                   type="date"
                   value={formData.dataNascimento || ""} 
                   onChange={(e) => setFormData({...formData, dataNascimento: e.target.value})}
-                  className="rounded-2xl h-12 bg-muted/30 border-border"
+                  className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </div>
           </div>
 
-          {/* Seção 2: Saúde Ocular e Geral (Resumido para o exemplo) */}
           <div className="space-y-6">
             <h3 className="text-primary flex items-center gap-3 font-bold text-lg border-b border-primary/10 pb-2">
               <AlertTriangle size={24} /> Saúde e Alergias
@@ -202,10 +204,10 @@ export default function ClientAnamnesePage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">Possui alergia a cosméticos ou cianoacrilato?</Label>
-                <Input 
+                <input 
                   value={formData.alergias || ""} 
                   onChange={(e) => setFormData({...formData, alergias: e.target.value})}
-                  className="rounded-2xl h-12 bg-muted/30 border-border"
+                  className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="Descreva se houver..."
                 />
               </div>
@@ -230,7 +232,6 @@ export default function ClientAnamnesePage() {
             </div>
           </div>
 
-          {/* Seção 3: Termos e Autorização */}
           <div className="space-y-6">
             <h3 className="text-primary flex items-center gap-3 font-bold text-lg border-b border-primary/10 pb-2">
               <Camera size={24} /> Autorização de Imagem
@@ -251,7 +252,6 @@ export default function ClientAnamnesePage() {
             </div>
           </div>
 
-          {/* Seção 4: Assinatura Manual */}
           <div className="space-y-6">
             <h3 className="text-primary flex items-center gap-3 font-bold text-lg border-b border-primary/10 pb-2">
               <PenLine size={24} /> Assinatura Digital

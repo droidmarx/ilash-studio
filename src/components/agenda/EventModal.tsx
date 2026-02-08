@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -56,7 +57,11 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
-    await onEdit(id, { anamnese });
+    // Sync dataNascimento with aniversario when pro saves anamnesis
+    await onEdit(id, { 
+      anamnese,
+      aniversario: anamnese.dataNascimento
+    });
   }
 
   const handleQuickReschedule = (event: Client, daysToAdd: number) => {
@@ -93,7 +98,6 @@ Aproveite muito seu dia! 💕`;
     if (deleteConfirmId) {
       await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
-      window.location.reload();
     }
   }
 

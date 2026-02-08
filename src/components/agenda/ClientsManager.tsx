@@ -63,12 +63,15 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
     if (deleteConfirmId) {
       await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
-      window.location.reload();
     }
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
-    await onEdit(id, { anamnese });
+    // Sync dataNascimento with aniversario when pro saves anamnesis
+    await onEdit(id, { 
+      anamnese,
+      aniversario: anamnese.dataNascimento
+    });
   }
 
   return (
