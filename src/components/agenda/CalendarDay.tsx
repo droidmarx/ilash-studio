@@ -2,7 +2,7 @@
 
 import { format, isToday } from "date-fns"
 import { Client } from "@/lib/api"
-import { cn, hapticFeedback } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Cake, Sparkles } from "lucide-react"
 
 interface CalendarDayProps {
@@ -22,7 +22,6 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
     <div
       onClick={() => {
         if (isCurrentMonth) {
-          hapticFeedback(10);
           onClick(day, events, birthdays);
         }
       }}

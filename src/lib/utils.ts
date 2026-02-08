@@ -9,33 +9,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Fornece feedback tátil (vibração) em dispositivos compatíveis.
- */
-export function hapticFeedback(pattern: number | number[] = 10) {
-  if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.vibrate) {
-    try {
-      const savedIntensity = localStorage.getItem('vibration-intensity') || 'medium';
-      
-      if (savedIntensity === 'none') return;
-
-      let multiplier = 1;
-      if (savedIntensity === 'weak') multiplier = 0.5;
-      if (savedIntensity === 'strong') multiplier = 2;
-      
-      const adjust = (v: number) => Math.max(1, Math.round(v * multiplier));
-
-      const adjustedPattern = Array.isArray(pattern) 
-        ? pattern.map(adjust) 
-        : adjust(pattern);
-
-      navigator.vibrate(adjustedPattern);
-    } catch (e) {
-      // Ignora se o navegador bloquear ou não suportar
-    }
-  }
-}
-
-/**
  * Gera a mensagem de lembrete personalizada para o WhatsApp
  */
 export function generateWhatsAppMessage(event: Client) {

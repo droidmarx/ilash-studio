@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles } from "lucide-react"
-import { hapticFeedback } from "@/lib/utils"
 import { format, parseISO, isValid } from "date-fns"
 
 const formSchema = z.object({
@@ -123,7 +122,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
   }, [nameSearch, uniqueClients])
 
   const handleSelectClient = (client: Client) => {
-    hapticFeedback(10)
     form.setValue("nome", client.nome)
     if (client.whatsapp) form.setValue("whatsapp", client.whatsapp)
     if (client.aniversario) form.setValue("aniversario", client.aniversario)
@@ -131,7 +129,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
   }
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
-    hapticFeedback([20, 50, 20])
     const { date, time, servicosAdicionais, ...rest } = values;
     
     let selectedAdicionais = (servicosAdicionais || []).filter(a => a.selected);
@@ -249,7 +246,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo</FormLabel>
-                <Select onValueChange={(val) => { hapticFeedback(5); field.onChange(val); }} defaultValue={field.value}>
+                <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Selecione o tipo" />
@@ -274,7 +271,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Técnica</FormLabel>
-                <Select onValueChange={(val) => { hapticFeedback(5); field.onChange(val); }} defaultValue={field.value}>
+                <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Escolha a técnica" />
@@ -333,7 +330,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 <Checkbox 
                   id="unified" 
                   checked={isUnifiedValue} 
-                  onCheckedChange={(c) => { hapticFeedback(10); setIsUnifiedValue(!!c); }}
+                  onCheckedChange={(c) => { setIsUnifiedValue(!!c); }}
                   className="rounded-sm border-primary"
                 />
                 <label htmlFor="unified" className="text-[10px] font-black uppercase text-primary cursor-pointer">Valor Único</label>
@@ -377,7 +374,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                           id={`service-${index}`}
                           checked={selectField.value}
                           onCheckedChange={(checked) => {
-                            hapticFeedback(5);
                             selectField.onChange(checked);
                           }}
                           className="rounded-md border-primary"
@@ -410,7 +406,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         </div>
 
         <div className="flex gap-4 pt-6 pb-2">
-          <Button type="button" variant="ghost" onClick={() => { hapticFeedback(10); onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
+          <Button type="button" variant="ghost" onClick={() => { onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
             Cancelar
           </Button>
           <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform">

@@ -3,15 +3,10 @@ import { getClients, createClient, updateClient, deleteClient, Client } from '@/
 import { addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-export type AgendaTheme = 'black' | 'white' | 'rose' | 'emerald' | 'blue';
-export type VibrationIntensity = 'none' | 'weak' | 'medium' | 'strong';
-
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [activeTheme, setActiveTheme] = useState<AgendaTheme>('black');
-  const [vibrationIntensity, setVibrationIntensity] = useState<VibrationIntensity>('medium');
   const { toast } = useToast();
 
   const fetchClients = useCallback(async () => {
@@ -30,38 +25,9 @@ export function useAgenda() {
     }
   }, [toast]);
 
-  const applyTheme = useCallback((theme: AgendaTheme, persist: boolean = false) => {
-    if (typeof document === 'undefined') return;
-    
-    const root = document.documentElement;
-    root.classList.remove('theme-white', 'theme-rose', 'theme-emerald', 'theme-blue');
-    
-    if (theme !== 'black') {
-      root.classList.add(`theme-${theme}`);
-    }
-    
-    setActiveTheme(theme);
-    if (persist) {
-      localStorage.setItem('agenda-theme', theme);
-    }
-  }, []);
-
-  const applyVibration = useCallback((intensity: VibrationIntensity, persist: boolean = false) => {
-    setVibrationIntensity(intensity);
-    if (persist) {
-      localStorage.setItem('vibration-intensity', intensity);
-    }
-  }, []);
-
   useEffect(() => {
     fetchClients();
-    
-    const savedTheme = (localStorage.getItem('agenda-theme') as AgendaTheme) || 'black';
-    const savedVibration = (localStorage.getItem('vibration-intensity') as VibrationIntensity) || 'medium';
-    
-    applyTheme(savedTheme, false);
-    setVibrationIntensity(savedVibration);
-  }, [fetchClients, applyTheme]);
+  }, [fetchClients]);
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -133,10 +99,7 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido." });
-      // Força o recarregamento da página conforme solicitado
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      await fetchClients();
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
     }
@@ -146,10 +109,6 @@ export function useAgenda() {
     clients,
     loading,
     currentMonth,
-    activeTheme,
-    vibrationIntensity,
-    applyTheme,
-    applyVibration,
     nextMonth,
     prevMonth,
     getDayEvents,

@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
-import { cn, hapticFeedback, generateWhatsAppMessage } from "@/lib/utils"
+import { cn, generateWhatsAppMessage } from "@/lib/utils"
 
 interface EventModalProps {
   day: Date | null
@@ -45,7 +45,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   if (!day) return null
 
   const handleEditSubmit = (data: any) => {
-    hapticFeedback([20, 50, 20])
     if (editingEvent) {
       onEdit(editingEvent.id, data)
       setEditingEvent(null)
@@ -53,7 +52,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   }
 
   const handleQuickReschedule = (event: Client, daysToAdd: number) => {
-    hapticFeedback(15)
     const currentAppDate = event.data.includes('T') ? parseISO(event.data) : new Date(event.data);
     const newDate = addDays(currentAppDate, daysToAdd);
     onEdit(event.id, {
@@ -69,7 +67,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   }
 
   const handleSendReminder = (event: Client) => {
-    hapticFeedback(15)
     if (!event.whatsapp) return;
     const message = generateWhatsAppMessage(event);
     const cleanPhone = event.whatsapp.replace(/\D/g, "");
@@ -78,7 +75,6 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   }
 
   const handleSendBirthdayGreeting = (client: Client) => {
-    hapticFeedback(20)
     if (!client.whatsapp) return;
     const message = `🎈*Feliz Aniversário, ${client.nome.trim()}!* 🎈
 
@@ -93,7 +89,6 @@ Aproveite muito seu dia! 💕`;
   }
 
   const handleDelete = () => {
-    hapticFeedback([30, 100, 30])
     if (deleteConfirmId) {
       onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
@@ -104,7 +99,6 @@ Aproveite muito seu dia! 💕`;
     <>
       <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) {
-          hapticFeedback(10)
           onClose()
           setEditingEvent(null)
         }
@@ -127,7 +121,7 @@ Aproveite muito seu dia! 💕`;
               </div>
               {!editingEvent && onAddNew && (
                 <Button 
-                  onClick={() => { hapticFeedback(10); onAddNew(day); }}
+                  onClick={() => { onAddNew(day); }}
                   className="rounded-full gap-2 shadow-lg bg-gold-gradient text-primary-foreground font-bold h-10 w-fit"
                   size="sm"
                 >
@@ -269,7 +263,7 @@ Aproveite muito seu dia! 💕`;
                               <Button 
                                 variant="outline" 
                                 size="icon" 
-                                onClick={() => { hapticFeedback(10); setEditingEvent(event); }}
+                                onClick={() => { setEditingEvent(event); }}
                                 className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10"
                                 title="Editar"
                               >
@@ -278,7 +272,7 @@ Aproveite muito seu dia! 💕`;
                               <Button 
                                 variant="outline" 
                                 size="icon" 
-                                onClick={() => { hapticFeedback(15); setDeleteConfirmId(event.id); }}
+                                onClick={() => { setDeleteConfirmId(event.id); }}
                                 className="h-9 w-9 rounded-full border-destructive/20 text-destructive hover:bg-destructive/10"
                                 title="Excluir"
                               >
@@ -295,7 +289,7 @@ Aproveite muito seu dia! 💕`;
                       {onAddNew && (
                         <Button 
                           variant="ghost" 
-                          onClick={() => { hapticFeedback(10); onAddNew(day); }}
+                          onClick={() => { onAddNew(day); }}
                           className="rounded-full gap-2 border border-primary/20 text-primary hover:bg-primary/5"
                         >
                           <PlusCircle size={18} />
@@ -320,7 +314,7 @@ Aproveite muito seu dia! 💕`;
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => hapticFeedback(10)}>
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => {}}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 

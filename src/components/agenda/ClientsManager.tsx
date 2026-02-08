@@ -28,7 +28,7 @@ import {
 import { AppointmentForm } from "./AppointmentForm"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { hapticFeedback, generateWhatsAppMessage } from "@/lib/utils"
+import { generateWhatsAppMessage } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
@@ -56,7 +56,6 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   }
 
   const handleSendReminder = (event: Client) => {
-    hapticFeedback(15)
     if (!event.whatsapp) return;
     const message = generateWhatsAppMessage(event);
     const cleanPhone = event.whatsapp.replace(/\D/g, "");
@@ -65,7 +64,6 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   }
 
   const handleDelete = async () => {
-    hapticFeedback([30, 100, 30])
     if (deleteConfirmId) {
       await onDelete(deleteConfirmId);
       setDeleteConfirmId(null);
@@ -136,7 +134,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => { hapticFeedback(10); setEditingClient(client); }}
+                            onClick={() => { setEditingClient(client); }}
                             className="h-8 w-8 text-primary hover:bg-primary/10"
                             title="Editar"
                           >
@@ -145,7 +143,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => { hapticFeedback(15); setDeleteConfirmId(client.id); }}
+                            onClick={() => { setDeleteConfirmId(client.id); }}
                             className="h-8 w-8 text-destructive hover:bg-destructive/10"
                             title="Excluir"
                           >
@@ -168,7 +166,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
         </div>
       </CardContent>
 
-      <Dialog open={!!editingClient} onOpenChange={(open) => { if (!open) { hapticFeedback(10); setEditingClient(null); } }}>
+      <Dialog open={!!editingClient} onOpenChange={(open) => { if (!open) { setEditingClient(null); } }}>
         <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] bg-background border-border p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Editar Cliente</DialogTitle>
@@ -197,7 +195,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => hapticFeedback(10)}>
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => {}}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 

@@ -27,7 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronLeft, ChevronRight, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
-import { hapticFeedback } from "@/lib/utils"
 
 export default function AgendaPage() {
   const { 
@@ -39,10 +38,6 @@ export default function AgendaPage() {
     getDayEvents, 
     getDayBirthdays,
     upcomingAppointments,
-    activeTheme,
-    applyTheme,
-    vibrationIntensity,
-    applyVibration,
     refresh,
     addAppointment,
     editAppointment,
@@ -68,7 +63,6 @@ export default function AgendaPage() {
   })
 
   const handleDayClick = (day: Date, events: Client[], birthdays: Client[]) => {
-    hapticFeedback(15)
     setSelectedDay(day)
     setModalEvents(events)
     setModalBirthdays(birthdays)
@@ -76,7 +70,6 @@ export default function AgendaPage() {
   }
 
   const handleOpenAddModal = (date?: Date) => {
-    hapticFeedback(20)
     if (date) {
       const now = new Date()
       const dateWithTime = setMinutes(setHours(date, now.getHours()), now.getMinutes())
@@ -88,7 +81,6 @@ export default function AgendaPage() {
   }
 
   const handleAddSubmit = async (data: any) => {
-    hapticFeedback([20, 50, 20])
     await addAppointment(data)
     setIsAddModalOpen(false)
   }
@@ -96,15 +88,12 @@ export default function AgendaPage() {
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8 font-body transition-colors duration-700 bg-background text-foreground">
+    <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background text-foreground">
       <div className="fixed top-6 right-6 z-50">
         <Button
           variant="outline"
           size="icon"
-          onClick={() => {
-            hapticFeedback(25)
-            setIsSettingsOpen(true)
-          }}
+          onClick={() => setIsSettingsOpen(true)}
           className="rounded-full w-12 h-12 border-primary/40 bg-background/50 backdrop-blur-md hover:bg-primary/10"
         >
           <Settings className="h-6 w-6 text-primary" />
@@ -112,10 +101,7 @@ export default function AgendaPage() {
       </div>
       
       <Button
-        onClick={() => {
-          hapticFeedback(30)
-          handleOpenAddModal()
-        }}
+        onClick={() => handleOpenAddModal()}
         className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(var(--primary),0.5)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300"
       >
         <Plus size={32} />
@@ -143,7 +129,7 @@ export default function AgendaPage() {
             <p className="text-xl text-primary font-light tracking-widest">Aguarde um instante...</p>
           </div>
         ) : (
-          <Tabs defaultValue="agenda" className="w-full space-y-8" onValueChange={() => hapticFeedback(20)}>
+          <Tabs defaultValue="agenda" className="w-full space-y-8">
             <div className="flex justify-center">
               <TabsList className="bg-muted border border-border p-1.5 rounded-[2rem] h-16 w-full max-w-md shadow-2xl">
                 <TabsTrigger value="agenda" className="flex-1 rounded-[1.5rem] gap-2 data-[state=active]:bg-gold-gradient data-[state=active]:text-primary-foreground h-full transition-all text-base font-semibold">
@@ -160,13 +146,13 @@ export default function AgendaPage() {
                 <div className="lg:col-span-2">
                   <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card backdrop-blur-2xl">
                     <CardHeader className="flex flex-row items-center justify-between px-8 py-10">
-                      <Button variant="ghost" size="icon" onClick={() => { hapticFeedback(15); prevMonth(); }} className="hover:bg-primary/10 text-primary">
+                      <Button variant="ghost" size="icon" onClick={() => prevMonth()} className="hover:bg-primary/10 text-primary">
                         <ChevronLeft size={36} />
                       </Button>
                       <CardTitle className="text-3xl md:text-4xl font-headline text-gold-gradient text-center">
                         {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
                       </CardTitle>
-                      <Button variant="ghost" size="icon" onClick={() => { hapticFeedback(15); nextMonth(); }} className="hover:bg-primary/10 text-primary">
+                      <Button variant="ghost" size="icon" onClick={() => nextMonth()} className="hover:bg-primary/10 text-primary">
                         <ChevronRight size={36} />
                       </Button>
                     </CardHeader>
@@ -220,27 +206,23 @@ export default function AgendaPage() {
         birthdays={modalBirthdays}
         isOpen={isModalOpen}
         onClose={() => {
-          hapticFeedback(10);
           setIsModalOpen(false);
         }}
         onAddNew={(date) => {
-          hapticFeedback(20);
           setIsModalOpen(false)
           handleOpenAddModal(date)
         }}
         onEdit={async (id, data) => {
-          hapticFeedback([20, 40]);
           await editAppointment(id, data)
           setIsModalOpen(false)
         }}
         onDelete={async (id) => {
-          hapticFeedback([40, 60]);
           await removeAppointment(id)
           setIsModalOpen(false)
         }}
       />
 
-      <Dialog open={isAddModalOpen} onOpenChange={(open) => { if (!open) { hapticFeedback(10); setIsAddModalOpen(false); } }}>
+      <Dialog open={isAddModalOpen} onOpenChange={(open) => { if (!open) { setIsAddModalOpen(false); } }}>
         <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] md:rounded-[2.5rem] bg-background border-border p-4 md:p-8 max-h-[95vh] overflow-y-auto text-foreground">
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
@@ -253,7 +235,7 @@ export default function AgendaPage() {
               clients={clients}
               prefilledDate={prefilledDate}
               onSubmit={handleAddSubmit} 
-              onCancel={() => { hapticFeedback(10); setIsAddModalOpen(false); }} 
+              onCancel={() => { setIsAddModalOpen(false); }} 
             />
           </div>
         </DialogContent>
@@ -261,12 +243,8 @@ export default function AgendaPage() {
 
       <SettingsModal
         isOpen={isSettingsOpen}
-        onClose={() => { hapticFeedback(10); setIsSettingsOpen(false); }}
-        onSave={() => { hapticFeedback([20, 50]); refresh(); }}
-        currentTheme={activeTheme}
-        onThemeChange={applyTheme}
-        vibrationIntensity={vibrationIntensity}
-        onVibrationChange={applyVibration}
+        onClose={() => { setIsSettingsOpen(false); }}
+        onSave={() => { refresh(); }}
       />
     </div>
   )

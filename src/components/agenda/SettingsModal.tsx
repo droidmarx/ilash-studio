@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Globe, Palette, Check, Smartphone } from "lucide-react"
+import { Settings, Globe } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -14,92 +14,41 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { AgendaTheme, VibrationIntensity } from "@/hooks/use-agenda"
-import { cn, hapticFeedback } from "@/lib/utils"
 
 interface SettingsModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: () => void
-  currentTheme: AgendaTheme
-  onThemeChange: (theme: AgendaTheme, persist?: boolean) => void
-  vibrationIntensity: VibrationIntensity
-  onVibrationChange: (intensity: VibrationIntensity, persist?: boolean) => void
 }
-
-const THEMES: { id: AgendaTheme; name: string; class: string }[] = [
-  { id: 'black', name: 'Black Luxury', class: 'bg-black border-primary' },
-  { id: 'white', name: 'Pure White', class: 'bg-white border-zinc-200' },
-  { id: 'rose', name: 'Rose Luxury', class: 'bg-[#1a0a10] border-[#f472b6]' },
-  { id: 'emerald', name: 'Emerald Luxe', class: 'bg-[#0a1a14] border-[#34d399]' },
-  { id: 'blue', name: 'Midnight Blue', class: 'bg-[#0a0f1a] border-[#60a5fa]' },
-]
-
-const VIBRATIONS: { id: VibrationIntensity; name: string }[] = [
-  { id: 'none', name: 'Off' },
-  { id: 'weak', name: 'Fraca' },
-  { id: 'medium', name: 'Média' },
-  { id: 'strong', name: 'Forte' },
-]
 
 export function SettingsModal({ 
   isOpen, 
   onClose, 
-  onSave, 
-  currentTheme, 
-  onThemeChange,
-  vibrationIntensity,
-  onVibrationChange
+  onSave
 }: SettingsModalProps) {
   const [apiUrl, setApiUrl] = useState("")
-  const [initialTheme, setInitialTheme] = useState<AgendaTheme>(currentTheme)
-  const [selectedTheme, setSelectedTheme] = useState<AgendaTheme>(currentTheme)
-  const [selectedVibration, setSelectedVibration] = useState<VibrationIntensity>(vibrationIntensity)
   const { toast } = useToast()
 
   useEffect(() => {
     if (isOpen) {
       const savedUrl = localStorage.getItem("mock_api_url") || ""
       setApiUrl(savedUrl)
-      setInitialTheme(currentTheme)
-      setSelectedTheme(currentTheme)
-      setSelectedVibration(vibrationIntensity)
     }
-  }, [isOpen, currentTheme, vibrationIntensity])
-
-  const handleThemePreview = (themeId: AgendaTheme) => {
-    setSelectedTheme(themeId)
-    onThemeChange(themeId, false)
-    hapticFeedback(10)
-  }
-
-  const handleVibrationPreview = (intensity: VibrationIntensity) => {
-    setSelectedVibration(intensity)
-    localStorage.setItem('vibration-intensity', intensity)
-    hapticFeedback(intensity === 'strong' ? 40 : intensity === 'medium' ? 20 : 10)
-  }
-
-  const handleCancel = () => {
-    onThemeChange(initialTheme, false)
-    localStorage.setItem('vibration-intensity', vibrationIntensity)
-    onClose()
-  }
+  }, [isOpen])
 
   const handleSave = () => {
     localStorage.setItem("mock_api_url", apiUrl.trim())
-    onThemeChange(selectedTheme, true)
-    onVibrationChange(selectedVibration, true)
     
     toast({
       title: "Configurações Salvas",
-      description: "As alterações foram aplicadas com sucesso.",
+      description: "URL da API atualizada com sucesso.",
     })
     onSave()
     onClose()
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[95vw] sm:max-w-[550px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
@@ -107,68 +56,11 @@ export function SettingsModal({
             Configurações
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Personalize sua experiência no I Lash Studio.
+            Configure o banco de dados do I Lash Studio.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-8 py-6">
-          <div className="space-y-4">
-            <Label className="text-lg font-bold flex items-center gap-2">
-              <Palette size={20} className="text-primary" />
-              Estilo da Agenda
-            </Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {THEMES.map((theme) => (
-                <button
-                  key={theme.id}
-                  onClick={() => handleThemePreview(theme.id)}
-                  className={cn(
-                    "relative group flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all duration-300",
-                    selectedTheme === theme.id 
-                      ? "border-primary bg-primary/10 shadow-lg" 
-                      : "border-border bg-card/50 hover:border-primary/50"
-                  )}
-                >
-                  <div className={cn("w-full h-10 rounded-xl shadow-md border", theme.class)} />
-                  <span className={cn(
-                    "text-[10px] font-bold",
-                    selectedTheme === theme.id ? "text-primary" : "text-muted-foreground"
-                  )}>
-                    {theme.name}
-                  </span>
-                  {selectedTheme === theme.id && (
-                    <div className="absolute top-2 right-2 bg-primary rounded-full p-0.5">
-                      <Check size={10} className="text-primary-foreground" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label className="text-lg font-bold flex items-center gap-2">
-              <Smartphone size={20} className="text-primary" />
-              Vibração (Haptic Feedback)
-            </Label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {VIBRATIONS.map((vib) => (
-                <button
-                  key={vib.id}
-                  onClick={() => handleVibrationPreview(vib.id)}
-                  className={cn(
-                    "px-3 py-3 rounded-xl border text-xs font-bold transition-all",
-                    selectedVibration === vib.id 
-                      ? "bg-primary text-primary-foreground border-primary" 
-                      : "bg-card border-border text-muted-foreground hover:border-primary/50"
-                  )}
-                >
-                  {vib.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="space-y-3">
             <Label htmlFor="api-url" className="text-lg font-bold flex items-center gap-2">
               <Globe size={20} className="text-primary" />
@@ -187,7 +79,7 @@ export function SettingsModal({
         <DialogFooter className="flex flex-col sm:flex-row gap-3 mt-4">
           <Button 
             variant="ghost" 
-            onClick={handleCancel} 
+            onClick={onClose} 
             className="rounded-xl"
           >
             Cancelar
