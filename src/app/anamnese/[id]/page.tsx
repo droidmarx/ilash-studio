@@ -242,32 +242,32 @@ export default function ClientAnamnesePage() {
             <div className="space-y-6">
               {[
                 { id: 'procedimento', label: 'Fez algum procedimento recentemente nos olhos?', field: 'procedimentoRecenteOlhos' },
-                { id: 'alergiaCosm', label: 'Possui alergia à esmaltes/cianoacrilato?', field: 'alergiaCosmeticos' },
+                { id: 'alergia', label: 'Possui alergia à esmaltes/cianoacrilato?', field: 'alergiaCosmeticos' },
                 { id: 'tireoide', label: 'Possui problemas de tireóide?', field: 'problemaTireoide' },
                 { id: 'ocular', label: 'Possui glaucoma/blefarite/algum problema ocular?', field: 'problemaOcular' },
                 { id: 'onco', label: 'Está em tratamento oncológico?', field: 'tratamentoOncologico' },
                 { id: 'gestante', label: 'Está gestante ou lactante?', field: 'gestanteLactante' }
               ].map((item) => (
-                <div key={item.id} className="flex items-center justify-between gap-4 bg-muted/20 p-4 rounded-2xl border border-border/50">
-                  <Label htmlFor={item.id} className="text-sm cursor-pointer flex-1">{item.label}</Label>
-                  <div className="flex gap-4 shrink-0">
-                    <div className="flex items-center gap-2">
+                <div key={item.id} className="flex flex-col gap-3 bg-muted/20 p-4 rounded-2xl border border-border/50">
+                  <Label htmlFor={item.id} className="text-sm cursor-pointer font-semibold leading-relaxed">{item.label}</Label>
+                  <div className="flex gap-8">
+                    <div className="flex items-center gap-3">
                       <Checkbox 
                         id={`${item.id}-sim`}
                         checked={!!(formData as any)[item.field]}
                         onCheckedChange={(c) => setFormData({...formData, [item.field]: true})}
-                        className="rounded-full"
+                        className="rounded-full h-5 w-5"
                       />
-                      <span className="text-xs font-bold text-primary">Sim</span>
+                      <Label htmlFor={`${item.id}-sim`} className="text-xs font-bold text-primary cursor-pointer">Sim</Label>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Checkbox 
                         id={`${item.id}-nao`}
                         checked={!(formData as any)[item.field]}
                         onCheckedChange={(c) => setFormData({...formData, [item.field]: false})}
-                        className="rounded-full"
+                        className="rounded-full h-5 w-5"
                       />
-                      <span className="text-xs text-muted-foreground">Não</span>
+                      <Label htmlFor={`${item.id}-nao`} className="text-xs text-muted-foreground cursor-pointer">Não</Label>
                     </div>
                   </div>
                 </div>
