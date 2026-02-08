@@ -110,20 +110,36 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
     name: "servicosAdicionais"
   });
 
-  const selectedTipo = form.watch("tipo");
+  // Watch values for auto-calculation
+  const watchedTipo = form.watch("tipo");
+  const watchedValores = form.watch(["valorAplicacao", "valorManutencao", "valorRemocao"]);
+  const watchedAdicionais = form.watch("servicosAdicionais");
 
-  // Auto-fill valor based on tipo if specific values exist
+  const parseCurrency = (val?: string) => {
+    if (!val) return 0;
+    const clean = val.replace(/[^\d,.-]/g, "").replace(",", ".");
+    return parseFloat(clean) || 0;
+  };
+
+  const calculatedTotal = useMemo(() => {
+    let base = 0;
+    if (watchedTipo === "Aplicação") base = parseCurrency(watchedValores[0]);
+    else if (watchedTipo === "Manutenção") base = parseCurrency(watchedValores[1]);
+    else if (watchedTipo === "Remoção") base = parseCurrency(watchedValores[2]);
+
+    const additionalTotal = (watchedAdicionais || [])
+      .filter(a => a.selected)
+      .reduce((acc, curr) => acc + parseCurrency(curr.valor), 0);
+
+    return (base + additionalTotal).toFixed(2).replace(".", ",");
+  }, [watchedTipo, watchedValores, watchedAdicionais]);
+
+  // Sync calculatedTotal to form "valor" field
   useEffect(() => {
-    if (selectedTipo === "Aplicação" && form.getValues("valorAplicacao")) {
-      form.setValue("valor", form.getValues("valorAplicacao"));
-    } else if (selectedTipo === "Manutenção" && form.getValues("valorManutencao")) {
-      form.setValue("valor", form.getValues("valorManutencao"));
-    } else if (selectedTipo === "Remoção" && form.getValues("valorRemocao")) {
-      form.setValue("valor", form.getValues("valorRemocao"));
-    }
-  }, [selectedTipo, form]);
+    form.setValue("valor", calculatedTotal);
+  }, [calculatedTotal, form]);
 
-  const selectedAdicionaisCount = form.watch("servicosAdicionais")?.filter(a => a.selected).length || 0;
+  const selectedAdicionaisCount = watchedAdicionais?.filter(a => a.selected).length || 0;
 
   const uniqueClients = useMemo(() => {
     const map = new Map<string, Client>()
@@ -320,22 +336,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
 
           <FormField
             control={form.control}
-            name="valor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><DollarSign size={18} /> Valor Cobrado (R$)</FormLabel>
-                <FormControl>
-                  <Input placeholder="0,00" {...field} className="rounded-2xl h-12 bg-primary/10 border-primary/30 text-primary font-bold" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
             name="servico"
             render={({ field }) => (
               <FormItem>
@@ -358,7 +358,9 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="whatsapp"
@@ -372,21 +374,21 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               </FormItem>
             )}
           />
-        </div>
 
-        <FormField
-          control={form.control}
-          name="aniversario"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Data de Nascimento</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="aniversario"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Data de Nascimento</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="space-y-4 pt-2">
           <div className="flex items-center justify-between px-1">
@@ -473,6 +475,29 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             )}
           </div>
         </div>
+
+        <FormField
+          control={form.control}
+          name="valor"
+          render={({ field }) => (
+            <FormItem className="pt-4">
+              <FormLabel className="text-primary font-bold flex items-center gap-2 px-1">
+                <DollarSign size={18} /> Valor Total do Procedimento
+              </FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input 
+                    {...field} 
+                    readOnly 
+                    className="rounded-2xl h-16 bg-primary/10 border-primary/40 text-primary font-black text-2xl px-6" 
+                  />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 font-bold">R$</span>
+                </div>
+              </FormControl>
+              <p className="text-[10px] text-muted-foreground px-1 uppercase tracking-tighter">Cálculo automático: Procedimento base + Adicionais</p>
+            </FormItem>
+          )}
+        />
 
         <div className="flex gap-4 pt-6 pb-2">
           <Button type="button" variant="ghost" onClick={() => { onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
