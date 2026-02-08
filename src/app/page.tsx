@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -119,32 +120,27 @@ export default function AgendaPage() {
           <div className="relative group">
             <div className="animate-blink">
               <svg 
-                width="240" 
-                height="140" 
-                viewBox="0 0 100 60" 
+                width="200" 
+                height="100" 
+                viewBox="0 0 100 40" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
                 className="text-primary drop-shadow-[0_0_30px_rgba(var(--primary),0.8)]"
               >
-                <path d="M10 35C10 35 30 15 50 15C70 15 90 35 90 35" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                <path d="M10 35C10 35 30 50 50 50C70 50 90 35 90 35" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1 3"/>
-                <path d="M85 32C88 28 92 22 96 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M78 28C81 24 85 18 88 10" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M70 24C73 20 76 14 78 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M60 20C62 16 64 10 65 5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M50 18V5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M40 20C38 16 36 10 35 5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M30 24C27 20 24 14 22 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <circle cx="50" cy="35" r="6" stroke="currentColor" strokeWidth="0.5" opacity="0.3"/>
-                <circle cx="50" cy="35" r="2" fill="currentColor" opacity="0.1"/>
+                <path d="M20 25C40 5 60 5 80 25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M25 18L20 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M35 12L32 2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M50 10V0" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M65 12L68 2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M75 18L80 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
               </svg>
             </div>
-            <div className="absolute inset-0 bg-primary/10 blur-[80px] rounded-full scale-150 -z-10 animate-pulse" />
+            <div className="absolute inset-0 bg-primary/10 blur-[60px] rounded-full scale-150 -z-10 animate-pulse" />
           </div>
 
           <div className="flex flex-col items-center gap-3">
             <h1 className="text-6xl md:text-9xl font-headline text-gold-gradient py-4 drop-shadow-2xl tracking-tight">
-              i Lash Studio
+              I Lash Studio
             </h1>
             <p className="text-primary/40 text-[10px] md:text-xs font-bold tracking-[0.6em] uppercase animate-pulse">
               The Art of Eyelash Design
@@ -185,7 +181,7 @@ export default function AgendaPage() {
             <Crown className="text-primary animate-bounce" size={24} />
           </div>
           <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-8">
-            i Lash Studio
+            I Lash Studio
           </h1>
           <p className="text-primary/70 text-sm md:text-base font-medium tracking-[0.3em] uppercase">
             Exclusive Client Experience
@@ -265,7 +261,7 @@ export default function AgendaPage() {
         )}
 
         <footer className="text-center pt-20 pb-10 text-primary/20 text-xs font-light tracking-[0.2em] uppercase">
-          <p>&copy; {new Date().getFullYear()} i Lash Studio</p>
+          <p>&copy; {new Date().getFullYear()} I Lash Studio</p>
         </footer>
       </div>
 

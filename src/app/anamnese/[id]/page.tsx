@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -150,7 +151,7 @@ export default function ClientAnamnesePage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-background">
         <h1 className="text-3xl font-headline text-gold-gradient mb-4">Link Expirado ou Inválido</h1>
-        <p className="text-muted-foreground">Por favor, solicite um novo link ao i Lash Studio.</p>
+        <p className="text-muted-foreground">Por favor, solicite um novo link ao I Lash Studio.</p>
       </div>
     )
   }
@@ -163,7 +164,7 @@ export default function ClientAnamnesePage() {
             <CheckCircle2 className="text-green-500" size={64} />
           </div>
           <h1 className="text-4xl font-headline text-gold-gradient">Obrigada, {client.nome.split(' ')[0]}!</h1>
-          <p className="text-muted-foreground">Sua ficha foi enviada com sucesso ao i Lash Studio. Estamos ansiosas para cuidar do seu olhar!</p>
+          <p className="text-muted-foreground">Sua ficha foi enviada com sucesso ao I Lash Studio. Estamos ansiosas para cuidar do seu olhar!</p>
           <div className="pt-4">
             <Crown className="text-primary mx-auto opacity-40" size={32} />
           </div>
@@ -179,7 +180,7 @@ export default function ClientAnamnesePage() {
           <div className="flex justify-center mb-2">
             <Crown className="text-primary" size={32} />
           </div>
-          <h1 className="text-5xl md:text-6xl font-headline text-gold-gradient py-2">i Lash Studio</h1>
+          <h1 className="text-5xl md:text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
           <div className="space-y-1">
             <p className="text-primary/70 text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase">Ficha de Anamnese Digital</p>
             <h2 className="text-2xl font-bold text-foreground">Olá, {client.nome}!</h2>
@@ -308,7 +309,7 @@ export default function ClientAnamnesePage() {
             </h3>
             <div className="bg-primary/5 p-6 rounded-[2rem] border border-primary/20 space-y-4">
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Autorizo o <strong>i Lash Studio</strong> a utilizar fotos e vídeos dos meus olhos/rosto obtidos durante o procedimento para fins de portfólio, redes sociais e material informativo.
+                Autorizo o <strong>I Lash Studio</strong> a utilizar fotos e vídeos dos meus olhos/rosto obtidos durante o procedimento para fins de portfólio, redes sociais e material informativo.
               </p>
               <div className="flex items-center gap-4">
                 <Checkbox 
@@ -363,7 +364,7 @@ export default function ClientAnamnesePage() {
         </div>
 
         <footer className="text-center text-primary/30 text-[10px] font-light tracking-[0.2em] uppercase py-8">
-          <p>&copy; {new Date().getFullYear()} i Lash Studio • Luxury Experience</p>
+          <p>&copy; {new Date().getFullYear()} I Lash Studio • Luxury Experience</p>
         </footer>
       </div>
     </div>

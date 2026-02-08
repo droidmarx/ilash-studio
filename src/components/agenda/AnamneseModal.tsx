@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -48,7 +49,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
     const baseUrl = window.location.origin
     const link = `${baseUrl}/anamnese/${client.id}`
     
-    const message = `Olá *${client.nome.trim()}*! ✨\n\nPara garantir sua segurança e o melhor resultado no seu procedimento, por favor preencha sua ficha de anamnese digital no link abaixo:\n\n🔗 ${link}\n\nEstamos ansiosas para ver você no *i Lash Studio*! 💖`
+    const message = `Olá *${client.nome.trim()}*! ✨\n\nPara garantir sua segurança e o melhor resultado no seu procedimento, por favor preencha sua ficha de anamnese digital no link abaixo:\n\n🔗 ${link}\n\nEstamos ansiosas para ver você no *I Lash Studio*! 💖`
     
     const cleanPhone = client.whatsapp?.replace(/\D/g, "") || ""
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
@@ -122,7 +123,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
               {[
                 { label: 'Proc. Olhos Recente', field: 'procedimentoRecenteOlhos' },
-                { label: 'Alergia Esmaltes/Ciano.', field: 'alergiaCosmeticos' },
+                { label: 'Alergia Cianoacrilato.', field: 'alergiaCosmeticos' },
                 { label: 'Prob. Tireóide', field: 'problemaTireoide' },
                 { label: 'Prob. Oculares', field: 'problemaOcular' },
                 { label: 'Trat. Oncológico', field: 'tratamentoOncologico' },
