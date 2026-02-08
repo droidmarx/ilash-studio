@@ -2,7 +2,7 @@
 
 import { format, isToday } from "date-fns"
 import { Client } from "@/lib/api"
-import { cn } from "@/lib/utils"
+import { cn, hapticFeedback } from "@/lib/utils"
 import { Cake, Sparkles } from "lucide-react"
 
 interface CalendarDayProps {
@@ -20,7 +20,12 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
 
   return (
     <div
-      onClick={() => isCurrentMonth && onClick(day, events, birthdays)}
+      onClick={() => {
+        if (isCurrentMonth) {
+          hapticFeedback(10);
+          onClick(day, events, birthdays);
+        }
+      }}
       className={cn(
         "calendar-day",
         !isCurrentMonth && "not-current-month",
@@ -29,7 +34,6 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
         isCurrentMonth && "group"
       )}
     >
-      {/* Área Superior: Aniversariantes */}
       <div className="h-6 flex items-center justify-center w-full">
         {hasBirthdays && isCurrentMonth && (
           <div className="relative animate-in fade-in zoom-in duration-500">
@@ -39,7 +43,6 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
         )}
       </div>
       
-      {/* Área Central: Número do Dia */}
       <div className="flex-1 flex items-center justify-center w-full">
         <span className={cn(
           "text-xl font-bold transition-all duration-300 leading-none",
@@ -49,7 +52,6 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
         </span>
       </div>
       
-      {/* Área Inferior: Indicadores de Eventos */}
       <div className="h-6 flex items-center justify-center w-full">
         {hasEvents && isCurrentMonth && (
           <div className="flex -space-x-1 justify-center items-center">

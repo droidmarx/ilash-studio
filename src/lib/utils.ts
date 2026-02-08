@@ -14,13 +14,13 @@ export function cn(...inputs: ClassValue[]) {
 export function hapticFeedback(pattern: number | number[] = 10) {
   if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.vibrate) {
     try {
-      const intensity = localStorage.getItem('vibration-intensity') || 'medium';
+      const savedIntensity = localStorage.getItem('vibration-intensity') || 'medium';
       
-      if (intensity === 'none') return;
+      if (savedIntensity === 'none') return;
 
       let multiplier = 1;
-      if (intensity === 'weak') multiplier = 0.5;
-      if (intensity === 'strong') multiplier = 2;
+      if (savedIntensity === 'weak') multiplier = 0.5;
+      if (savedIntensity === 'strong') multiplier = 2;
       
       const adjust = (v: number) => Math.max(1, Math.round(v * multiplier));
 
@@ -30,7 +30,7 @@ export function hapticFeedback(pattern: number | number[] = 10) {
 
       navigator.vibrate(adjustedPattern);
     } catch (e) {
-      // Ignora se o navegador bloquear
+      // Ignora se o navegador bloquear ou não suportar
     }
   }
 }
