@@ -67,7 +67,7 @@ export default function AgendaPage() {
     // Splash timeout
     const timer = setTimeout(() => {
       setShowSplash(false)
-    }, 3000)
+    }, 3500)
     return () => clearTimeout(timer)
   }, [])
 
@@ -118,61 +118,57 @@ export default function AgendaPage() {
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="relative flex flex-col items-center gap-12 animate-luxury-zoom">
           <div className="relative group">
-            {/* Olho com Cílios Animado (Blink Effect) */}
+            {/* Olho Sofisticado com Cílios Artísticos Animados */}
             <div className="animate-blink">
               <svg 
-                width="160" 
-                height="100" 
-                viewBox="0 0 24 24" 
+                width="240" 
+                height="140" 
+                viewBox="0 0 100 60" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
-                className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary),0.6)]"
+                className="text-primary drop-shadow-[0_0_30px_rgba(var(--primary),0.8)]"
               >
-                {/* Linha superior do olho */}
+                {/* Arco Superior do Olho (Sweeping Line) */}
                 <path 
-                  d="M3 10C3 10 6 5 12 5C18 5 21 10 21 10" 
+                  d="M10 35C10 35 30 15 50 15C70 15 90 35 90 35" 
                   stroke="currentColor" 
-                  strokeWidth="1.5" 
+                  strokeWidth="1.2" 
                   strokeLinecap="round"
                 />
-                {/* Linha inferior do olho */}
+                {/* Arco Inferior */}
                 <path 
-                  d="M3 10C3 10 6 15 12 15C18 15 21 10 21 10" 
+                  d="M10 35C10 35 30 50 50 50C70 50 90 35 90 35" 
                   stroke="currentColor" 
-                  strokeWidth="2" 
+                  strokeWidth="0.8" 
                   strokeLinecap="round" 
-                  strokeLinejoin="round"
+                  strokeDasharray="1 3"
                 />
-                {/* Cílios Superiores (Flutter Effect) */}
-                <path d="M12 5V2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M7 6L5 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M17 6L19 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M10 5L9 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M14 5L15 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 
-                {/* Cílios Inferiores */}
-                <path d="M12 15V18" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M8 14.5L7 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                <path d="M16 14.5L17 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                {/* Cílios Superiores Longos e Curvados (Efeito Fox Eyes) */}
+                <path d="M85 32C88 28 92 22 96 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M78 28C81 24 85 18 88 10" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M70 24C73 20 76 14 78 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M60 20C62 16 64 10 65 5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M50 18V5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M40 20C38 16 36 10 35 5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                <path d="M30 24C27 20 24 14 22 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                
+                {/* Iris/Pupila Discreta */}
+                <circle cx="50" cy="35" r="6" stroke="currentColor" strokeWidth="0.5" opacity="0.3"/>
+                <circle cx="50" cy="35" r="2" fill="currentColor" opacity="0.1"/>
               </svg>
             </div>
-            {/* Brilho Aura atrás do olho */}
-            <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150 -z-10 animate-pulse" />
+            {/* Aura de Luxo */}
+            <div className="absolute inset-0 bg-primary/10 blur-[80px] rounded-full scale-150 -z-10 animate-pulse" />
           </div>
 
-          <div className="flex flex-col items-center gap-2">
-            <h1 className="text-6xl md:text-9xl font-headline text-gold-gradient py-4 drop-shadow-lg">
+          <div className="flex flex-col items-center gap-3">
+            <h1 className="text-6xl md:text-9xl font-headline text-gold-gradient py-4 drop-shadow-2xl tracking-tight">
               I Lash Studio
             </h1>
-            <div className="flex gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-bounce" 
-                  style={{ animationDelay: `${i * 0.2}s` }}
-                />
-              ))}
-            </div>
+            <p className="text-primary/40 text-[10px] md:text-xs font-bold tracking-[0.6em] uppercase animate-pulse">
+              The Art of Eyelash Design
+            </p>
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Sistema de agendamento premium para Lash Designers',
   manifest: '/manifest.json',
   icons: {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23b76e79%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 10C3 10 6 15 12 15C18 15 21 10 21 10%22/><path d=%22M12 15V18%22/><path d=%22M7 14L5 17%22/><path d=%22M17 14L19 17%22/><path d=%22M10 15L9 18%22/><path d=%22M14 15L15 18%22/></svg>',
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23b76e79%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M2 10s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6Z%22/><path d=%22M6 4L5 1.5%22/><path d=%22M10 3L10 0%22/><path d=%22M14 3L14 0%22/><path d=%22M18 4L19 1.5%22/><circle cx=%2212%22 cy=%2210%22 r=%223%22/></svg>',
   },
   appleWebApp: {
     capable: true,
