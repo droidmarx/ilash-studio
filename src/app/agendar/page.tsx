@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { createClient } from "@/lib/api"
+import { notifyNewBooking } from "@/app/actions/notifications"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { 
   Crown, 
@@ -19,7 +19,7 @@ import {
   ArrowLeft,
   Loader2
 } from "lucide-react"
-import { format, addDays, setHours, setMinutes, eachDayOfInterval, startOfToday, isSameDay } from "date-fns"
+import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
 const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
@@ -37,10 +37,8 @@ export default function ClientBookingPage() {
     hora: ""
   })
 
-  // Mock available times
   const times = ["09:00", "10:30", "13:00", "14:30", "16:00", "17:30"]
   
-  // Available days (next 14 days)
   const days = eachDayOfInterval({
     start: startOfToday(),
     end: addDays(startOfToday(), 14)
@@ -53,6 +51,8 @@ export default function ClientBookingPage() {
     setLoading(true)
     try {
       const dateTime = `${formData.data}T${formData.hora}`
+      
+      // 1. Salva no banco de dados (MockAPI)
       await createClient({
         nome: formData.nome,
         whatsapp: formData.whatsapp,
@@ -61,6 +61,16 @@ export default function ClientBookingPage() {
         data: dateTime,
         observacoes: "Agendamento realizado via link Instagram"
       })
+
+      // 2. Notifica o administrador via Telegram (Processo em background)
+      await notifyNewBooking({
+        nome: formData.nome,
+        whatsapp: formData.whatsapp,
+        servico: formData.servico,
+        data: format(new Date(formData.data), "dd/MM/yyyy"),
+        hora: formData.hora
+      })
+
       setSuccess(true)
     } catch (error) {
       console.error("Erro ao agendar", error)
@@ -80,9 +90,12 @@ export default function ClientBookingPage() {
           <p className="text-muted-foreground">
             Obrigada, {formData.nome.split(' ')[0]}! Seu horário foi reservado no <strong>I Lash Studio</strong>.
           </p>
-          <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
-            {format(new Date(formData.data), "dd 'de' MMMM", { locale: ptBR })} às {formData.hora}
-          </p>
+          <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
+            <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
+              {format(new Date(formData.data), "dd 'de' MMMM", { locale: ptBR })} às {formData.hora}
+            </p>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Em breve entraremos em contato via WhatsApp.</p>
           <div className="pt-4">
             <Crown className="text-primary mx-auto opacity-40" size={32} />
           </div>
@@ -122,7 +135,6 @@ export default function ClientBookingPage() {
         <Card className="bg-card/60 backdrop-blur-3xl rounded-[2.5rem] border-border shadow-2xl overflow-hidden">
           <CardContent className="p-8 space-y-8">
             
-            {/* Step 1: Client Info */}
             {step === 1 && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500">
                 <div className="space-y-2">
@@ -157,7 +169,6 @@ export default function ClientBookingPage() {
               </div>
             )}
 
-            {/* Step 2: Service Selection */}
             {step === 2 && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500">
                 <div className="space-y-4">
@@ -196,7 +207,6 @@ export default function ClientBookingPage() {
               </div>
             )}
 
-            {/* Step 3: Date & Time */}
             {step === 3 && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500">
                 <div className="space-y-4">
