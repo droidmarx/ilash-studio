@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Share2, Check, Send } from "lucide-react"
+import { ClipboardList, Save, HeartPulse, Eye, AlertTriangle, Send, Check, User, Camera, PenLine } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface AnamneseModalProps {
@@ -47,18 +47,18 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
     const baseUrl = window.location.origin
     const link = `${baseUrl}/anamnese/${client.id}`
     
-    const message = `Olá *${client.nome.trim()}*! ✨\n\nPara garantir sua segurança e o melhor resultado no seu procedimento, por favor preencha sua ficha de anamnese digital no link abaixo:\n\n🔗 ${link}\n\nEstamos ansiosas para ver você no *I Lash Studio*! 💖`
+    const message = `Olá *${client.nome.trim()}*! ✨\n\nPara garantir sua segurança e o melhor resultado no seu procedimento, por favor preencha sua ficha de anamnese digital no link abaixo:\n\n🔗 ${link}\n\nEstamos ansiosas para ver você no *i Lash Studio*! 💖`
     
     const cleanPhone = client.whatsapp?.replace(/\D/g, "") || ""
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
     
     window.open(url, "_blank")
     
-    navigator.clipboard.writeText(link)
+    navigator.clipboard.text = link
     setCopied(true)
     toast({
       title: "Link enviado!",
-      description: "WhatsApp aberto e link copiado para a área de transferência.",
+      description: "WhatsApp aberto e link copiado.",
     })
     setTimeout(() => setCopied(false), 3000)
   }
@@ -67,7 +67,7 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[95vw] sm:max-w-[600px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto text-foreground">
+      <DialogContent className="w-[95vw] sm:max-w-[700px] rounded-[2rem] bg-background border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto text-foreground">
         <DialogHeader className="flex flex-row items-center justify-between gap-4">
           <div className="space-y-1">
             <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-3">
@@ -83,134 +83,91 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
             className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/10"
           >
             {copied ? <Check size={16} /> : <Send size={16} />}
-            <span className="hidden sm:inline">{copied ? "Link Enviado" : "Enviar p/ Cliente"}</span>
+            <span className="hidden sm:inline">{copied ? "Link Enviado" : "Link p/ Cliente"}</span>
           </Button>
         </DialogHeader>
 
         <div className="space-y-8 py-6">
+          {/* Dados Cadastrais */}
           <div className="space-y-4">
             <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
-              <AlertTriangle size={18} /> Alergias e Sensibilidades
+              <User size={18} /> Dados Cadastrais
             </h3>
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Alergia a cosméticos, esmaltes ou cianoacrilato?</Label>
-                <Input 
-                  value={formData.alergias || ""} 
-                  onChange={(e) => setFormData({...formData, alergias: e.target.value})}
-                  className="rounded-xl bg-muted/30 border-border"
-                  placeholder="Descreva aqui..."
-                />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase">CPF</Label>
+                <Input value={formData.cpf || ""} onChange={(e) => setFormData({...formData, cpf: e.target.value})} className="h-9 rounded-xl" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase">RG</Label>
+                <Input value={formData.rg || ""} onChange={(e) => setFormData({...formData, rg: e.target.value})} className="h-9 rounded-xl" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase">Profissão</Label>
+                <Input value={formData.profissao || ""} onChange={(e) => setFormData({...formData, profissao: e.target.value})} className="h-9 rounded-xl" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase">Data Nasc.</Label>
+                <Input type="date" value={formData.dataNascimento || ""} onChange={(e) => setFormData({...formData, dataNascimento: e.target.value})} className="h-9 rounded-xl" />
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
-              <Eye size={18} /> Saúde Ocular
+              <AlertTriangle size={18} /> Alergias e Saúde
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
-                <Checkbox 
-                  id="cirurgia" 
-                  checked={formData.cirurgiaRecente} 
-                  onCheckedChange={(c) => setFormData({...formData, cirurgiaRecente: !!c})}
-                />
-                <Label htmlFor="cirurgia" className="text-xs cursor-pointer">Cirurgia ocular recente?</Label>
-              </div>
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
-                <Checkbox 
-                  id="sensibilidade" 
-                  checked={formData.sensibilidadeLuz} 
-                  onCheckedChange={(c) => setFormData({...formData, sensibilidadeLuz: !!c})}
-                />
-                <Label htmlFor="sensibilidade" className="text-xs cursor-pointer">Sensibilidade à luz?</Label>
-              </div>
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
-                <Checkbox 
-                  id="lentes" 
-                  checked={formData.usaLentes} 
-                  onCheckedChange={(c) => setFormData({...formData, usaLentes: !!c})}
-                />
-                <Label htmlFor="lentes" className="text-xs cursor-pointer">Usa lentes de contato?</Label>
-              </div>
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
-                <Checkbox 
-                  id="maquiagem" 
-                  checked={formData.maquiagemDiaria} 
-                  onCheckedChange={(c) => setFormData({...formData, maquiagemDiaria: !!c})}
-                />
-                <Label htmlFor="maquiagem" className="text-xs cursor-pointer">Maquiagem diária nos olhos?</Label>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Problemas oculares (Glaucoma, Conjuntivite, Terçol)?</Label>
-              <Input 
-                value={formData.problemasOculares || ""} 
-                onChange={(e) => setFormData({...formData, problemasOculares: e.target.value})}
-                className="rounded-xl bg-muted/30 border-border"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
-              <HeartPulse size={18} /> Condição Geral
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
-                <Checkbox 
-                  id="gestante" 
-                  checked={formData.gestanteLactante} 
-                  onCheckedChange={(c) => setFormData({...formData, gestanteLactante: !!c})}
-                />
-                <Label htmlFor="gestante" className="text-xs cursor-pointer">Gestante ou Lactante?</Label>
-              </div>
-              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
-                <Checkbox 
-                  id="hormonal" 
-                  checked={formData.disturbioHormonal} 
-                  onCheckedChange={(c) => setFormData({...formData, disturbioHormonal: !!c})}
-                />
-                <Label htmlFor="hormonal" className="text-xs cursor-pointer">Distúrbio hormonal/Tireoide?</Label>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Lado que prefere dormir?</Label>
-              <Select 
-                value={formData.dormeDeLado} 
-                onValueChange={(v: any) => setFormData({...formData, dormeDeLado: v})}
-              >
-                <SelectTrigger className="rounded-xl bg-muted/30 border-border">
-                  <SelectValue placeholder="Selecione o lado" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border-border">
-                  <SelectItem value="Direito">Direito</SelectItem>
-                  <SelectItem value="Esquerdo">Esquerdo</SelectItem>
-                  <SelectItem value="Ambos">Ambos</SelectItem>
-                  <SelectItem value="Costas">Costas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Outras observações importantes</Label>
-            <Textarea 
-              value={formData.observacoesSaude || ""} 
-              onChange={(e) => setFormData({...formData, observacoesSaude: e.target.value})}
-              className="rounded-xl bg-muted/30 border-border min-h-[100px]"
-              placeholder="Histórico médico relevante..."
+            <Input 
+              value={formData.alergias || ""} 
+              onChange={(e) => setFormData({...formData, alergias: e.target.value})}
+              className="rounded-xl"
+              placeholder="Alergias..."
             />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl">
+                <Checkbox checked={formData.cirurgiaRecente} onCheckedChange={(c) => setFormData({...formData, cirurgiaRecente: !!c})} />
+                <Label className="text-xs">Cirurgia ocular?</Label>
+              </div>
+              <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl">
+                <Checkbox checked={formData.gestanteLactante} onCheckedChange={(c) => setFormData({...formData, gestanteLactante: !!c})} />
+                <Label className="text-xs">Gestante/Lactante?</Label>
+              </div>
+            </div>
+          </div>
+
+          {/* Autorização e Assinatura */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-border">
+            <div className="space-y-4">
+              <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
+                <Camera size={18} /> Uso de Imagem
+              </h3>
+              <div className="flex items-center gap-3 bg-primary/5 p-4 rounded-xl border border-primary/10">
+                <Checkbox id="auth-img" checked={formData.autorizaImagem} onCheckedChange={(c) => setFormData({...formData, autorizaImagem: !!c})} />
+                <Label htmlFor="auth-img" className="text-xs font-bold text-primary">Autoriza fotos/vídeos?</Label>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-primary flex items-center gap-2 font-bold text-sm">
+                <PenLine size={18} /> Assinatura
+              </h3>
+              {formData.assinatura ? (
+                <div className="border rounded-xl bg-white p-2">
+                  <img src={formData.assinatura} alt="Assinatura" className="max-h-[100px] mx-auto" />
+                </div>
+              ) : (
+                <div className="border border-dashed rounded-xl h-[100px] flex items-center justify-center text-[10px] text-muted-foreground italic">
+                  Aguardando assinatura da cliente...
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="flex gap-4 pt-4 border-t border-border">
-          <Button variant="ghost" onClick={onClose} className="flex-1 rounded-xl">
-            Cancelar
-          </Button>
-          <Button onClick={handleSave} className="flex-1 rounded-xl h-12 bg-gold-gradient text-primary-foreground font-bold flex items-center gap-2">
-            <Save size={20} /> Salvar Ficha
+          <Button variant="ghost" onClick={onClose} className="flex-1 rounded-xl">Fechar</Button>
+          <Button onClick={handleSave} className="flex-1 rounded-xl h-12 bg-gold-gradient text-primary-foreground font-bold">
+            <Save size={20} className="mr-2" /> Salvar Alterações
           </Button>
         </div>
       </DialogContent>

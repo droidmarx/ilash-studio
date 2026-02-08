@@ -6,6 +6,13 @@ export interface ServicoAdicional {
 }
 
 export interface Anamnese {
+  // Campos Pessoais
+  cpf?: string;
+  rg?: string;
+  profissao?: string;
+  dataNascimento?: string;
+  
+  // Saúde e Estilo de Vida
   alergias?: string;
   problemasOculares?: string;
   cirurgiaRecente?: boolean;
@@ -16,6 +23,10 @@ export interface Anamnese {
   dormeDeLado?: 'Direito' | 'Esquerdo' | 'Ambos' | 'Costas';
   maquiagemDiaria?: boolean;
   observacoesSaude?: string;
+  
+  // Termos e Assinatura
+  autorizaImagem?: boolean;
+  assinatura?: string; // Data URI da assinatura
 }
 
 export interface Client {
