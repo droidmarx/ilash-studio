@@ -13,13 +13,10 @@ export interface Recipient {
 }
 
 export interface Anamnese {
-  // Campos Pessoais
   cpf?: string;
   rg?: string;
   profissao?: string;
   dataNascimento?: string;
-  
-  // Saúde e Estilo de Vida
   procedimentoRecenteOlhos?: boolean;
   alergiaCosmeticos?: boolean;
   problemaTireoide?: boolean;
@@ -28,10 +25,8 @@ export interface Anamnese {
   dormeDeLado?: 'Não' | 'Sim, Lado Direito' | 'Sim, Lado Esquerdo' | 'Sim, Ambos os lados';
   gestanteLactante?: boolean;
   observacoesGerais?: string;
-  
-  // Termos e Assinatura
   autorizaImagem?: boolean;
-  assinatura?: string; // Data URI da assinatura
+  assinatura?: string;
 }
 
 export interface Client {
@@ -54,6 +49,9 @@ export interface Client {
   confirmado?: boolean;
 }
 
+/**
+ * Retorna a URL da API. No servidor, prioriza a URL padrão para evitar erros de localStorage.
+ */
 function getApiUrl(): string {
   if (typeof window !== 'undefined') {
     return localStorage.getItem('mock_api_url') || DEFAULT_API_URL;
@@ -74,13 +72,9 @@ function getSettingsUrl(): string {
 export async function getRecipients(): Promise<Recipient[]> {
   try {
     const res = await fetch(getSettingsUrl(), { cache: 'no-store' });
-    if (!res.ok) {
-      console.error('Falha ao buscar destinatários:', res.statusText);
-      return [];
-    }
+    if (!res.ok) return [];
     return await res.json();
   } catch (error) {
-    console.error('Erro na requisição de destinatários:', error);
     return [];
   }
 }
@@ -91,7 +85,6 @@ export async function getTelegramToken(): Promise<string | null> {
     const config = recipients.find(r => r.nome === 'SYSTEM_TOKEN');
     return config ? config.chatID : null;
   } catch (error) {
-    console.error('Erro ao buscar token do Telegram:', error);
     return null;
   }
 }
@@ -139,7 +132,6 @@ export async function getClients(): Promise<Client[]> {
     if (!res.ok) throw new Error('Falha ao buscar dados');
     return await res.json();
   } catch (error) {
-    console.error(error);
     return [];
   }
 }

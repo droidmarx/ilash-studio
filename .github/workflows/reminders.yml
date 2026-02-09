@@ -1,0 +1,16 @@
+name: Agendamento de Lembretes I Lash Studio
+
+on:
+  schedule:
+    # Roda a cada 15 minutos
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Permite rodar manualmente para testes
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar API de Lembretes
+        run: |
+          curl -X GET "https://ilash-studio.vercel.app/api/cron/reminders" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
