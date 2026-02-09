@@ -185,3 +185,18 @@ export async function updateLastSummaryDate(dateStr: string): Promise<void> {
     await createRecipient({ nome: 'SUMMARY_STATE', chatID: dateStr });
   }
 }
+
+// Registro de Webhook
+export async function setTelegramWebhook(token: string, url: string): Promise<boolean> {
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: `${url}/api/telegram/webhook` }),
+    });
+    const result = await response.json();
+    return result.ok;
+  } catch (error) {
+    return false;
+  }
+}

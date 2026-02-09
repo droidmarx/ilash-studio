@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Globe, Send, MessageSquare, Info, ExternalLink, User, Trash2, PlusCircle, Loader2, Key } from "lucide-react"
+import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken } from "@/lib/api"
+import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook } from "@/lib/api"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -34,6 +34,7 @@ export function SettingsModal({
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [webhookLoading, setWebhookLoading] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -47,12 +48,9 @@ export function SettingsModal({
     setLoading(true)
     try {
       const data = await getRecipients()
-      
-      // Filtra o token do sistema da lista de pessoas
-      const persons = data.filter(r => r.nome !== 'SYSTEM_TOKEN')
+      const persons = data.filter(r => r.nome !== 'SYSTEM_TOKEN' && r.nome !== 'SUMMARY_STATE')
       setRecipients(persons.slice(0, 3))
       
-      // Carrega o token
       const tokenConfig = data.find(r => r.nome === 'SYSTEM_TOKEN')
       if (tokenConfig) setBotToken(tokenConfig.chatID)
     } catch (error) {
@@ -79,27 +77,44 @@ export function SettingsModal({
     setRecipients(newRecipients)
   }
 
+  const handleActivateWebhook = async () => {
+    if (!botToken) {
+      toast({ variant: "destructive", title: "Erro", description: "Salve o Token do Bot antes de ativar." })
+      return
+    }
+    setWebhookLoading(true)
+    try {
+      const currentUrl = window.location.origin
+      const success = await setTelegramWebhook(botToken.trim(), currentUrl)
+      if (success) {
+        toast({ title: "Bot Ativado!", description: "Agora seu robô responderá ao comando /agendamentos." })
+      } else {
+        throw new Error()
+      }
+    } catch (error) {
+      toast({ variant: "destructive", title: "Falha na Ativação", description: "Verifique seu Token e tente novamente." })
+    } finally {
+      setWebhookLoading(false)
+    }
+  }
+
   const handleSave = async () => {
     setSaving(true)
     localStorage.setItem("mock_api_url", apiUrl.trim())
     
     try {
-      // 1. Salva o Token do Telegram
       if (botToken) {
         await updateTelegramToken(botToken.trim());
       }
 
-      // 2. Pega os destinatários atuais do banco para saber o que excluir
       const remoteRecipients = await getRecipients()
       
-      // 3. Exclui os que não estão mais na lista local (ignorando o SYSTEM_TOKEN)
       for (const remote of remoteRecipients) {
-        if (remote.nome !== 'SYSTEM_TOKEN' && !recipients.find(r => r.id === remote.id)) {
+        if (remote.nome !== 'SYSTEM_TOKEN' && remote.nome !== 'SUMMARY_STATE' && !recipients.find(r => r.id === remote.id)) {
           await deleteRecipient(remote.id)
         }
       }
 
-      // 4. Salva/Cria os locais
       for (const local of recipients) {
         if (local.id.startsWith('temp-')) {
           await createRecipient({ nome: local.nome, chatID: local.chatID })
@@ -108,18 +123,11 @@ export function SettingsModal({
         }
       }
 
-      toast({
-        title: "Configurações Salvas",
-        description: "Token e administradores atualizados com sucesso.",
-      })
+      toast({ title: "Configurações Salvas", description: "Token e administradores atualizados." })
       onSave()
       onClose()
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao Salvar",
-        description: "Não foi possível sincronizar com o MockAPI.",
-      })
+      toast({ variant: "destructive", title: "Erro ao Salvar", description: "Falha ao sincronizar." })
     } finally {
       setSaving(false)
     }
@@ -139,7 +147,6 @@ export function SettingsModal({
         </DialogHeader>
 
         <div className="space-y-8 py-6">
-          {/* Seção Banco de Dados */}
           <div className="space-y-4">
             <Label htmlFor="api-url" className="text-lg font-bold flex items-center gap-2 text-primary">
               <Globe size={20} />
@@ -156,12 +163,23 @@ export function SettingsModal({
 
           <Separator className="bg-primary/10" />
 
-          {/* Seção Token do Telegram */}
           <div className="space-y-4">
-            <Label htmlFor="bot-token" className="text-lg font-bold flex items-center gap-2 text-primary">
-              <Key size={20} />
-              Telegram Bot Token
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="bot-token" className="text-lg font-bold flex items-center gap-2 text-primary">
+                <Key size={20} />
+                Telegram Bot Token
+              </Label>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleActivateWebhook}
+                disabled={webhookLoading || !botToken}
+                className="rounded-full border-primary/20 text-primary hover:bg-primary/10 gap-2 h-8"
+              >
+                {webhookLoading ? <Loader2 className="animate-spin" size={14} /> : <Bot size={14} />}
+                Ativar Bot Interativo
+              </Button>
+            </div>
             <Input
               id="bot-token"
               placeholder="Cole aqui o Token do @BotFather"
@@ -169,12 +187,10 @@ export function SettingsModal({
               onChange={(e) => setBotToken(e.target.value)}
               className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary font-mono text-xs"
             />
-            <p className="text-[10px] text-muted-foreground italic">Este token permite que o Studio envie mensagens via Telegram.</p>
           </div>
 
           <Separator className="bg-primary/10" />
 
-          {/* Seção Destinatários */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <Label className="text-lg font-bold flex items-center gap-2 text-primary">
@@ -191,13 +207,6 @@ export function SettingsModal({
                 <PlusCircle size={16} /> Adicionar
               </Button>
             </div>
-
-            <Alert className="bg-primary/5 border-primary/20 rounded-2xl">
-              <Info className="h-4 w-4 text-primary" />
-              <AlertDescription className="text-xs text-muted-foreground leading-relaxed">
-                As notificações serão enviadas para todos os Chat IDs cadastrados abaixo.
-              </AlertDescription>
-            </Alert>
 
             <div className="space-y-4">
               {loading ? (
@@ -239,39 +248,11 @@ export function SettingsModal({
                 </div>
               ))}
             </div>
-
-            {/* Instruções */}
-            <div className="bg-muted/30 p-4 rounded-2xl border border-border space-y-4">
-              <h4 className="text-xs font-black uppercase text-primary flex items-center gap-2">
-                <MessageSquare size={14} /> Como conseguir os dados?
-              </h4>
-              <ul className="text-[11px] space-y-3 text-muted-foreground">
-                <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">1</span>
-                  <span>Crie um bot no <strong>@BotFather</strong> para obter o <strong>Token</strong>.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">2</span>
-                  <span>Use o <strong>@userinfobot</strong> para descobrir seu <strong>Chat ID</strong>.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">3</span>
-                  <span>Certifique-se de dar <strong>/start</strong> no seu bot recém-criado.</span>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-3 mt-4">
-          <Button 
-            variant="ghost" 
-            onClick={onClose} 
-            disabled={saving}
-            className="rounded-xl"
-          >
-            Cancelar
-          </Button>
+          <Button variant="ghost" onClick={onClose} disabled={saving} className="rounded-xl">Cancelar</Button>
           <Button 
             onClick={handleSave} 
             disabled={saving}
