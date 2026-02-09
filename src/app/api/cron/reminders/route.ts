@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getClients, getTelegramToken, getRecipients } from '@/lib/api';
+import { getClients, getTelegramToken, getRecipients, updateClient } from '@/lib/api';
 import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format, parse, isValid, subHours } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,14 +12,11 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   const expectedToken = `Bearer ${process.env.CRON_SECRET}`;
 
-  // Verificação de Segurança
   if (!process.env.CRON_SECRET) {
-    console.error('[Cron] CRON_SECRET não configurado na Vercel.');
-    return NextResponse.json({ error: 'Configuração ausente no servidor' }, { status: 500 });
+    return NextResponse.json({ error: 'CRON_SECRET não configurado' }, { status: 500 });
   }
 
   if (authHeader !== expectedToken) {
-    console.warn('[Cron] Tentativa de acesso não autorizado.');
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
@@ -32,25 +28,21 @@ export async function GET(request: Request) {
     const adminRecipients = recipients.filter(r => r.nome !== 'SYSTEM_TOKEN' && r.chatID);
 
     if (!botToken || adminRecipients.length === 0) {
-      return NextResponse.json({ message: 'Telegram não configurado no MockAPI' });
+      return NextResponse.json({ message: 'Configurações de Telegram ausentes no MockAPI' });
     }
 
-    // A Vercel usa UTC. Brasília é UTC-3.
-    // Para comparar com os horários salvos no navegador (que estão em horário local),
-    // ajustamos o 'now' do servidor para o contexto de Brasília.
+    // Ajuste de Fuso Horário (Vercel UTC -> Brasília UTC-3)
     const nowUTC = new Date();
     const nowBrasilia = subHours(nowUTC, 3);
     
+    // Procuramos quem agendou para daqui a 2 horas (com janela de 20 minutos)
     const targetTime = addHours(nowBrasilia, 2);
-    const windowStart = subMinutes(targetTime, 10); // Janela um pouco maior para segurança
+    const windowStart = subMinutes(targetTime, 10);
     const windowEnd = addMinutes(targetTime, 10);
 
-    console.log(`[Cron] Agora em Brasília: ${format(nowBrasilia, 'HH:mm')}`);
-    console.log(`[Cron] Buscando agendamentos entre: ${format(windowStart, 'HH:mm')} e ${format(windowEnd, 'HH:mm')}`);
-
     const upcomingAppointments = clients.filter(client => {
-      // Regra 1: Apenas agendamentos confirmados
-      if (client.confirmado === false) return false;
+      // Regra 1: Apenas agendamentos confirmados e que ainda não receberam lembrete
+      if (client.confirmado === false || client.reminderSent === true) return false;
       
       try {
         let appDate;
@@ -62,13 +54,7 @@ export async function GET(request: Request) {
 
         if (!isValid(appDate)) return false;
 
-        const isInWindow = isWithinInterval(appDate, { start: windowStart, end: windowEnd });
-        
-        if (isInWindow) {
-          console.log(`[Cron] Match encontrado: ${client.nome} às ${format(appDate, 'HH:mm')}`);
-        }
-        
-        return isInWindow;
+        return isWithinInterval(appDate, { start: windowStart, end: windowEnd });
       } catch (e) {
         return false;
       }
@@ -80,8 +66,10 @@ export async function GET(request: Request) {
       const message = `⏰ <b>Lembrete VIP I Lash Studio</b>\n\n` +
         `👤 <b>Cliente:</b> ${app.nome}\n` +
         `🎨 <b>Serviço:</b> ${app.servico}\n` +
-        `⏰ <b>Chegada em:</b> aproximadamente 2 horas\n\n` +
-        `🚀 <i>Prepare o studio, sua cliente está a caminho!</i>`;
+        `⏰ <b>Horário:</b> ${format(parseISO(app.data), 'HH:mm')}\n\n` +
+        `🚀 <i>Prepare o studio, sua cliente chega em breve!</i>`;
+
+      let sentSuccessfully = false;
 
       for (const admin of adminRecipients) {
         try {
@@ -94,16 +82,21 @@ export async function GET(request: Request) {
               parse_mode: 'HTML',
             }),
           });
+          if (res.ok) sentSuccessfully = true;
           results.push({ client: app.nome, admin: admin.nome, success: res.ok });
         } catch (err) {
           results.push({ client: app.nome, admin: admin.nome, success: false, error: String(err) });
         }
       }
+
+      // Se conseguimos enviar o lembrete para pelo menos um administrador, marcamos como enviado
+      if (sentSuccessfully) {
+        await updateClient(app.id, { reminderSent: true });
+      }
     }
 
     return NextResponse.json({ 
       success: true, 
-      serverTimeUTC: format(nowUTC, 'HH:mm'),
       brasiliaTime: format(nowBrasilia, 'HH:mm'),
       processed: upcomingAppointments.length,
       details: results

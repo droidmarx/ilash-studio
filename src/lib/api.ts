@@ -47,6 +47,7 @@ export interface Client {
   isUnifiedValue?: boolean;
   unifiedValue?: string;
   confirmado?: boolean;
+  reminderSent?: boolean;
 }
 
 /**
