@@ -29,16 +29,6 @@ export interface Anamnese {
   gestanteLactante?: boolean;
   observacoesGerais?: string;
   
-  // Legado / Compatibilidade
-  alergias?: string;
-  problemasOculares?: string;
-  cirurgiaRecente?: boolean;
-  sensibilidadeLuz?: boolean;
-  disturbioHormonal?: boolean;
-  usaLentes?: boolean;
-  maquiagemDiaria?: boolean;
-  observacoesSaude?: string;
-  
   // Termos e Assinatura
   autorizaImagem?: boolean;
   assinatura?: string; // Data URI da assinatura
@@ -72,13 +62,11 @@ function getApiUrl(): string {
 }
 
 function getSettingsUrl(): string {
-  // Se estiver no servidor, usa a constante padrão
   if (typeof window === 'undefined') return SETTINGS_API_URL;
   
   const currentApi = getApiUrl();
   if (currentApi === DEFAULT_API_URL) return SETTINGS_API_URL;
   
-  // Se o usuário mudou a URL da API principal, tenta derivar a de config
   const baseUrl = currentApi.replace(/\/Clientes$/, '').replace(/\/config$/, '');
   return `${baseUrl}/config`;
 }
@@ -94,6 +82,28 @@ export async function getRecipients(): Promise<Recipient[]> {
   } catch (error) {
     console.error('Erro na requisição de destinatários:', error);
     return [];
+  }
+}
+
+export async function getTelegramToken(): Promise<string | null> {
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'SYSTEM_TOKEN');
+    return config ? config.chatID : null;
+  } catch (error) {
+    console.error('Erro ao buscar token do Telegram:', error);
+    return null;
+  }
+}
+
+export async function updateTelegramToken(token: string): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'SYSTEM_TOKEN');
+  
+  if (config) {
+    await updateRecipient({ ...config, chatID: token });
+  } else {
+    await createRecipient({ nome: 'SYSTEM_TOKEN', chatID: token });
   }
 }
 

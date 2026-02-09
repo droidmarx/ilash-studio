@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Globe, Send, MessageSquare, Info, ExternalLink, User, Trash2, PlusCircle, Loader2 } from "lucide-react"
+import { Settings, Globe, Send, MessageSquare, Info, ExternalLink, User, Trash2, PlusCircle, Loader2, Key } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -16,8 +16,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient } from "@/lib/api"
+import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken } from "@/lib/api"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -31,6 +30,7 @@ export function SettingsModal({
   onSave
 }: SettingsModalProps) {
   const [apiUrl, setApiUrl] = useState("")
+  const [botToken, setBotToken] = useState("")
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -47,7 +47,14 @@ export function SettingsModal({
     setLoading(true)
     try {
       const data = await getRecipients()
-      setRecipients(data.slice(0, 3)) // Garante máximo de 3
+      
+      // Filtra o token do sistema da lista de pessoas
+      const persons = data.filter(r => r.nome !== 'SYSTEM_TOKEN')
+      setRecipients(persons.slice(0, 3))
+      
+      // Carrega o token
+      const tokenConfig = data.find(r => r.nome === 'SYSTEM_TOKEN')
+      if (tokenConfig) setBotToken(tokenConfig.chatID)
     } catch (error) {
       console.error("Erro ao carregar destinatários", error)
     } finally {
@@ -77,17 +84,22 @@ export function SettingsModal({
     localStorage.setItem("mock_api_url", apiUrl.trim())
     
     try {
-      // 1. Pega os destinatários atuais do banco para saber o que excluir
+      // 1. Salva o Token do Telegram
+      if (botToken) {
+        await updateTelegramToken(botToken.trim());
+      }
+
+      // 2. Pega os destinatários atuais do banco para saber o que excluir
       const remoteRecipients = await getRecipients()
       
-      // 2. Exclui os que não estão mais na lista local
+      // 3. Exclui os que não estão mais na lista local (ignorando o SYSTEM_TOKEN)
       for (const remote of remoteRecipients) {
-        if (!recipients.find(r => r.id === remote.id)) {
+        if (remote.nome !== 'SYSTEM_TOKEN' && !recipients.find(r => r.id === remote.id)) {
           await deleteRecipient(remote.id)
         }
       }
 
-      // 3. Salva/Cria os locais
+      // 4. Salva/Cria os locais
       for (const local of recipients) {
         if (local.id.startsWith('temp-')) {
           await createRecipient({ nome: local.nome, chatID: local.chatID })
@@ -98,7 +110,7 @@ export function SettingsModal({
 
       toast({
         title: "Configurações Salvas",
-        description: "Os administradores e a API foram atualizados no MockAPI.",
+        description: "Token e administradores atualizados com sucesso.",
       })
       onSave()
       onClose()
@@ -122,7 +134,7 @@ export function SettingsModal({
             Configurações do Studio
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Gerencie o banco de dados e os administradores que recebem alertas.
+            Gerencie o robô de notificações e os administradores.
           </DialogDescription>
         </DialogHeader>
 
@@ -144,12 +156,30 @@ export function SettingsModal({
 
           <Separator className="bg-primary/10" />
 
-          {/* Seção Telegram */}
+          {/* Seção Token do Telegram */}
+          <div className="space-y-4">
+            <Label htmlFor="bot-token" className="text-lg font-bold flex items-center gap-2 text-primary">
+              <Key size={20} />
+              Telegram Bot Token
+            </Label>
+            <Input
+              id="bot-token"
+              placeholder="Cole aqui o Token do @BotFather"
+              value={botToken}
+              onChange={(e) => setBotToken(e.target.value)}
+              className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary font-mono text-xs"
+            />
+            <p className="text-[10px] text-muted-foreground italic">Este token permite que o Studio envie mensagens via Telegram.</p>
+          </div>
+
+          <Separator className="bg-primary/10" />
+
+          {/* Seção Destinatários */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <Label className="text-lg font-bold flex items-center gap-2 text-primary">
                 <Send size={20} />
-                Destinatários Telegram (Máx. 3)
+                Destinatários (Máx. 3)
               </Label>
               <Button 
                 variant="ghost" 
@@ -165,7 +195,7 @@ export function SettingsModal({
             <Alert className="bg-primary/5 border-primary/20 rounded-2xl">
               <Info className="h-4 w-4 text-primary" />
               <AlertDescription className="text-xs text-muted-foreground leading-relaxed">
-                As notificações serão enviadas para todos os Chat IDs abaixo simultaneamente.
+                As notificações serão enviadas para todos os Chat IDs cadastrados abaixo.
               </AlertDescription>
             </Alert>
 
@@ -188,7 +218,7 @@ export function SettingsModal({
                         <User size={10} /> Nome do Admin
                       </Label>
                       <Input
-                        placeholder="Ex: Maria (Studio)"
+                        placeholder="Ex: Maria"
                         value={r.nome}
                         onChange={(e) => handleUpdateRecipientField(index, 'nome', e.target.value)}
                         className="rounded-lg h-10 bg-background border-border"
@@ -208,39 +238,27 @@ export function SettingsModal({
                   </div>
                 </div>
               ))}
-              {!loading && recipients.length === 0 && (
-                <p className="text-center text-xs text-muted-foreground italic py-4">
-                  Nenhum administrador configurado.
-                </p>
-              )}
             </div>
 
             {/* Instruções */}
             <div className="bg-muted/30 p-4 rounded-2xl border border-border space-y-4">
               <h4 className="text-xs font-black uppercase text-primary flex items-center gap-2">
-                <MessageSquare size={14} /> Como conseguir o Chat ID?
+                <MessageSquare size={14} /> Como conseguir os dados?
               </h4>
               <ul className="text-[11px] space-y-3 text-muted-foreground">
                 <li className="flex gap-2">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">1</span>
-                  <span>Acesse o Telegram e procure por <strong>@userinfobot</strong>.</span>
+                  <span>Crie um bot no <strong>@BotFather</strong> para obter o <strong>Token</strong>.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">2</span>
-                  <span>Envie qualquer mensagem para esse robô e ele responderá com o seu <strong>Id</strong> (um número).</span>
+                  <span>Use o <strong>@userinfobot</strong> para descobrir seu <strong>Chat ID</strong>.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">3</span>
-                  <span>Copie esse número e cole no campo "Chat ID" acima.</span>
+                  <span>Certifique-se de dar <strong>/start</strong> no seu bot recém-criado.</span>
                 </li>
               </ul>
-              <div className="pt-2">
-                <Button variant="link" className="text-[10px] h-auto p-0 text-primary gap-1" asChild>
-                  <a href="https://t.me/userinfobot" target="_blank" rel="noreferrer">
-                    Abrir @userinfobot <ExternalLink size={10} />
-                  </a>
-                </Button>
-              </div>
             </div>
           </div>
         </div>
@@ -259,7 +277,7 @@ export function SettingsModal({
             disabled={saving}
             className="flex-1 rounded-xl h-12 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform"
           >
-            {saving ? <Loader2 className="animate-spin" /> : "Salvar no MockAPI"}
+            {saving ? <Loader2 className="animate-spin" /> : "Salvar Configurações"}
           </Button>
         </DialogFooter>
       </DialogContent>
