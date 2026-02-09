@@ -92,7 +92,7 @@ export function SettingsModal({
       const currentUrl = window.location.origin
       const success = await setTelegramWebhook(botToken.trim(), currentUrl)
       if (success) {
-        toast({ title: "Bot Ativado!", description: "Agora seu robô responderá ao comando /agendamentos." })
+        toast({ title: "Bot Ativado!", description: "Agora seu robô responderá ao comando /command1." })
       } else {
         throw new Error()
       }

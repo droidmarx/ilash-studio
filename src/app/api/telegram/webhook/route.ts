@@ -18,8 +18,8 @@ export async function POST(request: Request) {
     const chatId = body.message.chat.id;
     const text = body.message.text.toLowerCase();
 
-    // Aceita /agendamentos, /start ou variações com o nome do bot
-    if (text.startsWith('/agendamentos') || text.startsWith('/start')) {
+    // Aceita /command1, /start ou variações com o nome do bot
+    if (text.startsWith('/command1') || text.startsWith('/start')) {
       const clients = await getClients();
       
       // Ajuste de Fuso Horário (Vercel UTC -> Brasília UTC-3)
