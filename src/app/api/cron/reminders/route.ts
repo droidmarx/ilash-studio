@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getClients, getTelegramToken, getRecipients } from '@/lib/api';
-import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format, parse, isValid } from 'date-fns';
+import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format, parse, isValid, subHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * Endpoint para disparar lembretes de agendamento via GitHub Actions.
- * Verifica clientes que possuem agendamento em aproximadamente 2 horas.
+ * Ajustado para o fuso horário de Brasília (UTC-3).
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
@@ -15,12 +15,12 @@ export async function GET(request: Request) {
 
   // Verificação de Segurança
   if (!process.env.CRON_SECRET) {
-    console.error('CRON_SECRET não configurado na Vercel.');
+    console.error('[Cron] CRON_SECRET não configurado na Vercel.');
     return NextResponse.json({ error: 'Configuração ausente no servidor' }, { status: 500 });
   }
 
   if (authHeader !== expectedToken) {
-    console.warn('Tentativa de acesso não autorizado ao Cron.');
+    console.warn('[Cron] Tentativa de acesso não autorizado.');
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
@@ -32,22 +32,26 @@ export async function GET(request: Request) {
     const adminRecipients = recipients.filter(r => r.nome !== 'SYSTEM_TOKEN' && r.chatID);
 
     if (!botToken || adminRecipients.length === 0) {
-      console.warn('Configurações de Telegram (Token ou Admins) não encontradas no MockAPI.');
       return NextResponse.json({ message: 'Telegram não configurado no MockAPI' });
     }
 
-    const now = new Date();
-    const targetTime = addHours(now, 2);
+    // A Vercel usa UTC. Brasília é UTC-3.
+    // Para comparar com os horários salvos no navegador (que estão em horário local),
+    // ajustamos o 'now' do servidor para o contexto de Brasília.
+    const nowUTC = new Date();
+    const nowBrasilia = subHours(nowUTC, 3);
     
-    // Janela de 16 minutos para garantir que o cron (que roda a cada 15 min) não perca o evento
-    const windowStart = subMinutes(targetTime, 8);
-    const windowEnd = addMinutes(targetTime, 8);
+    const targetTime = addHours(nowBrasilia, 2);
+    const windowStart = subMinutes(targetTime, 10); // Janela um pouco maior para segurança
+    const windowEnd = addMinutes(targetTime, 10);
+
+    console.log(`[Cron] Agora em Brasília: ${format(nowBrasilia, 'HH:mm')}`);
+    console.log(`[Cron] Buscando agendamentos entre: ${format(windowStart, 'HH:mm')} e ${format(windowEnd, 'HH:mm')}`);
 
     const upcomingAppointments = clients.filter(client => {
       // Regra 1: Apenas agendamentos confirmados
       if (client.confirmado === false) return false;
       
-      // Regra 2: Validar e comparar data
       try {
         let appDate;
         if (client.data.includes('T')) {
@@ -58,14 +62,17 @@ export async function GET(request: Request) {
 
         if (!isValid(appDate)) return false;
 
-        return isWithinInterval(appDate, { start: windowStart, end: windowEnd });
+        const isInWindow = isWithinInterval(appDate, { start: windowStart, end: windowEnd });
+        
+        if (isInWindow) {
+          console.log(`[Cron] Match encontrado: ${client.nome} às ${format(appDate, 'HH:mm')}`);
+        }
+        
+        return isInWindow;
       } catch (e) {
         return false;
       }
     });
-
-    console.log(`[Cron] Verificando: ${format(now, 'HH:mm')}. Janela alvo: ${format(windowStart, 'HH:mm')} até ${format(windowEnd, 'HH:mm')}`);
-    console.log(`[Cron] Encontrados ${upcomingAppointments.length} lembretes para enviar.`);
 
     const results = [];
 
@@ -73,7 +80,7 @@ export async function GET(request: Request) {
       const message = `⏰ <b>Lembrete VIP I Lash Studio</b>\n\n` +
         `👤 <b>Cliente:</b> ${app.nome}\n` +
         `🎨 <b>Serviço:</b> ${app.servico}\n` +
-        `⏰ <b>Chegada em:</b> 2 horas\n\n` +
+        `⏰ <b>Chegada em:</b> aproximadamente 2 horas\n\n` +
         `🚀 <i>Prepare o studio, sua cliente está a caminho!</i>`;
 
       for (const admin of adminRecipients) {
@@ -89,7 +96,6 @@ export async function GET(request: Request) {
           });
           results.push({ client: app.nome, admin: admin.nome, success: res.ok });
         } catch (err) {
-          console.error(`Erro ao enviar para admin ${admin.nome}:`, err);
           results.push({ client: app.nome, admin: admin.nome, success: false, error: String(err) });
         }
       }
@@ -97,13 +103,14 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ 
       success: true, 
-      timestamp: format(now, 'dd/MM/yyyy HH:mm:ss'),
+      serverTimeUTC: format(nowUTC, 'HH:mm'),
+      brasiliaTime: format(nowBrasilia, 'HH:mm'),
       processed: upcomingAppointments.length,
       details: results
     });
 
   } catch (error) {
-    console.error('Erro interno no Cron:', error);
-    return NextResponse.json({ error: 'Erro interno ao processar lembretes' }, { status: 500 });
+    console.error('[Cron] Erro fatal:', error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }
