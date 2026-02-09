@@ -154,7 +154,6 @@ const FormMessage = React.forwardRef<
 
   React.useEffect(() => {
     if (error && innerRef.current) {
-      // Rola para o centro da tela quando o erro aparece
       innerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }, [error])

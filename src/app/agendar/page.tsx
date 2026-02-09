@@ -18,7 +18,7 @@ import {
   ArrowRight, 
   ArrowLeft,
   Loader2
-} from "lucide-center"
+} from "lucide-react"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -62,12 +62,8 @@ export default function ClientBookingPage() {
         confirmado: false
       };
 
-      // 1. Salva no banco de dados com confirmado: false
       await createClient(payload)
-
-      // 2. Notifica o administrador via Telegram usando a nova action
       await notifyAppointmentChange(payload, 'Novo')
-
       setSuccess(true)
     } catch (error) {
       console.error("Erro ao agendar", error)
@@ -108,14 +104,20 @@ export default function ClientBookingPage() {
         <header className="text-center space-y-4">
           <div className="flex justify-center mb-2 animate-float-luxury">
              <svg 
-              width="120" 
-              height="60" 
+              width="180" 
+              height="90" 
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.6)] rotate-180"
+              className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary),0.6)] rotate-180"
             >
-              <path d="M10 30C25 15 75 15 90 30" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" className="opacity-40" />
+              <path 
+                d="M10 30C25 15 75 15 90 30" 
+                stroke="currentColor" 
+                strokeWidth="0.8" 
+                strokeLinecap="round" 
+                className="opacity-40"
+              />
               <path d="M15 22L12 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
               <path d="M25 18L22 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
               <path d="M35 15L34 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
@@ -265,7 +267,7 @@ export default function ClientBookingPage() {
                     onClick={handleSubmit}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : "Finalizar"}
+                    {loading ? <Loader2 className="animate-spin" size={20} /> : "Finalizar"}
                   </Button>
                 </div>
               </div>

@@ -64,14 +64,14 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
           <div className="flex -space-x-1 justify-center items-center">
             {pendingInstagramEvents.length > 0 && (
               <div 
-                className="w-2.5 h-2.5 rounded-full border-2 border-primary shadow-lg animate-instagram-pulse z-10 mr-1.5" 
+                className="w-3 h-3 rounded-full border-2 border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)] animate-instagram-pulse z-10 mr-1.5" 
                 title="Novo Agendamento Instagram Pendente"
               />
             )}
             
             {confirmedEvents.slice(0, 3).map((e, idx) => {
               let dotClass = "bg-muted border-border/50";
-              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-2 border-white shadow-[0_0_4px_rgba(255,255,255,0.4)]";
+              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-2 border-white shadow-[0_0_6px_rgba(255,255,255,0.6)]";
               if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-2 border-primary";
               if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-2 border-primary/20";
               
@@ -79,7 +79,7 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
                 <div 
                   key={idx}
                   className={cn(
-                    "w-3 h-3 rounded-full border shadow-sm transition-transform group-hover:scale-110",
+                    "w-3.5 h-3.5 rounded-full border shadow-md transition-transform group-hover:scale-110",
                     dotClass
                   )}
                   title={e.tipo}
