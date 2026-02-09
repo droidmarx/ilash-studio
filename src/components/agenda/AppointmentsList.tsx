@@ -5,7 +5,7 @@ import { Client } from "@/lib/api"
 import { format, parseISO, parse, isValid, getMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Clock, Send, Cake, Star } from "lucide-react"
+import { Clock, Send, Cake, Star, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ReminderDialog } from "./ReminderDialog"
@@ -65,7 +65,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-0.5">
+                      <div className="flex items-center gap-1.5 mb-1">
                         <h4 className="font-bold text-base md:text-lg text-foreground truncate group-hover:text-primary transition-colors">
                           {app.nome}
                         </h4>
@@ -73,17 +73,29 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                           <Cake size={14} className="text-primary animate-pulse shrink-0" />
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock size={12} className="shrink-0" />
-                          {app.servico}
-                        </span>
-                        <span className={cn(
-                          "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border",
-                          app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : "bg-muted border-border text-muted-foreground"
-                        )}>
-                          {app.tipo}
-                        </span>
+                      
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2 text-[10px] md:text-xs font-semibold text-primary/80">
+                          <Calendar size={12} className="shrink-0" />
+                          <span className="capitalize">{format(date, 'EEEE', { locale: ptBR })}</span>
+                          <span className="opacity-40">•</span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} className="shrink-0" />
+                            {format(date, 'HH:mm')}
+                          </span>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1">
+                            {app.servico}
+                          </span>
+                          <span className={cn(
+                            "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border",
+                            app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : "bg-muted border-border text-muted-foreground"
+                          )}>
+                            {app.tipo}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
