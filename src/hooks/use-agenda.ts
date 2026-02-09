@@ -83,7 +83,6 @@ export function useAgenda() {
       toast({ title: "Sucesso", description: "Agendamento criado!" });
       
       await notifyAppointmentChange(newClient, 'Novo');
-      // Força recarregamento completo (não silencioso) para reconstruir o HTML da agenda
       await fetchClients(false);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao criar agendamento." });
@@ -102,7 +101,6 @@ export function useAgenda() {
         await notifyAppointmentChange({ ...updatedData, ...data }, 'Alterado');
       }
       
-      // Força recarregamento completo (não silencioso) para reconstruir o HTML da agenda
       await fetchClients(false);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao atualizar." });
@@ -115,8 +113,11 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido com sucesso." });
-      // Força recarregamento completo (não silencioso) para reconstruir o HTML da agenda
-      await fetchClients(false);
+      
+      // Solicitação do usuário: Recarregar a página inteira APENAS na exclusão
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
       setLoading(false);
