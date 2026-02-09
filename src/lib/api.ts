@@ -1,5 +1,5 @@
 export const DEFAULT_API_URL = 'https://6987bee8780e8375a686ec39.mockapi.io/Clientes/Clientes';
-export const SETTINGS_API_URL = 'https://6987bee8780e8375a686ec39.mockapi.io/Clientes/Config';
+export const SETTINGS_API_URL = 'https://6987bee8780e8375a686ec39.mockapi.io/Clientes/config';
 
 export interface ServicoAdicional {
   nome: string;
@@ -72,9 +72,13 @@ function getApiUrl(): string {
 }
 
 function getSettingsUrl(): string {
-  // Baseado na URL base de Clientes, assume-se o recurso Config no mesmo projeto
-  const baseUrl = getApiUrl().replace(/\/Clientes$/, '');
-  return `${baseUrl}/Config`;
+  // Tenta derivar a URL de config a partir da URL base se ela for alterada, 
+  // caso contrário usa a URL padrão fornecida pelo usuário
+  const currentApi = getApiUrl();
+  if (currentApi === DEFAULT_API_URL) return SETTINGS_API_URL;
+  
+  const baseUrl = currentApi.replace(/\/Clientes$/, '').replace(/\/config$/, '');
+  return `${baseUrl}/config`;
 }
 
 export async function getRecipients(): Promise<Recipient[]> {
