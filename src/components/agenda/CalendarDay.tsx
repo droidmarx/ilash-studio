@@ -18,12 +18,10 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
   const hasEvents = events.length > 0
   const hasBirthdays = birthdays.length > 0
   
-  // Agendamentos Instagram pendentes (não confirmados)
   const pendingInstagramEvents = events.filter(e => 
     e.confirmado === false && e.observacoes?.toLowerCase().includes("instagram")
   )
 
-  // Agendamentos confirmados ou manuais
   const confirmedEvents = events.filter(e => 
     e.confirmado !== false
   )
@@ -64,7 +62,6 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
       <div className="h-6 flex items-center justify-center w-full">
         {hasEvents && isCurrentMonth && (
           <div className="flex -space-x-1 justify-center items-center">
-            {/* Somente a bolinha pulsante se houver agendamento Instagram pendente */}
             {pendingInstagramEvents.length > 0 && (
               <div 
                 className="w-2.5 h-2.5 rounded-full border-2 border-primary shadow-lg animate-instagram-pulse z-10 mr-1.5" 
@@ -72,11 +69,10 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
               />
             )}
             
-            {/* Pontos com cores e bordas baseadas no tipo de procedimento para maior visibilidade */}
             {confirmedEvents.slice(0, 3).map((e, idx) => {
-              let dotClass = "bg-primary/20 border-primary/40"; // Remoção (Mais suave)
-              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-white"; // Aplicação (Dourado Vivo + Borda Branca)
-              if (e.tipo === 'Manutenção') dotClass = "bg-primary/60 border-primary"; // Manutenção (Dourado Médio + Borda Primária)
+              let dotClass = "bg-primary/20 border-primary/40";
+              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-white";
+              if (e.tipo === 'Manutenção') dotClass = "bg-primary/60 border-primary";
               
               return (
                 <div 

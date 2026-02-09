@@ -10,8 +10,8 @@ export function useAgenda() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const { toast } = useToast();
 
-  const fetchClients = useCallback(async () => {
-    setLoading(true);
+  const fetchClients = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const data = await getClients();
       setClients(data);
@@ -22,7 +22,7 @@ export function useAgenda() {
         description: "Não foi possível carregar os dados da agenda.",
       });
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [toast]);
 
@@ -81,10 +81,8 @@ export function useAgenda() {
       const newClient = await createClient(data);
       toast({ title: "Sucesso", description: "Agendamento criado!" });
       
-      // Notifica administradores sobre o novo agendamento
       await notifyAppointmentChange(newClient, 'Novo');
-      
-      await fetchClients();
+      await fetchClients(true);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao criar agendamento." });
     }
@@ -95,13 +93,12 @@ export function useAgenda() {
       await updateClient(id, data);
       toast({ title: "Sucesso", description: "Atualizado!" });
       
-      // Busca o cliente atualizado para enviar a notificação com dados completos
       const updatedData = clients.find(c => c.id === id);
       if (updatedData) {
         await notifyAppointmentChange({ ...updatedData, ...data }, 'Alterado');
       }
       
-      await fetchClients();
+      await fetchClients(true);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao atualizar." });
     }
@@ -111,7 +108,7 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido com sucesso." });
-      await fetchClients();
+      await fetchClients(true);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
     }
