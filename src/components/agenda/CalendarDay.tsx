@@ -68,23 +68,23 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
             {/* Somente a bolinha pulsante se houver agendamento Instagram pendente */}
             {pendingInstagramEvents.length > 0 && (
               <div 
-                className="w-2.5 h-2.5 rounded-full border border-background shadow-lg animate-instagram-pulse z-10 mr-1.5" 
+                className="w-2.5 h-2.5 rounded-full border-2 border-primary shadow-lg animate-instagram-pulse z-10 mr-1.5" 
                 title="Novo Agendamento Instagram Pendente"
               />
             )}
             
             {/* Pontos com cores baseadas no tipo de procedimento */}
             {confirmedEvents.slice(0, 3).map((e, idx) => {
-              let dotColor = "bg-primary/25"; // Padrão/Remoção
-              if (e.tipo === 'Aplicação') dotColor = "bg-primary"; // Dourado Intenso
-              if (e.tipo === 'Manutenção') dotColor = "bg-primary/60"; // Dourado Médio
+              let dotClass = "bg-primary/25 border-primary/40"; // Padrão/Remoção
+              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-white"; // Dourado Intenso + Borda Branca
+              if (e.tipo === 'Manutenção') dotClass = "bg-primary/60 border-primary"; // Dourado Médio + Borda Dourada
               
               return (
                 <div 
                   key={idx}
                   className={cn(
-                    "w-2.5 h-2.5 rounded-full border border-background shadow-sm transition-transform group-hover:scale-110",
-                    dotColor
+                    "w-2.5 h-2.5 rounded-full border shadow-sm transition-transform group-hover:scale-110",
+                    dotClass
                   )}
                   title={e.tipo}
                 />

@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, CheckCircle } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, CheckCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
@@ -46,6 +46,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
   const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
   const [reminderClient, setReminderClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   if (!day) return null
 
@@ -93,8 +94,13 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
 
   const handleDelete = async () => {
     if (deleteConfirmId) {
-      await onDelete(deleteConfirmId);
-      setDeleteConfirmId(null);
+      setIsDeleting(true);
+      try {
+        await onDelete(deleteConfirmId);
+      } finally {
+        setIsDeleting(false);
+        setDeleteConfirmId(null);
+      }
     }
   }
 
@@ -389,7 +395,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
         onClose={() => setReminderClient(null)}
       />
 
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && !isDeleting && setDeleteConfirmId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
@@ -398,14 +404,18 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => {}}>
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" disabled={isDeleting}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              disabled={isDeleting}
               className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Excluir
+              {isDeleting ? <Loader2 className="animate-spin" /> : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

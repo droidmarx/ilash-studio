@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -13,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList, Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
   AlertDialog, 
@@ -44,6 +45,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
   const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
   const [reminderClient, setReminderClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const filteredClients = clients.filter(client => 
     client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,8 +63,13 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
 
   const handleDelete = async () => {
     if (deleteConfirmId) {
-      await onDelete(deleteConfirmId);
-      setDeleteConfirmId(null);
+      setIsDeleting(true);
+      try {
+        await onDelete(deleteConfirmId);
+      } finally {
+        setIsDeleting(false);
+        setDeleteConfirmId(null);
+      }
     }
   }
 
@@ -218,7 +225,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && !isDeleting && setDeleteConfirmId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
@@ -227,14 +234,18 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" onClick={() => {}}>
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" disabled={isDeleting}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              disabled={isDeleting}
               className="flex-1 rounded-xl bg-destructive text-white hover:bg-destructive/90"
             >
-              Excluir
+              {isDeleting ? <Loader2 className="animate-spin" /> : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
