@@ -27,11 +27,11 @@ export async function GET(request: Request) {
     const systemKeys = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE'];
     const adminRecipients = recipients.filter(r => !systemKeys.includes(r.nome) && r.chatID);
 
-    console.log(`[Cron] Inicializado. Encontrados ${clients.length} clientes e ${adminRecipients.length} admins.`);
+    console.log(`[Cron] Verificação iniciada. Total de clientes: ${clients.length}. Administradores: ${adminRecipients.length}`);
 
     if (!botToken || adminRecipients.length === 0) {
-      console.warn('[Cron] Configurações de Telegram incompletas no MockAPI');
-      return NextResponse.json({ message: 'Configurações de Telegram ausentes no MockAPI' });
+      console.warn('[Cron] Configurações de Telegram incompletas (Bot Token ou Admins ausentes)');
+      return NextResponse.json({ message: 'Configurações de Telegram incompletas no MockAPI' });
     }
 
     // Ajuste de Fuso Horário (Vercel UTC -> Brasília UTC-3)
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
     // Executa entre 8:00 e 8:59 de Brasília
     if (currentHour === 8) {
       const lastSentDate = await getLastSummaryDate();
-      console.log(`[Cron] Verificando resumo diário. Hoje: ${todayStr}, Último enviado: ${lastSentDate}`);
+      console.log(`[Cron] Verificando resumo das 8h. Hoje: ${todayStr}, Último enviado: ${lastSentDate}`);
       
       if (lastSentDate !== todayStr) {
         const todayAppointments = clients.filter(client => {
@@ -62,8 +62,6 @@ export async function GET(request: Request) {
           return da.getTime() - db.getTime();
         });
 
-        console.log(`[Cron] Preparando resumo para ${todayAppointments.length} agendamentos de hoje.`);
-
         let summaryMessage = "";
         if (todayAppointments.length > 0) {
           summaryMessage = `✨ <b>Bom dia! Agenda de Hoje</b> ✨\n\n` +
@@ -77,19 +75,28 @@ export async function GET(request: Request) {
           summaryMessage = `✨ <b>Bom dia!</b> ✨\n\nVocê ainda não tem agendamentos confirmados para hoje.\n💖 <i>Que tal aproveitar para organizar o studio?</i>`;
         }
 
+        console.log(`[Cron] Enviando resumo diário para ${adminRecipients.length} admins.`);
+
         for (const admin of adminRecipients) {
-          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: admin.chatID, text: summaryMessage, parse_mode: 'HTML' }),
-          });
+          try {
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                chat_id: admin.chatID, 
+                text: summaryMessage, 
+                parse_mode: 'HTML' 
+              }),
+            });
+          } catch (e) {
+            console.error(`[Cron] Erro ao enviar para admin ${admin.nome}:`, e);
+          }
         }
         
         await updateLastSummaryDate(todayStr);
-        console.log('[Cron] Resumo diário enviado com sucesso.');
         logs.push({ type: 'summary', status: 'sent', count: todayAppointments.length });
       } else {
-        console.log('[Cron] Resumo diário já foi enviado hoje. Pulando.');
+        console.log('[Cron] Resumo diário já enviado hoje. Ignorando.');
       }
     }
 
@@ -121,7 +128,11 @@ export async function GET(request: Request) {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: admin.chatID, text: reminderMessage, parse_mode: 'HTML' }),
+          body: JSON.stringify({ 
+            chat_id: admin.chatID, 
+            text: reminderMessage, 
+            parse_mode: 'HTML' 
+          }),
         });
         if (res.ok) sentSuccessfully = true;
       }
@@ -133,8 +144,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ 
       success: true, 
-      brasiliaTime: format(nowBrasilia, 'HH:mm:ss'),
-      summary: logs.find(l => l.type === 'summary')?.status || 'skipping',
+      time: format(nowBrasilia, 'HH:mm:ss'),
+      summarySent: logs.some(l => l.type === 'summary'),
       remindersSent: upcomingAppointments.length
     });
 
