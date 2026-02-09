@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getClients, getTelegramToken, getRecipients, updateClient } from '@/lib/api';
+import { getClients, getTelegramToken, getRecipients } from '@/lib/api';
 import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -8,14 +8,17 @@ export const dynamic = 'force-dynamic';
 /**
  * Endpoint para disparar lembretes de agendamento.
  * Verifica clientes que possuem agendamento em ~2 horas.
+ * Protegido por CRON_SECRET via GitHub Actions.
  */
 export async function GET(request: Request) {
-  // Verificação de Segurança (Opcional mas recomendado)
+  // Verificação de Segurança
   const authHeader = request.headers.get('authorization');
-  // Se você configurar CRON_SECRET no GitHub e na Vercel, descomente a linha abaixo
-  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  //   return new NextResponse('Não autorizado', { status: 401 });
-  // }
+  const expectedToken = `Bearer ${process.env.CRON_SECRET}`;
+
+  if (!process.env.CRON_SECRET || authHeader !== expectedToken) {
+    console.warn('Tentativa de acesso não autorizado ao Cron ou CRON_SECRET não configurado na Vercel.');
+    return new NextResponse('Não autorizado', { status: 401 });
+  }
 
   try {
     const clients = await getClients();
@@ -25,7 +28,7 @@ export async function GET(request: Request) {
     const adminRecipients = recipients.filter(r => r.nome !== 'SYSTEM_TOKEN' && r.chatID);
 
     if (!botToken || adminRecipients.length === 0) {
-      return NextResponse.json({ message: 'Configurações de Telegram não encontradas' });
+      return NextResponse.json({ message: 'Configurações de Telegram não encontradas no MockAPI' });
     }
 
     const now = new Date();
@@ -36,14 +39,18 @@ export async function GET(request: Request) {
     const windowEnd = addMinutes(targetTime, 8);
 
     const upcomingAppointments = clients.filter(client => {
-      // Ignora se já foi enviado ou se não está confirmado
+      // Ignora se não está confirmado
       if (client.confirmado === false) return false;
       
-      const appDate = parseISO(client.data);
-      return isWithinInterval(appDate, { start: windowStart, end: windowEnd });
+      try {
+        const appDate = parseISO(client.data);
+        return isWithinInterval(appDate, { start: windowStart, end: windowEnd });
+      } catch (e) {
+        return false;
+      }
     });
 
-    console.log(`Cron: Verificando lembretes. Encontrados: ${upcomingAppointments.length}`);
+    console.log(`Cron: Verificando lembretes. Encontrados para agora: ${upcomingAppointments.length}`);
 
     for (const app of upcomingAppointments) {
       const message = `⏰ <b>Lembrete de Atendimento VIP</b>\n\n` +
@@ -53,19 +60,20 @@ export async function GET(request: Request) {
         `🚀 <i>Sua cliente chega em aproximadamente 2 horas!</i>`;
 
       for (const admin of adminRecipients) {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: admin.chatID,
-            text: message,
-            parse_mode: 'HTML',
-          }),
-        });
+        try {
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: admin.chatID,
+              text: message,
+              parse_mode: 'HTML',
+            }),
+          });
+        } catch (err) {
+          console.error(`Erro ao enviar para admin ${admin.nome}:`, err);
+        }
       }
-      
-      // Opcional: Marcar como lembrete enviado para não repetir
-      // await updateClient(app.id, { ...app, observacoes: (app.observacoes || '') + ' [Lembrete Enviado]' });
     }
 
     return NextResponse.json({ 
