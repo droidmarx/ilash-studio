@@ -231,7 +231,15 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 </div>
                               )}
                             </div>
-                            <Badge variant="outline" className="text-[10px] border-primary/20 text-primary uppercase">
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-[10px] uppercase border transition-colors",
+                                event.tipo === 'Aplicação' ? "border-primary text-primary bg-primary/10" :
+                                event.tipo === 'Manutenção' ? "border-primary/50 text-primary/70 bg-primary/5" :
+                                "border-border text-muted-foreground"
+                              )}
+                            >
                               {event.tipo}
                             </Badge>
                           </div>

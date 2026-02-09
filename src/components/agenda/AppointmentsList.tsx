@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -20,7 +21,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
   const getEventDate = (dataStr: string) => {
     try {
       if (dataStr.includes('T')) return parseISO(dataStr);
-      return parse(dataStr, 'dd/MM/yyyy', new Date());
+      return parse(dataStr, 'dd/MM/yyyy HH:mm', new Date());
     } catch (e) { return new Date(); }
   };
 
@@ -90,8 +91,10 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                             {app.servico}
                           </span>
                           <span className={cn(
-                            "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border",
-                            app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : "bg-muted border-border text-muted-foreground"
+                            "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border transition-colors",
+                            app.tipo === 'Aplicação' ? "bg-primary/20 border-primary/40 text-primary" : 
+                            app.tipo === 'Manutenção' ? "bg-primary/10 border-primary/20 text-primary/70" :
+                            "bg-muted/50 border-border text-muted-foreground"
                           )}>
                             {app.tipo}
                           </span>

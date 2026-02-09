@@ -73,16 +73,23 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
               />
             )}
             
-            {/* Pontos normais apenas para agendamentos confirmados */}
-            {confirmedEvents.slice(0, 3).map((e, idx) => (
-              <div 
-                key={idx}
-                className={cn(
-                  "w-2 h-2 rounded-full border border-background shadow-sm transition-transform group-hover:scale-110",
-                  e.tipo === 'Aplicação' ? "bg-primary" : "bg-primary/40"
-                )}
-              />
-            ))}
+            {/* Pontos com cores baseadas no tipo de procedimento */}
+            {confirmedEvents.slice(0, 3).map((e, idx) => {
+              let dotColor = "bg-primary/25"; // Padrão/Remoção
+              if (e.tipo === 'Aplicação') dotColor = "bg-primary"; // Dourado Intenso
+              if (e.tipo === 'Manutenção') dotColor = "bg-primary/60"; // Dourado Médio
+              
+              return (
+                <div 
+                  key={idx}
+                  className={cn(
+                    "w-2.5 h-2.5 rounded-full border border-background shadow-sm transition-transform group-hover:scale-110",
+                    dotColor
+                  )}
+                  title={e.tipo}
+                />
+              )
+            })}
             
             {(confirmedEvents.length > 3) && (
               <span className="text-[8px] font-black text-primary ml-1 leading-none">
