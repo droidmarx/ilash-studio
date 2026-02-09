@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { format, parseISO, addDays, getMonth } from "date-fns"
+import { format, parseISO, addDays, getMonth, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Client, Anamnese } from "@/lib/api"
 import {
@@ -98,6 +98,15 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
     }
   }
 
+  const getEventDate = (dataStr: string) => {
+    try {
+      if (dataStr.includes('T')) return parseISO(dataStr);
+      return new Date(dataStr);
+    } catch (e) {
+      return new Date();
+    }
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => {
@@ -185,6 +194,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                       const bdayMonth = isBirthdayMonth(event);
                       const isAnamneseFilled = !!event.anamnese?.assinatura;
                       const isPending = event.confirmado === false;
+                      const eventDate = getEventDate(event.data);
                       
                       return (
                         <div 
@@ -201,13 +211,22 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 <User size={16} className="text-primary/60" />
                                 {event.nome}
                               </h4>
+                              <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase">
+                                <Calendar size={12} className="shrink-0" />
+                                <span className="capitalize">{format(eventDate, 'EEEE', { locale: ptBR })}</span>
+                                <span className="opacity-40">•</span>
+                                <span className="flex items-center gap-1">
+                                  <Clock size={12} className="shrink-0" />
+                                  {format(eventDate, 'HH:mm')}
+                                </span>
+                              </div>
                               {isPending && (
-                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase animate-instagram-pulse px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 w-fit">
+                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase animate-instagram-pulse px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 w-fit mt-1">
                                   <Sparkles size={10} /> Novo (Link Instagram)
                                 </div>
                               )}
                               {bdayMonth && !isPending && (
-                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase">
+                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase mt-1">
                                   <Cake size={12} /> Mês de Aniversário! ✨
                                 </div>
                               )}
@@ -219,7 +238,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-muted-foreground mt-3">
                             <div className="flex items-center gap-2">
-                              <Clock size={14} className="text-primary/40" />
+                              <Sparkles size={14} className="text-primary/40" />
                               <span>{event.servico} - R$ {event.valor || '0,00'}</span>
                             </div>
                             {event.whatsapp && (
