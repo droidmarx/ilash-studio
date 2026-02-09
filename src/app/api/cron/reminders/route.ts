@@ -9,10 +9,12 @@ export async function GET(request: Request) {
   const expectedToken = `Bearer ${process.env.CRON_SECRET}`;
 
   if (!process.env.CRON_SECRET) {
+    console.error('[Cron] Erro: CRON_SECRET não configurado na Vercel');
     return NextResponse.json({ error: 'CRON_SECRET não configurado' }, { status: 500 });
   }
 
   if (authHeader !== expectedToken) {
+    console.warn('[Cron] Acesso negado: Token de autorização inválido');
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
@@ -20,9 +22,15 @@ export async function GET(request: Request) {
     const clients = await getClients();
     const botToken = await getTelegramToken();
     const recipients = await getRecipients();
-    const adminRecipients = recipients.filter(r => r.nome !== 'SYSTEM_TOKEN' && r.nome !== 'SUMMARY_STATE' && r.chatID);
+    
+    // Filtra apenas administradores reais (ignora chaves de sistema)
+    const systemKeys = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE'];
+    const adminRecipients = recipients.filter(r => !systemKeys.includes(r.nome) && r.chatID);
+
+    console.log(`[Cron] Inicializado. Encontrados ${clients.length} clientes e ${adminRecipients.length} admins.`);
 
     if (!botToken || adminRecipients.length === 0) {
+      console.warn('[Cron] Configurações de Telegram incompletas no MockAPI');
       return NextResponse.json({ message: 'Configurações de Telegram ausentes no MockAPI' });
     }
 
@@ -35,11 +43,14 @@ export async function GET(request: Request) {
     const logs = [];
 
     // --- LÓGICA 1: RESUMO DIÁRIO DAS 8H ---
+    // Executa entre 8:00 e 8:59 de Brasília
     if (currentHour === 8) {
       const lastSentDate = await getLastSummaryDate();
+      console.log(`[Cron] Verificando resumo diário. Hoje: ${todayStr}, Último enviado: ${lastSentDate}`);
       
       if (lastSentDate !== todayStr) {
         const todayAppointments = clients.filter(client => {
+          // No resumo das 8h, mostramos apenas os confirmados
           if (client.confirmado === false) return false;
           try {
             const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
@@ -51,16 +62,19 @@ export async function GET(request: Request) {
           return da.getTime() - db.getTime();
         });
 
+        console.log(`[Cron] Preparando resumo para ${todayAppointments.length} agendamentos de hoje.`);
+
         let summaryMessage = "";
         if (todayAppointments.length > 0) {
           summaryMessage = `✨ <b>Bom dia! Agenda de Hoje</b> ✨\n\n` +
             todayAppointments.map(app => {
-              const time = format(app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date()), 'HH:mm');
+              const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
+              const time = format(appDate, 'HH:mm');
               return `⏰ <b>${time}</b> - ${app.nome}\n🎨 ${app.servico} (${app.tipo})`;
             }).join('\n\n') +
             `\n\n🚀 <i>Tenha um ótimo dia de trabalho!</i>`;
         } else {
-          summaryMessage = `✨ <b>Bom dia!</b> ✨\n\nVocê ainda não tem agendamentos para hoje.\n💖 <i>Que tal aproveitar para organizar o studio?</i>`;
+          summaryMessage = `✨ <b>Bom dia!</b> ✨\n\nVocê ainda não tem agendamentos confirmados para hoje.\n💖 <i>Que tal aproveitar para organizar o studio?</i>`;
         }
 
         for (const admin of adminRecipients) {
@@ -70,8 +84,12 @@ export async function GET(request: Request) {
             body: JSON.stringify({ chat_id: admin.chatID, text: summaryMessage, parse_mode: 'HTML' }),
           });
         }
+        
         await updateLastSummaryDate(todayStr);
+        console.log('[Cron] Resumo diário enviado com sucesso.');
         logs.push({ type: 'summary', status: 'sent', count: todayAppointments.length });
+      } else {
+        console.log('[Cron] Resumo diário já foi enviado hoje. Pulando.');
       }
     }
 
@@ -90,7 +108,8 @@ export async function GET(request: Request) {
     });
 
     for (const app of upcomingAppointments) {
-      const appTime = format(app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date()), 'HH:mm');
+      const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
+      const appTime = format(appDate, 'HH:mm');
       const reminderMessage = `⏰ <b>Lembrete VIP I Lash Studio</b>\n\n` +
         `👤 <b>Cliente:</b> ${app.nome}\n` +
         `🎨 <b>Serviço:</b> ${app.servico}\n` +
@@ -108,14 +127,15 @@ export async function GET(request: Request) {
       }
       if (sentSuccessfully) {
         await updateClient(app.id, { reminderSent: true });
+        console.log(`[Cron] Lembrete de 2h enviado para: ${app.nome}`);
       }
     }
 
     return NextResponse.json({ 
       success: true, 
-      time: format(nowBrasilia, 'HH:mm'),
+      brasiliaTime: format(nowBrasilia, 'HH:mm:ss'),
       summary: logs.find(l => l.type === 'summary')?.status || 'skipping',
-      reminders: upcomingAppointments.length
+      remindersSent: upcomingAppointments.length
     });
 
   } catch (error) {
