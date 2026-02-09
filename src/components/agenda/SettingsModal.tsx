@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook } from "@/lib/api"
+import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook, updateMainApiUrl, DEFAULT_API_URL } from "@/lib/api"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -39,7 +39,7 @@ export function SettingsModal({
 
   useEffect(() => {
     if (isOpen) {
-      setApiUrl(localStorage.getItem("mock_api_url") || "")
+      setApiUrl(localStorage.getItem("mock_api_url") || DEFAULT_API_URL)
       loadRecipients()
     }
   }, [isOpen])
@@ -48,7 +48,12 @@ export function SettingsModal({
     setLoading(true)
     try {
       const data = await getRecipients()
-      const persons = data.filter(r => r.nome !== 'SYSTEM_TOKEN' && r.nome !== 'SUMMARY_STATE')
+      // Filtra entradas de sistema
+      const persons = data.filter(r => 
+        r.nome !== 'SYSTEM_TOKEN' && 
+        r.nome !== 'SUMMARY_STATE' && 
+        r.nome !== 'MAIN_API_URL'
+      )
       setRecipients(persons.slice(0, 3))
       
       const tokenConfig = data.find(r => r.nome === 'SYSTEM_TOKEN')
@@ -100,21 +105,28 @@ export function SettingsModal({
 
   const handleSave = async () => {
     setSaving(true)
-    localStorage.setItem("mock_api_url", apiUrl.trim())
+    const normalizedUrl = apiUrl.trim()
+    localStorage.setItem("mock_api_url", normalizedUrl)
     
     try {
+      // Sincroniza URL da API e Token no servidor (MockAPI global config)
+      await updateMainApiUrl(normalizedUrl);
+      
       if (botToken) {
         await updateTelegramToken(botToken.trim());
       }
 
       const remoteRecipients = await getRecipients()
       
+      // Remove admins que não estão mais na lista local
       for (const remote of remoteRecipients) {
-        if (remote.nome !== 'SYSTEM_TOKEN' && remote.nome !== 'SUMMARY_STATE' && !recipients.find(r => r.id === remote.id)) {
+        const isSystemKey = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL'].includes(remote.nome);
+        if (!isSystemKey && !recipients.find(r => r.id === remote.id)) {
           await deleteRecipient(remote.id)
         }
       }
 
+      // Cria ou atualiza admins
       for (const local of recipients) {
         if (local.id.startsWith('temp-')) {
           await createRecipient({ nome: local.nome, chatID: local.chatID })
@@ -123,11 +135,11 @@ export function SettingsModal({
         }
       }
 
-      toast({ title: "Configurações Salvas", description: "Token e administradores atualizados." })
+      toast({ title: "Configurações Salvas", description: "Configurações sincronizadas com sucesso." })
       onSave()
       onClose()
     } catch (error) {
-      toast({ variant: "destructive", title: "Erro ao Salvar", description: "Falha ao sincronizar." })
+      toast({ variant: "destructive", title: "Erro ao Salvar", description: "Falha ao sincronizar dados." })
     } finally {
       setSaving(false)
     }
@@ -159,6 +171,7 @@ export function SettingsModal({
               onChange={(e) => setApiUrl(e.target.value)}
               className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary"
             />
+            <p className="text-[10px] text-muted-foreground">Essa URL é usada para salvar agendamentos e clientes.</p>
           </div>
 
           <Separator className="bg-primary/10" />
@@ -195,7 +208,7 @@ export function SettingsModal({
             <div className="flex items-center justify-between">
               <Label className="text-lg font-bold flex items-center gap-2 text-primary">
                 <Send size={20} />
-                Destinatários (Máx. 3)
+                Destinatários de Alerta (Máx. 3)
               </Label>
               <Button 
                 variant="ghost" 

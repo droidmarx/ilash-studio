@@ -51,23 +51,28 @@ export interface Client {
 }
 
 /**
- * Retorna a URL da API. No servidor, prioriza a URL padrão para evitar erros de localStorage.
+ * Retorna a URL da API. No servidor, tenta buscar a URL salva na config.
  */
-function getApiUrl(): string {
+export async function getEffectiveApiUrl(): Promise<string> {
+  // No cliente, usa o localStorage
   if (typeof window !== 'undefined') {
     return localStorage.getItem('mock_api_url') || DEFAULT_API_URL;
   }
-  return DEFAULT_API_URL;
+  
+  // No servidor, tenta descobrir a URL salva na config global
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'MAIN_API_URL');
+    return config ? config.chatID : DEFAULT_API_URL;
+  } catch {
+    return DEFAULT_API_URL;
+  }
 }
 
 function getSettingsUrl(): string {
-  if (typeof window === 'undefined') return SETTINGS_API_URL;
-  
-  const currentApi = getApiUrl();
-  if (currentApi === DEFAULT_API_URL) return SETTINGS_API_URL;
-  
-  const baseUrl = currentApi.replace(/\/Clientes$/, '').replace(/\/config$/, '');
-  return `${baseUrl}/config`;
+  // A URL de config sempre aponta para o projeto raiz configurado no código
+  // para que o servidor saiba onde encontrar as chaves iniciais.
+  return SETTINGS_API_URL;
 }
 
 export async function getRecipients(): Promise<Recipient[]> {
@@ -101,6 +106,17 @@ export async function updateTelegramToken(token: string): Promise<void> {
   }
 }
 
+export async function updateMainApiUrl(url: string): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'MAIN_API_URL');
+  
+  if (config) {
+    await updateRecipient({ ...config, chatID: url });
+  } else {
+    await createRecipient({ nome: 'MAIN_API_URL', chatID: url });
+  }
+}
+
 export async function updateRecipient(recipient: Recipient): Promise<void> {
   const url = `${getSettingsUrl()}/${recipient.id}`;
   const res = await fetch(url, {
@@ -129,7 +145,8 @@ export async function deleteRecipient(id: string): Promise<void> {
 
 export async function getClients(): Promise<Client[]> {
   try {
-    const res = await fetch(getApiUrl(), { cache: 'no-store' });
+    const apiUrl = await getEffectiveApiUrl();
+    const res = await fetch(apiUrl, { cache: 'no-store' });
     if (!res.ok) throw new Error('Falha ao buscar dados');
     return await res.json();
   } catch (error) {
@@ -138,13 +155,15 @@ export async function getClients(): Promise<Client[]> {
 }
 
 export async function getClient(id: string): Promise<Client> {
-  const res = await fetch(`${getApiUrl()}/${id}`, { cache: 'no-store' });
+  const apiUrl = await getEffectiveApiUrl();
+  const res = await fetch(`${apiUrl}/${id}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Falha ao buscar cliente');
   return await res.json();
 }
 
 export async function createClient(data: Omit<Client, 'id'>): Promise<Client> {
-  const res = await fetch(getApiUrl(), {
+  const apiUrl = await getEffectiveApiUrl();
+  const res = await fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -154,7 +173,8 @@ export async function createClient(data: Omit<Client, 'id'>): Promise<Client> {
 }
 
 export async function updateClient(id: string, data: Partial<Client>): Promise<void> {
-  const res = await fetch(`${getApiUrl()}/${id}`, {
+  const apiUrl = await getEffectiveApiUrl();
+  const res = await fetch(`${apiUrl}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -163,13 +183,13 @@ export async function updateClient(id: string, data: Partial<Client>): Promise<v
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  const res = await fetch(`${getApiUrl()}/${id}`, {
+  const apiUrl = await getEffectiveApiUrl();
+  const res = await fetch(`${apiUrl}/${id}`, {
     method: 'DELETE',
   });
   if (!res.ok) throw new Error('Falha ao excluir agendamento');
 }
 
-// Novos helpers para o Cron
 export async function getLastSummaryDate(): Promise<string | null> {
   const recipients = await getRecipients();
   const config = recipients.find(r => r.nome === 'SUMMARY_STATE');
@@ -186,7 +206,6 @@ export async function updateLastSummaryDate(dateStr: string): Promise<void> {
   }
 }
 
-// Registro de Webhook
 export async function setTelegramWebhook(token: string, url: string): Promise<boolean> {
   try {
     const response = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
@@ -195,8 +214,10 @@ export async function setTelegramWebhook(token: string, url: string): Promise<bo
       body: JSON.stringify({ url: `${url}/api/telegram/webhook` }),
     });
     const result = await response.json();
+    console.log('[Webhook Registration]', result);
     return result.ok;
   } catch (error) {
+    console.error('[Webhook Error]', error);
     return false;
   }
 }
