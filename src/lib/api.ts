@@ -168,3 +168,20 @@ export async function deleteClient(id: string): Promise<void> {
   });
   if (!res.ok) throw new Error('Falha ao excluir agendamento');
 }
+
+// Novos helpers para o Cron
+export async function getLastSummaryDate(): Promise<string | null> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'SUMMARY_STATE');
+  return config ? config.chatID : null;
+}
+
+export async function updateLastSummaryDate(dateStr: string): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'SUMMARY_STATE');
+  if (config) {
+    await updateRecipient({ ...config, chatID: dateStr });
+  } else {
+    await createRecipient({ nome: 'SUMMARY_STATE', chatID: dateStr });
+  }
+}
