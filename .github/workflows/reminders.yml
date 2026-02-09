@@ -10,7 +10,7 @@ jobs:
   send-reminders:
     runs-on: ubuntu-latest
     steps:
-      - name: Chamar API de Lembretes
+      - name: Chamar API de Lembretes na Vercel
         run: |
           curl -X GET "https://ilash-studio.vercel.app/api/cron/reminders" \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
