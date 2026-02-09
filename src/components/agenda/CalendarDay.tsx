@@ -1,4 +1,3 @@
-
 "use client"
 
 import { format, isToday } from "date-fns"
@@ -73,11 +72,11 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
               />
             )}
             
-            {/* Pontos com cores baseadas no tipo de procedimento */}
+            {/* Pontos com cores e bordas baseadas no tipo de procedimento para maior visibilidade */}
             {confirmedEvents.slice(0, 3).map((e, idx) => {
-              let dotClass = "bg-primary/25 border-primary/40"; // Padrão/Remoção
-              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-white"; // Dourado Intenso + Borda Branca
-              if (e.tipo === 'Manutenção') dotClass = "bg-primary/60 border-primary"; // Dourado Médio + Borda Dourada
+              let dotClass = "bg-primary/20 border-primary/40"; // Remoção (Mais suave)
+              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-white"; // Aplicação (Dourado Vivo + Borda Branca)
+              if (e.tipo === 'Manutenção') dotClass = "bg-primary/60 border-primary"; // Manutenção (Dourado Médio + Borda Primária)
               
               return (
                 <div 

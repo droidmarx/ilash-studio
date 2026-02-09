@@ -98,9 +98,9 @@ export function useAgenda() {
   const removeAppointment = async (id: string) => {
     try {
       await deleteClient(id);
-      toast({ title: "Excluído", description: "Agendamento removido." });
-      // Carrega a página inteira novamente após excluir, conforme solicitado
-      window.location.reload();
+      toast({ title: "Excluído", description: "Agendamento removido com sucesso." });
+      // Atualiza apenas os dados da agenda sem recarregar a página inteira
+      await fetchClients();
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
     }
