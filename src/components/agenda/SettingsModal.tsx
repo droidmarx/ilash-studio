@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle } from "lucide-react"
+import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle, XCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook, updateMainApiUrl, DEFAULT_API_URL } from "@/lib/api"
+import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook, updateMainApiUrl, DEFAULT_API_URL, getWebhookStatus, updateWebhookStatus } from "@/lib/api"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -32,6 +31,7 @@ export function SettingsModal({
   const [apiUrl, setApiUrl] = useState("")
   const [botToken, setBotToken] = useState("")
   const [recipients, setRecipients] = useState<Recipient[]>([])
+  const [isWebhookActive, setIsWebhookActive] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [webhookLoading, setWebhookLoading] = useState(false)
@@ -52,12 +52,16 @@ export function SettingsModal({
       const persons = data.filter(r => 
         r.nome !== 'SYSTEM_TOKEN' && 
         r.nome !== 'SUMMARY_STATE' && 
-        r.nome !== 'MAIN_API_URL'
+        r.nome !== 'MAIN_API_URL' &&
+        r.nome !== 'WEBHOOK_STATE'
       )
       setRecipients(persons.slice(0, 3))
       
       const tokenConfig = data.find(r => r.nome === 'SYSTEM_TOKEN')
       if (tokenConfig) setBotToken(tokenConfig.chatID)
+
+      const status = await getWebhookStatus()
+      setIsWebhookActive(status)
     } catch (error) {
       console.error("Erro ao carregar destinatários", error)
     } finally {
@@ -82,22 +86,30 @@ export function SettingsModal({
     setRecipients(newRecipients)
   }
 
-  const handleActivateWebhook = async () => {
+  const handleToggleWebhook = async () => {
     if (!botToken) {
-      toast({ variant: "destructive", title: "Erro", description: "Salve o Token do Bot antes de ativar." })
+      toast({ variant: "destructive", title: "Erro", description: "Salve o Token do Bot antes de alterar o modo interativo." })
       return
     }
     setWebhookLoading(true)
     try {
       const currentUrl = window.location.origin
-      const success = await setTelegramWebhook(botToken.trim(), currentUrl)
+      const targetUrl = isWebhookActive ? "" : currentUrl
+      const success = await setTelegramWebhook(botToken.trim(), targetUrl)
+      
       if (success) {
-        toast({ title: "Bot Ativado!", description: "Agora seu robô responderá aos comandos /command1 e /command2." })
+        const nextState = !isWebhookActive
+        await updateWebhookStatus(nextState)
+        setIsWebhookActive(nextState)
+        toast({ 
+          title: nextState ? "Bot Ativado!" : "Bot Desativado", 
+          description: nextState ? "Agora seu robô responderá aos comandos /command1 e /command2." : "O robô não responderá mais a comandos interativos." 
+        })
       } else {
         throw new Error()
       }
     } catch (error) {
-      toast({ variant: "destructive", title: "Falha na Ativação", description: "Verifique seu Token e tente novamente." })
+      toast({ variant: "destructive", title: "Falha na Operação", description: "Verifique seu Token e tente novamente." })
     } finally {
       setWebhookLoading(false)
     }
@@ -120,7 +132,7 @@ export function SettingsModal({
       
       // Remove admins que não estão mais na lista local
       for (const remote of remoteRecipients) {
-        const isSystemKey = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL'].includes(remote.nome);
+        const isSystemKey = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE'].includes(remote.nome);
         if (!isSystemKey && !recipients.find(r => r.id === remote.id)) {
           await deleteRecipient(remote.id)
         }
@@ -183,14 +195,20 @@ export function SettingsModal({
                 Telegram Bot Token
               </Label>
               <Button 
-                variant="outline" 
+                variant={isWebhookActive ? "destructive" : "outline"}
                 size="sm" 
-                onClick={handleActivateWebhook}
+                onClick={handleToggleWebhook}
                 disabled={webhookLoading || !botToken}
-                className="rounded-full border-primary/20 text-primary hover:bg-primary/10 gap-2 h-8"
+                className="rounded-full gap-2 h-8 px-4"
               >
-                {webhookLoading ? <Loader2 className="animate-spin" size={14} /> : <Bot size={14} />}
-                Ativar Bot Interativo
+                {webhookLoading ? (
+                  <Loader2 className="animate-spin" size={14} />
+                ) : isWebhookActive ? (
+                  <XCircle size={14} />
+                ) : (
+                  <Bot size={14} />
+                )}
+                {isWebhookActive ? "Desativar modo interativo" : "Ativar Bot Interativo"}
               </Button>
             </div>
             <Input

@@ -117,6 +117,28 @@ export async function updateMainApiUrl(url: string): Promise<void> {
   }
 }
 
+export async function getWebhookStatus(): Promise<boolean> {
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'WEBHOOK_STATE');
+    return config ? config.chatID === 'ACTIVE' : false;
+  } catch {
+    return false;
+  }
+}
+
+export async function updateWebhookStatus(active: boolean): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'WEBHOOK_STATE');
+  const value = active ? 'ACTIVE' : 'INACTIVE';
+  
+  if (config) {
+    await updateRecipient({ ...config, chatID: value });
+  } else {
+    await createRecipient({ nome: 'WEBHOOK_STATE', chatID: value });
+  }
+}
+
 export async function updateRecipient(recipient: Recipient): Promise<void> {
   const url = `${getSettingsUrl()}/${recipient.id}`;
   const res = await fetch(url, {
@@ -208,10 +230,11 @@ export async function updateLastSummaryDate(dateStr: string): Promise<void> {
 
 export async function setTelegramWebhook(token: string, url: string): Promise<boolean> {
   try {
+    const finalUrl = url ? `${url}/api/telegram/webhook` : "";
     const response = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: `${url}/api/telegram/webhook` }),
+      body: JSON.stringify({ url: finalUrl }),
     });
     const result = await response.json();
     console.log('[Webhook Registration]', result);
