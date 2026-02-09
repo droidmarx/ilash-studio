@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
 import { addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { notifyAppointmentChange } from '@/app/actions/notifications';
 
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -77,8 +78,12 @@ export function useAgenda() {
 
   const addAppointment = async (data: Omit<Client, 'id'>) => {
     try {
-      await createClient(data);
+      const newClient = await createClient(data);
       toast({ title: "Sucesso", description: "Agendamento criado!" });
+      
+      // Notifica administradores sobre o novo agendamento
+      await notifyAppointmentChange(newClient, 'Novo');
+      
       await fetchClients();
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao criar agendamento." });
@@ -89,6 +94,13 @@ export function useAgenda() {
     try {
       await updateClient(id, data);
       toast({ title: "Sucesso", description: "Atualizado!" });
+      
+      // Busca o cliente atualizado para enviar a notificação com dados completos
+      const updatedData = clients.find(c => c.id === id);
+      if (updatedData) {
+        await notifyAppointmentChange({ ...updatedData, ...data }, 'Alterado');
+      }
+      
       await fetchClients();
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao atualizar." });
@@ -99,7 +111,6 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido com sucesso." });
-      // Atualiza apenas os dados da agenda sem recarregar a página inteira
       await fetchClients();
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });

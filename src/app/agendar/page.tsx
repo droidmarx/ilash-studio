@@ -1,9 +1,8 @@
-
 "use client"
 
 import { useState } from "react"
 import { createClient } from "@/lib/api"
-import { notifyNewBooking } from "@/app/actions/notifications"
+import { notifyAppointmentChange } from "@/app/actions/notifications"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +18,7 @@ import {
   ArrowRight, 
   ArrowLeft,
   Loader2
-} from "lucide-react"
+} from "lucide-center"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -53,8 +52,7 @@ export default function ClientBookingPage() {
     try {
       const dateTime = `${formData.data}T${formData.hora}`
       
-      // 1. Salva no banco de dados com confirmado: false
-      await createClient({
+      const payload = {
         nome: formData.nome,
         whatsapp: formData.whatsapp,
         servico: formData.servico,
@@ -62,16 +60,13 @@ export default function ClientBookingPage() {
         data: dateTime,
         observacoes: "Agendamento realizado via link Instagram",
         confirmado: false
-      })
+      };
 
-      // 2. Notifica o administrador via Telegram
-      await notifyNewBooking({
-        nome: formData.nome,
-        whatsapp: formData.whatsapp,
-        servico: formData.servico,
-        data: format(new Date(formData.data), "dd/MM/yyyy"),
-        hora: formData.hora
-      })
+      // 1. Salva no banco de dados com confirmado: false
+      await createClient(payload)
+
+      // 2. Notifica o administrador via Telegram usando a nova action
+      await notifyAppointmentChange(payload, 'Novo')
 
       setSuccess(true)
     } catch (error) {
