@@ -148,6 +148,16 @@ const FormMessage = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message ?? "") : children
+  const innerRef = React.useRef<HTMLParagraphElement>(null)
+
+  React.useImperativeHandle(ref, () => innerRef.current!)
+
+  React.useEffect(() => {
+    if (error && innerRef.current) {
+      // Rola para o centro da tela quando o erro aparece
+      innerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [error])
 
   if (!body) {
     return null
@@ -155,9 +165,12 @@ const FormMessage = React.forwardRef<
 
   return (
     <p
-      ref={ref}
+      ref={innerRef}
       id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
+      className={cn(
+        "text-sm font-medium text-destructive animate-in fade-in zoom-in-95 duration-500", 
+        className
+      )}
       {...props}
     >
       {body}
