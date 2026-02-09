@@ -70,15 +70,16 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
             )}
             
             {confirmedEvents.slice(0, 3).map((e, idx) => {
-              let dotClass = "bg-primary/20 border-primary/40";
-              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-white";
-              if (e.tipo === 'Manutenção') dotClass = "bg-primary/60 border-primary";
+              let dotClass = "bg-muted border-border/50";
+              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-2 border-white shadow-[0_0_4px_rgba(255,255,255,0.4)]";
+              if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-2 border-primary";
+              if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-2 border-primary/20";
               
               return (
                 <div 
                   key={idx}
                   className={cn(
-                    "w-2.5 h-2.5 rounded-full border shadow-sm transition-transform group-hover:scale-110",
+                    "w-3 h-3 rounded-full border shadow-sm transition-transform group-hover:scale-110",
                     dotClass
                   )}
                   title={e.tipo}
