@@ -22,7 +22,7 @@ export function useAgenda() {
         description: "Não foi possível carregar os dados da agenda.",
       });
     } finally {
-      if (!silent) setLoading(false);
+      setLoading(false);
     }
   }, [toast]);
 
@@ -77,6 +77,7 @@ export function useAgenda() {
     .sort((a, b) => safeParseDate(a.data).getTime() - safeParseDate(b.data).getTime());
 
   const addAppointment = async (data: Omit<Client, 'id'>) => {
+    setLoading(true);
     try {
       const newClient = await createClient(data);
       toast({ title: "Sucesso", description: "Agendamento criado!" });
@@ -85,10 +86,12 @@ export function useAgenda() {
       await fetchClients(true);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao criar agendamento." });
+      setLoading(false);
     }
   };
 
   const editAppointment = async (id: string, data: Partial<Client>) => {
+    setLoading(true);
     try {
       await updateClient(id, data);
       toast({ title: "Sucesso", description: "Atualizado!" });
@@ -101,16 +104,19 @@ export function useAgenda() {
       await fetchClients(true);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao atualizar." });
+      setLoading(false);
     }
   };
 
   const removeAppointment = async (id: string) => {
+    setLoading(true);
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido com sucesso." });
       await fetchClients(true);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao excluir." });
+      setLoading(false);
     }
   };
 

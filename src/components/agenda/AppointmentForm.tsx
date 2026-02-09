@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
@@ -25,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2, CheckCircle } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2, CheckCircle, Loader2 } from "lucide-react"
 import { format, parseISO, isValid } from "date-fns"
 
 const formSchema = z.object({
@@ -55,6 +54,7 @@ interface AppointmentFormProps {
   initialData?: Client
   clients?: Client[]
   prefilledDate?: string
+  loading?: boolean
   onSubmit: (data: any) => Promise<void>
   onCancel: () => void
 }
@@ -62,7 +62,7 @@ interface AppointmentFormProps {
 const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
 const OPTIONAL_SERVICES = ["Sobrancelha", "Buço", "Tintura na Sobrancelha"]
 
-export function AppointmentForm({ initialData, clients = [], prefilledDate, onSubmit, onCancel }: AppointmentFormProps) {
+export function AppointmentForm({ initialData, clients = [], prefilledDate, loading, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
   
   const getInitialDateTime = () => {
@@ -234,6 +234,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                     {...field} 
                     className="rounded-2xl h-14 bg-muted/50 border-border text-foreground focus:border-primary text-lg" 
                     autoComplete="off"
+                    disabled={loading}
                     onChange={(e) => {
                       field.onChange(e)
                       setNameSearch(e.target.value)
@@ -284,7 +285,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 <FormItem>
                   <FormLabel className="text-[10px] text-primary/60 flex items-center gap-1 uppercase tracking-wider"><Zap size={12}/> Aplicação</FormLabel>
                   <FormControl>
-                    <Input placeholder="150,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" />
+                    <Input placeholder="150,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" disabled={loading} />
                   </FormControl>
                 </FormItem>
               )}
@@ -296,7 +297,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 <FormItem>
                   <FormLabel className="text-[10px] text-primary/60 flex items-center gap-1 uppercase tracking-wider"><RotateCw size={12}/> Manutenção</FormLabel>
                   <FormControl>
-                    <Input placeholder="100,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" />
+                    <Input placeholder="100,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" disabled={loading} />
                   </FormControl>
                 </FormItem>
               )}
@@ -308,7 +309,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                 <FormItem>
                   <FormLabel className="text-[10px] text-primary/60 flex items-center gap-1 uppercase tracking-wider"><Trash2 size={12}/> Remoção</FormLabel>
                   <FormControl>
-                    <Input placeholder="50,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" />
+                    <Input placeholder="50,00" {...field} className="h-10 rounded-xl bg-background border-border text-xs" disabled={loading} />
                   </FormControl>
                 </FormItem>
               )}
@@ -324,7 +325,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><CalendarIcon size={18} /> Data</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" disabled={loading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -338,7 +339,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Clock size={18} /> Hora</FormLabel>
                 <FormControl>
-                  <Input type="time" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                  <Input type="time" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" disabled={loading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -353,7 +354,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><ClipboardList size={18} /> Tipo do Agendamento</FormLabel>
-                <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value}>
+                <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value} disabled={loading}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Selecione o tipo" />
@@ -376,7 +377,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Sparkles size={18} /> Técnica</FormLabel>
-                <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value}>
+                <Select onValueChange={(val) => { field.onChange(val); }} defaultValue={field.value} disabled={loading}>
                   <FormControl>
                     <SelectTrigger className="rounded-2xl h-12 bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Escolha a técnica" />
@@ -404,7 +405,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Phone size={18} /> WhatsApp</FormLabel>
                 <FormControl>
-                  <Input placeholder="5511999999999" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                  <Input placeholder="5511999999999" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" disabled={loading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -418,7 +419,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
               <FormItem>
                 <FormLabel className="text-primary/60 flex items-center gap-2 px-1"><Cake size={18} /> Data de Nascimento</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" />
+                  <Input type="date" {...field} className="rounded-2xl h-12 bg-muted/50 border-border text-foreground" disabled={loading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -443,6 +444,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                       checked={field.value} 
                       onCheckedChange={field.onChange}
                       className="rounded-sm border-primary"
+                      disabled={loading}
                     />
                     <label htmlFor="unified" className="text-[10px] font-black uppercase text-primary cursor-pointer">Valor Único</label>
                   </div>
@@ -475,6 +477,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                         placeholder="Ex: 50,00" 
                         {...field}
                         className="h-12 rounded-xl bg-background border-primary/40 text-lg font-bold"
+                        disabled={loading}
                       />
                     </div>
                   )}
@@ -493,6 +496,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                           checked={selectField.value}
                           onCheckedChange={selectField.onChange}
                           className="rounded-md border-primary"
+                          disabled={loading}
                         />
                       )}
                     />
@@ -511,6 +515,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
                           placeholder="0,00"
                           {...valueField}
                           className="h-10 rounded-xl bg-background border-border text-right"
+                          disabled={loading}
                         />
                       )}
                     />
@@ -545,11 +550,12 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, onSu
         />
 
         <div className="flex gap-4 pt-6 pb-2">
-          <Button type="button" variant="ghost" onClick={() => { onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted">
+          <Button type="button" variant="ghost" onClick={() => { onCancel(); }} className="flex-1 rounded-2xl h-14 text-muted-foreground hover:text-foreground hover:bg-muted" disabled={loading}>
             Cancelar
           </Button>
-          <Button type="submit" className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform">
-            {initialData ? "Salvar" : "Agendar"}
+          <Button type="submit" disabled={loading} className="flex-1 rounded-2xl h-14 bg-gold-gradient text-primary-foreground font-bold text-lg hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+            {loading ? <Loader2 className="animate-spin" size={20} /> : null}
+            {initialData ? (loading ? "Salvando..." : "Salvar") : (loading ? "Agendando..." : "Agendar")}
           </Button>
         </div>
       </form>

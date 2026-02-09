@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -35,18 +34,18 @@ interface EventModalProps {
   events: Client[]
   birthdays: Client[]
   isOpen: boolean
+  loading?: boolean
   onClose: () => void
   onAddNew?: (date: Date) => void
   onEdit: (id: string, data: any) => Promise<void>
   onDelete: (id: string) => Promise<void>
 }
 
-export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, onEdit, onDelete }: EventModalProps) {
+export function EventModal({ day, events, birthdays, isOpen, loading, onClose, onAddNew, onEdit, onDelete }: EventModalProps) {
   const [editingEvent, setEditingEvent] = useState<Client | null>(null)
   const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
   const [reminderClient, setReminderClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   if (!day) return null
 
@@ -94,12 +93,11 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
 
   const handleDelete = async () => {
     if (deleteConfirmId) {
-      setIsDeleting(true);
       try {
         await onDelete(deleteConfirmId);
-      } finally {
-        setIsDeleting(false);
         setDeleteConfirmId(null);
+      } catch (error) {
+        console.error("Erro ao excluir", error);
       }
     }
   }
@@ -142,6 +140,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                   onClick={() => { onAddNew(day); }}
                   className="rounded-full gap-2 shadow-lg bg-gold-gradient text-primary-foreground font-bold h-10 w-fit"
                   size="sm"
+                  disabled={loading}
                 >
                   <PlusCircle size={18} />
                   Agendar
@@ -156,6 +155,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                 initialData={editingEvent} 
                 onSubmit={handleEditSubmit} 
                 onCancel={() => setEditingEvent(null)} 
+                loading={loading}
               />
             ) : (
               <div className="space-y-6">
@@ -182,6 +182,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                             variant="outline" 
                             className="rounded-full border-primary/20 text-primary h-8 w-8"
                             onClick={() => handleSendBirthdayGreeting(bday)}
+                            disabled={loading}
                           >
                             <Send size={14} />
                           </Button>
@@ -268,7 +269,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                               <span className="text-primary/60 font-bold flex items-center gap-1"><Sparkles size={12} /> Adicionais:</span>
                               <div className="flex flex-wrap gap-2">
                                 {event.isUnifiedValue ? (
-                                  <Badge variant="secondary" className="text-[9px] h-5 py-0 px-2 rounded-lg bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
+                                  <Badge key="unified-badge" variant="secondary" className="text-[9px] h-5 py-0 px-2 rounded-lg bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
                                     <DollarSign size={8} /> {event.servicosAdicionais.map(a => a.nome).join(" + ")} (Unificado: R$ {event.unifiedValue})
                                   </Badge>
                                 ) : (
@@ -296,9 +297,9 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                   <RotateCw size={12} /> Remarcar para:
                                 </span>
                                 <div className="flex flex-wrap gap-2">
-                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
-                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
-                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" disabled={loading} onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" disabled={loading} onClick={() => handleQuickReschedule(event, 20)}>+20d</Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" disabled={loading} onClick={() => handleQuickReschedule(event, 30)}>+30d</Button>
                                 </div>
                               </div>
                               
@@ -307,8 +308,10 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                   size="sm" 
                                   className="rounded-full bg-gold-gradient text-primary-foreground font-bold gap-2 px-4 shadow-lg animate-bounce-subtle"
                                   onClick={() => handleConfirmBooking(event)}
+                                  disabled={loading}
                                 >
-                                  <CheckCircle size={14} /> Confirmar
+                                  {loading ? <Loader2 className="animate-spin" size={14} /> : <CheckCircle size={14} />}
+                                  {loading ? "Processando..." : "Confirmar"}
                                 </Button>
                               )}
                             </div>
@@ -318,6 +321,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 variant="outline" 
                                 size="icon" 
                                 onClick={() => { setAnamneseClient(event); }}
+                                disabled={loading}
                                 className={cn(
                                   "h-9 w-9 rounded-full border-primary/20 hover:bg-primary/10 relative",
                                   isAnamneseFilled ? "text-green-500 border-green-500/20" : "text-primary"
@@ -331,6 +335,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                   variant="outline" 
                                   size="icon" 
                                   onClick={() => { setReminderClient(event); }}
+                                  disabled={loading}
                                   className="h-9 w-9 rounded-full border-green-500/20 text-green-500 hover:bg-green-500/10"
                                   title="Enviar Lembrete"
                                 >
@@ -341,6 +346,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 variant="outline" 
                                 size="icon" 
                                 onClick={() => { setEditingEvent(event); }}
+                                disabled={loading}
                                 className="h-9 w-9 rounded-full border-primary/20 text-primary hover:bg-primary/10"
                                 title="Editar"
                               >
@@ -350,6 +356,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                                 variant="outline" 
                                 size="icon" 
                                 onClick={() => { setDeleteConfirmId(event.id); }}
+                                disabled={loading}
                                 className="h-9 w-9 rounded-full border-destructive/20 text-destructive hover:bg-destructive/10"
                                 title="Excluir"
                               >
@@ -368,6 +375,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                           variant="ghost" 
                           onClick={() => { onAddNew(day); }}
                           className="rounded-full gap-2 border border-primary/20 text-primary hover:bg-primary/5"
+                          disabled={loading}
                         >
                           <PlusCircle size={18} />
                           Agendar Cliente
@@ -395,7 +403,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
         onClose={() => setReminderClient(null)}
       />
 
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && !isDeleting && setDeleteConfirmId(null)}>
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && !loading && setDeleteConfirmId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
@@ -404,7 +412,7 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" disabled={isDeleting}>
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" disabled={loading}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
@@ -412,10 +420,10 @@ export function EventModal({ day, events, birthdays, isOpen, onClose, onAddNew, 
                 e.preventDefault();
                 handleDelete();
               }}
-              disabled={isDeleting}
-              className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 flex items-center justify-center gap-2"
             >
-              {isDeleting ? <Loader2 className="animate-spin" /> : "Excluir"}
+              {loading ? <Loader2 className="animate-spin" size={18} /> : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

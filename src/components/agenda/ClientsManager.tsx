@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -35,17 +34,17 @@ import { cn } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
+  loading?: boolean
   onEdit: (id: string, data: any) => Promise<void>
   onDelete: (id: string) => Promise<void>
 }
 
-export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProps) {
+export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsManagerProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [anamneseClient, setAnamneseClient] = useState<Client | null>(null)
   const [reminderClient, setReminderClient] = useState<Client | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   const filteredClients = clients.filter(client => 
     client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,12 +62,11 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
 
   const handleDelete = async () => {
     if (deleteConfirmId) {
-      setIsDeleting(true);
       try {
         await onDelete(deleteConfirmId);
-      } finally {
-        setIsDeleting(false);
         setDeleteConfirmId(null);
+      } catch (error) {
+        console.error("Erro ao excluir", error);
       }
     }
   }
@@ -94,6 +92,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 rounded-xl bg-background/50 border-border h-12"
+            disabled={loading}
           />
         </div>
       </CardHeader>
@@ -137,6 +136,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                               variant="ghost" 
                               size="icon" 
                               onClick={() => { setAnamneseClient(client); }}
+                              disabled={loading}
                               className={cn(
                                 "h-8 w-8 hover:bg-primary/10",
                                 isAnamneseFilled ? "text-green-500" : "text-primary"
@@ -150,6 +150,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                                 variant="ghost" 
                                 size="icon" 
                                 onClick={() => { setReminderClient(client); }}
+                                disabled={loading}
                                 title="Enviar Lembrete"
                                 className="h-8 w-8 text-green-500 hover:bg-green-500/10"
                               >
@@ -160,6 +161,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                               variant="ghost" 
                               size="icon" 
                               onClick={() => { setEditingClient(client); }}
+                              disabled={loading}
                               className="h-8 w-8 text-primary hover:bg-primary/10"
                               title="Editar"
                             >
@@ -169,6 +171,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                               variant="ghost" 
                               size="icon" 
                               onClick={() => { setDeleteConfirmId(client.id); }}
+                              disabled={loading}
                               className="h-8 w-8 text-destructive hover:bg-destructive/10"
                               title="Excluir"
                             >
@@ -214,6 +217,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
             <div className="mt-4 md:mt-6">
               <AppointmentForm 
                 initialData={editingClient} 
+                loading={loading}
                 onSubmit={async (data) => {
                   await onEdit(editingClient.id, data)
                   setEditingClient(null)
@@ -225,7 +229,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && !isDeleting && setDeleteConfirmId(null)}>
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && !loading && setDeleteConfirmId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-border bg-background p-8 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-headline text-gold-gradient">Confirmar Exclusão</AlertDialogTitle>
@@ -234,7 +238,7 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" disabled={isDeleting}>
+            <AlertDialogCancel className="flex-1 rounded-xl border-border bg-transparent text-foreground hover:bg-muted" disabled={loading}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
@@ -242,10 +246,10 @@ export function ClientsManager({ clients, onEdit, onDelete }: ClientsManagerProp
                 e.preventDefault();
                 handleDelete();
               }}
-              disabled={isDeleting}
-              className="flex-1 rounded-xl bg-destructive text-white hover:bg-destructive/90"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-destructive text-white hover:bg-destructive/90 flex items-center justify-center gap-2"
             >
-              {isDeleting ? <Loader2 className="animate-spin" /> : "Excluir"}
+              {loading ? <Loader2 className="animate-spin" size={18} /> : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

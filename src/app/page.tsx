@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -126,7 +125,6 @@ export default function AgendaPage() {
               xmlns="http://www.w3.org/2000/svg"
               className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
             >
-              {/* Luxury Eyelash Path - Sophisticated Curves */}
               <path 
                 d="M10 30C25 15 75 15 90 30" 
                 stroke="currentColor" 
@@ -261,7 +259,8 @@ export default function AgendaPage() {
               <ClientsManager 
                 clients={clients} 
                 onEdit={editAppointment} 
-                onDelete={removeAppointment} 
+                onDelete={removeAppointment}
+                loading={loading}
               />
             </TabsContent>
           </Tabs>
@@ -277,6 +276,7 @@ export default function AgendaPage() {
         events={modalEvents}
         birthdays={modalBirthdays}
         isOpen={isModalOpen}
+        loading={loading}
         onClose={() => {
           setIsModalOpen(false);
         }}
@@ -308,6 +308,7 @@ export default function AgendaPage() {
               prefilledDate={prefilledDate}
               onSubmit={handleAddSubmit} 
               onCancel={() => { setIsAddModalOpen(false); }} 
+              loading={loading}
             />
           </div>
         </DialogContent>
