@@ -92,7 +92,7 @@ export function SettingsModal({
       const currentUrl = window.location.origin
       const success = await setTelegramWebhook(botToken.trim(), currentUrl)
       if (success) {
-        toast({ title: "Bot Ativado!", description: "Agora seu robô responderá ao comando /command1." })
+        toast({ title: "Bot Ativado!", description: "Agora seu robô responderá aos comandos /command1 e /command2." })
       } else {
         throw new Error()
       }
@@ -200,6 +200,7 @@ export function SettingsModal({
               onChange={(e) => setBotToken(e.target.value)}
               className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary font-mono text-xs"
             />
+            <p className="text-[10px] text-muted-foreground">O bot responde aos comandos <b>/command1</b> (Hoje) e <b>/command2</b> (Mês).</p>
           </div>
 
           <Separator className="bg-primary/10" />
