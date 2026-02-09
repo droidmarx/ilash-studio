@@ -72,22 +72,27 @@ function getApiUrl(): string {
 }
 
 function getSettingsUrl(): string {
-  // Tenta derivar a URL de config a partir da URL base se ela for alterada, 
-  // caso contrário usa a URL padrão fornecida pelo usuário
+  // Se estiver no servidor, usa a constante padrão
+  if (typeof window === 'undefined') return SETTINGS_API_URL;
+  
   const currentApi = getApiUrl();
   if (currentApi === DEFAULT_API_URL) return SETTINGS_API_URL;
   
+  // Se o usuário mudou a URL da API principal, tenta derivar a de config
   const baseUrl = currentApi.replace(/\/Clientes$/, '').replace(/\/config$/, '');
   return `${baseUrl}/config`;
 }
 
 export async function getRecipients(): Promise<Recipient[]> {
   try {
-    const res = await fetch(getSettingsUrl());
-    if (!res.ok) return [];
+    const res = await fetch(getSettingsUrl(), { cache: 'no-store' });
+    if (!res.ok) {
+      console.error('Falha ao buscar destinatários:', res.statusText);
+      return [];
+    }
     return await res.json();
   } catch (error) {
-    console.error(error);
+    console.error('Erro na requisição de destinatários:', error);
     return [];
   }
 }
@@ -120,7 +125,7 @@ export async function deleteRecipient(id: string): Promise<void> {
 
 export async function getClients(): Promise<Client[]> {
   try {
-    const res = await fetch(getApiUrl());
+    const res = await fetch(getApiUrl(), { cache: 'no-store' });
     if (!res.ok) throw new Error('Falha ao buscar dados');
     return await res.json();
   } catch (error) {
@@ -130,7 +135,7 @@ export async function getClients(): Promise<Client[]> {
 }
 
 export async function getClient(id: string): Promise<Client> {
-  const res = await fetch(`${getApiUrl()}/${id}`);
+  const res = await fetch(`${getApiUrl()}/${id}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Falha ao buscar cliente');
   return await res.json();
 }
