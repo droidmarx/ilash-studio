@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -62,8 +63,8 @@ export default function ClientBookingPage() {
         confirmado: false
       };
 
-      await createClient(payload)
-      await notifyAppointmentChange(payload, 'Novo')
+      const newClient = await createClient(payload)
+      await notifyAppointmentChange(newClient, 'Novo')
       setSuccess(true)
     } catch (error) {
       console.error("Erro ao agendar", error)
@@ -85,7 +86,7 @@ export default function ClientBookingPage() {
           </p>
           <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
             <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
-              {formData.data ? format(new Date(formData.data), "dd 'de' MMMM", { locale: ptBR }) : ''} às {formData.hora}
+              {formData.data ? format(new Date(formData.data + 'T00:00:00'), "dd 'de' MMMM", { locale: ptBR }) : ''} às {formData.hora}
             </p>
           </div>
           <p className="text-[10px] text-muted-foreground">Em breve entraremos em contato via WhatsApp para confirmar.</p>
@@ -99,11 +100,10 @@ export default function ClientBookingPage() {
 
   return (
     <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px]">
-      <div className="max-w-md mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="max-w-md mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        <header className="text-center space-y-8 pt-8 pb-4">
-          <div className="flex justify-center mb-4 animate-float-luxury">
-             {/* Logo Luxuoso da Intro conforme solicitado */}
+        <header className="text-center space-y-12 pt-12 pb-8">
+          <div className="flex justify-center mb-6 animate-float-luxury">
              <svg 
               width="240" 
               height="120" 
@@ -128,7 +128,7 @@ export default function ClientBookingPage() {
               <path d="M85 22L88 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
             </svg>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h1 className="text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
             <p className="text-primary/70 text-[11px] font-bold tracking-[0.5em] uppercase">Agendamento Online</p>
           </div>
@@ -165,7 +165,7 @@ export default function ClientBookingPage() {
                   </div>
                 </div>
                 <Button 
-                  disabled={!formData.nome.trim() || !formData.whatsapp.trim() || loading}
+                  disabled={!formData.nome.trim() || formData.whatsapp.length < 10 || loading}
                   onClick={handleNext}
                   className="w-full h-16 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-xl gap-2 shadow-xl"
                 >
@@ -192,7 +192,7 @@ export default function ClientBookingPage() {
                         }`}
                       >
                         {tech}
-                        {formData.servico === tech && <CheckCircle2 size={18} />}
+                        {formData.servico === tech && <CheckCircle2 size={18} className="text-primary" />}
                       </button>
                     ))}
                   </div>
@@ -229,7 +229,7 @@ export default function ClientBookingPage() {
                           className={`flex flex-col items-center justify-center min-w-[70px] h-20 rounded-2xl border transition-all ${
                             isSelected 
                             ? "bg-gold-gradient text-primary-foreground border-transparent shadow-lg scale-105" 
-                            : "bg-muted/20 border-border text-muted-foreground"
+                            : "bg-muted/20 border-border text-muted-foreground hover:border-primary/30"
                           }`}
                         >
                           <span className="text-[10px] uppercase font-bold">{format(day, "EEE", { locale: ptBR })}</span>
@@ -240,29 +240,31 @@ export default function ClientBookingPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-                    <Clock size={14} /> Escolha o horário
-                  </Label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {times.map((time) => {
-                      const isSelected = formData.hora === time
-                      return (
-                        <button
-                          key={time}
-                          onClick={() => setFormData({...formData, hora: time})}
-                          className={`h-12 rounded-xl border text-sm font-bold transition-all ${
-                            isSelected 
-                            ? "bg-primary text-primary-foreground border-primary shadow-lg" 
-                            : "bg-muted/20 border-border text-muted-foreground hover:bg-muted/40"
-                          }`}
-                        >
-                          {time}
-                        </button>
-                      )
-                    })}
+                {formData.data && (
+                  <div className="space-y-4 animate-in fade-in duration-500">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                      <Clock size={14} /> Escolha o horário
+                    </Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {times.map((time) => {
+                        const isSelected = formData.hora === time
+                        return (
+                          <button
+                            key={time}
+                            onClick={() => setFormData({...formData, hora: time})}
+                            className={`h-12 rounded-xl border text-sm font-bold transition-all ${
+                              isSelected 
+                              ? "bg-primary text-primary-foreground border-primary shadow-lg" 
+                              : "bg-muted/20 border-border text-muted-foreground hover:bg-muted/40"
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="flex gap-4">
                   <Button variant="ghost" onClick={handlePrev} className="h-14 rounded-3xl gap-2 flex-1">

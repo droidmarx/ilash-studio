@@ -1,3 +1,4 @@
+
 "use client"
 
 import { format, isToday } from "date-fns"
@@ -71,7 +72,6 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
             
             {confirmedEvents.slice(0, 3).map((e, idx) => {
               let dotClass = "bg-muted border-border/50";
-              // Bordas reforçadas para máxima visibilidade conforme solicitado
               if (e.tipo === 'Aplicação') dotClass = "bg-primary border-4 border-white shadow-[0_0_12px_rgba(255,255,255,0.9)] scale-125 z-10";
               if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-4 border-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]";
               if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-4 border-primary/20";

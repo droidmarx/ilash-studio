@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
 import { addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate, parseISO } from 'date-fns';
@@ -81,8 +82,6 @@ export function useAgenda() {
     try {
       const newClient = await createClient(data);
       toast({ title: "Sucesso", description: "Agendamento criado!" });
-      
-      // Envia notificação conforme solicitado
       await notifyAppointmentChange(newClient, 'Novo');
       await fetchClients(false);
     } catch (error) {
@@ -96,13 +95,10 @@ export function useAgenda() {
     try {
       await updateClient(id, data);
       toast({ title: "Sucesso", description: "Atualizado!" });
-      
-      // Envia notificação conforme solicitado
       const updatedData = clients.find(c => c.id === id);
       if (updatedData) {
         await notifyAppointmentChange({ ...updatedData, ...data }, 'Alterado');
       }
-      
       await fetchClients(false);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Falha ao atualizar." });
@@ -115,8 +111,6 @@ export function useAgenda() {
     try {
       await deleteClient(id);
       toast({ title: "Excluído", description: "Agendamento removido com sucesso." });
-      
-      // Solicitação do usuário: Recarregar a página inteira APENAS na exclusão
       if (typeof window !== 'undefined') {
         window.location.reload();
       }

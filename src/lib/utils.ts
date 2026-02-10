@@ -1,3 +1,4 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, parseISO, isValid, parse } from "date-fns"
@@ -22,7 +23,6 @@ export function generateWhatsAppMessage(event: Client, tipoOverride?: string, or
   let dateObj = getEventDate(event.data);
   if (!isValid(dateObj)) dateObj = new Date();
 
-  // Inclui o dia da semana conforme solicitado
   const dayOfWeek = format(dateObj, "EEEE", { locale: ptBR });
   const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
   const formattedTime = format(dateObj, "HH:mm");

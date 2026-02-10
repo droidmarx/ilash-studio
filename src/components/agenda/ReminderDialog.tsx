@@ -1,3 +1,4 @@
+
 "use client"
 
 import {
@@ -37,7 +38,7 @@ export function ReminderDialog({ client, isOpen, onClose }: ReminderDialogProps)
     { id: "Remoção", label: "Lembrete de Remoção", desc: "Mensagem para retirada total", icon: <Trash2 size={20} /> }
   ];
 
-  // Ordena para que o tipo agendado pela cliente fique no topo da lista conforme solicitado
+  // Ordena para que o tipo agendado pela cliente fique no topo da lista
   const sortedTypes = [...reminderTypes].sort((a, b) => {
     if (a.id === client.tipo) return -1;
     if (b.id === client.tipo) return 1;
