@@ -22,6 +22,8 @@ export function generateWhatsAppMessage(event: Client, tipoOverride?: string, or
   let dateObj = getEventDate(event.data);
   if (!isValid(dateObj)) dateObj = new Date();
 
+  // Inclui o dia da semana conforme solicitado
+  const dayOfWeek = format(dateObj, "EEEE", { locale: ptBR });
   const formattedDate = format(dateObj, "dd/MM/yyyy", { locale: ptBR });
   const formattedTime = format(dateObj, "HH:mm");
   
@@ -74,7 +76,7 @@ Notei que sua ficha ainda não foi preenchida. Para agilizar seu atendimento, po
 
 Olá *${event.nome.trim()}*, tudo bem?
 
-✨ Sua *${tipo.toLowerCase()}* de cílios está agendada para *${formattedDate}*.
+✨ Sua *${tipo.toLowerCase()}* de cílios está agendada para *${dayOfWeek}*, dia *${formattedDate}*.
 
 Confira os detalhes abaixo:
 

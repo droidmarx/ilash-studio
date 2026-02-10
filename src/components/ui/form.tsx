@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -150,7 +149,7 @@ const FormMessage = React.forwardRef<
 
   React.useImperativeHandle(ref, () => innerRef.current!)
 
-  // Rola para o centro da tela se houver erro e aplica Zoom
+  // Rola para o centro da tela se houver erro e aplica Zoom conforme solicitado
   React.useEffect(() => {
     if (error && innerRef.current) {
       innerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })

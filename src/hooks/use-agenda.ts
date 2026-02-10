@@ -82,6 +82,7 @@ export function useAgenda() {
       const newClient = await createClient(data);
       toast({ title: "Sucesso", description: "Agendamento criado!" });
       
+      // Envia notificação conforme solicitado
       await notifyAppointmentChange(newClient, 'Novo');
       await fetchClients(false);
     } catch (error) {
@@ -96,6 +97,7 @@ export function useAgenda() {
       await updateClient(id, data);
       toast({ title: "Sucesso", description: "Atualizado!" });
       
+      // Envia notificação conforme solicitado
       const updatedData = clients.find(c => c.id === id);
       if (updatedData) {
         await notifyAppointmentChange({ ...updatedData, ...data }, 'Alterado');

@@ -103,13 +103,14 @@ export default function ClientBookingPage() {
         
         <header className="text-center space-y-4">
           <div className="flex justify-center mb-2 animate-float-luxury">
+             {/* Logo Luxuoso da Intro conforme solicitado */}
              <svg 
-              width="240" 
-              height="120" 
+              width="200" 
+              height="100" 
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
+              className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary),0.6)] rotate-180"
             >
               <path 
                 d="M10 30C25 15 75 15 90 30" 
