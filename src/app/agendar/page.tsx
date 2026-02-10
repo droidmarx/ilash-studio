@@ -85,7 +85,7 @@ export default function ClientBookingPage() {
           </p>
           <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
             <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
-              {format(new Date(formData.data), "dd 'de' MMMM", { locale: ptBR })} às {formData.hora}
+              {formData.data ? format(new Date(formData.data), "dd 'de' MMMM", { locale: ptBR }) : ''} às {formData.hora}
             </p>
           </div>
           <p className="text-[10px] text-muted-foreground">Em breve entraremos em contato via WhatsApp para confirmar.</p>
@@ -99,14 +99,14 @@ export default function ClientBookingPage() {
 
   return (
     <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px]">
-      <div className="max-w-md mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="max-w-md mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        <header className="text-center space-y-4">
-          <div className="flex justify-center mb-2 animate-float-luxury">
+        <header className="text-center space-y-8 pt-8 pb-4">
+          <div className="flex justify-center mb-4 animate-float-luxury">
              {/* Logo Luxuoso da Intro conforme solicitado */}
              <svg 
-              width="200" 
-              height="100" 
+              width="240" 
+              height="120" 
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
@@ -128,43 +128,48 @@ export default function ClientBookingPage() {
               <path d="M85 22L88 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="text-5xl font-headline text-gold-gradient">I Lash Studio</h1>
-          <p className="text-primary/70 text-[10px] font-bold tracking-[0.4em] uppercase">Agendamento Online</p>
+          <div className="space-y-2">
+            <h1 className="text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
+            <p className="text-primary/70 text-[11px] font-bold tracking-[0.5em] uppercase">Agendamento Online</p>
+          </div>
         </header>
 
         <Card className="bg-card/60 backdrop-blur-3xl rounded-[2.5rem] border-border shadow-2xl overflow-hidden">
           <CardContent className="p-8 space-y-8">
             
             {step === 1 && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500">
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-                    <User size={14} /> Como podemos te chamar?
-                  </Label>
-                  <Input 
-                    placeholder="Seu nome completo" 
-                    value={formData.nome}
-                    onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                    className="h-14 rounded-2xl bg-muted/30 border-border focus:ring-primary/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-                    <Phone size={14} /> Seu WhatsApp
-                  </Label>
-                  <Input 
-                    placeholder="Ex: 11999999999" 
-                    value={formData.whatsapp}
-                    onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                    className="h-14 rounded-2xl bg-muted/30 border-border focus:ring-primary/20"
-                  />
+              <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                      <User size={14} /> Como podemos te chamar?
+                    </Label>
+                    <Input 
+                      placeholder="Seu nome completo" 
+                      value={formData.nome}
+                      onChange={(e) => setFormData({...formData, nome: e.target.value})}
+                      className="h-14 rounded-2xl bg-muted/30 border-border focus:ring-primary/20 text-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                      <Phone size={14} /> Seu WhatsApp (apenas números)
+                    </Label>
+                    <Input 
+                      placeholder="Ex: 11999999999" 
+                      value={formData.whatsapp}
+                      inputMode="numeric"
+                      onChange={(e) => setFormData({...formData, whatsapp: e.target.value.replace(/\D/g, '')})}
+                      className="h-14 rounded-2xl bg-muted/30 border-border focus:ring-primary/20 text-lg"
+                    />
+                  </div>
                 </div>
                 <Button 
-                  disabled={!formData.nome || !formData.whatsapp || loading}
+                  disabled={!formData.nome.trim() || !formData.whatsapp.trim() || loading}
                   onClick={handleNext}
-                  className="w-full h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 shadow-xl"
+                  className="w-full h-16 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-xl gap-2 shadow-xl"
                 >
-                  Próximo <ArrowRight size={20} />
+                  {loading ? <Loader2 className="animate-spin" /> : "Próximo"} <ArrowRight size={20} />
                 </Button>
               </div>
             )}
