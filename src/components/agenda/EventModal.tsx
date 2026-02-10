@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -27,7 +28,7 @@ import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
 import { ReminderDialog } from "./ReminderDialog"
-import { cn, parseBirthday } from "@/lib/utils"
+import { cn, parseBirthday, generateWhatsAppMessage } from "@/lib/utils"
 
 interface EventModalProps {
   day: Date | null
@@ -57,7 +58,17 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
   }
 
   const handleConfirmBooking = async (event: Client) => {
+    // 1. Atualiza no banco de dados
     await onEdit(event.id, { confirmado: true });
+    
+    // 2. Abre WhatsApp com mensagem de confirmação detalhada
+    if (event.whatsapp) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const message = generateWhatsAppMessage(event, event.tipo, origin);
+      const cleanPhone = event.whatsapp.replace(/\D/g, "");
+      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+    }
   }
 
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
