@@ -1,3 +1,4 @@
+
 "use client"
 
 import { format, isToday } from "date-fns"
@@ -64,22 +65,23 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
           <div className="flex -space-x-1.5 justify-center items-center">
             {pendingInstagramEvents.length > 0 && (
               <div 
-                className="w-3 h-3 rounded-full border-2 border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)] animate-instagram-pulse z-10 mr-1.5" 
+                className="w-3.5 h-3.5 rounded-full border-2 border-primary shadow-[0_0_12px_rgba(var(--primary),0.6)] animate-instagram-pulse z-10 mr-1.5" 
                 title="Novo Agendamento Instagram Pendente"
               />
             )}
             
             {confirmedEvents.slice(0, 3).map((e, idx) => {
               let dotClass = "bg-muted border-border/50";
-              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-2 border-white shadow-[0_0_8px_rgba(255,255,255,0.7)] scale-110";
-              if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-2 border-primary shadow-[0_0_4px_rgba(var(--primary),0.3)]";
-              if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-2 border-primary/20";
+              // Bordas mais grossas e contrastantes para visibilidade total
+              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-4 border-white shadow-[0_0_10px_rgba(255,255,255,0.8)] scale-125 z-10";
+              if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-4 border-primary shadow-[0_0_6px_rgba(var(--primary),0.4)]";
+              if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-4 border-primary/20";
               
               return (
                 <div 
                   key={idx}
                   className={cn(
-                    "w-3.5 h-3.5 rounded-full border shadow-md transition-transform group-hover:scale-110",
+                    "w-4 h-4 rounded-full border shadow-lg transition-transform group-hover:scale-110",
                     dotClass
                   )}
                   title={e.tipo}
@@ -88,7 +90,7 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
             })}
             
             {(confirmedEvents.length > 3) && (
-              <span className="text-[8px] font-black text-primary ml-1 leading-none">
+              <span className="text-[10px] font-black text-primary ml-1.5 leading-none">
                 +{confirmedEvents.length - 3}
               </span>
             )}

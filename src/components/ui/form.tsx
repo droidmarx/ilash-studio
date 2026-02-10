@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -149,6 +150,7 @@ const FormMessage = React.forwardRef<
 
   React.useImperativeHandle(ref, () => innerRef.current!)
 
+  // Rola para o centro da tela se houver erro e aplica Zoom
   React.useEffect(() => {
     if (error && innerRef.current) {
       innerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -164,7 +166,7 @@ const FormMessage = React.forwardRef<
       ref={innerRef}
       id={formMessageId}
       className={cn(
-        "text-sm font-medium text-destructive animate-in fade-in zoom-in-95 duration-500", 
+        "text-sm font-black text-destructive animate-in fade-in zoom-in-95 duration-500 uppercase tracking-tight italic", 
         className
       )}
       {...props}

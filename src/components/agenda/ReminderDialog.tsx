@@ -1,3 +1,4 @@
+
 "use client"
 
 import {
@@ -10,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Client } from "@/lib/api"
 import { generateWhatsAppMessage } from "@/lib/utils"
-import { MessageSquare, Zap, RotateCw, Trash2 } from "lucide-react"
+import { MessageSquare, Zap, RotateCw, Trash2, Star } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ReminderDialogProps {
   client: Client | null
@@ -22,7 +24,6 @@ export function ReminderDialog({ client, isOpen, onClose }: ReminderDialogProps)
   if (!client) return null
 
   const handleSend = (tipo: string) => {
-    // Passamos o origin para gerar o link da anamnese se necessário
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const message = generateWhatsAppMessage(client, tipo, origin);
     const cleanPhone = client.whatsapp?.replace(/\D/g, "") || "";
@@ -31,56 +32,74 @@ export function ReminderDialog({ client, isOpen, onClose }: ReminderDialogProps)
     onClose();
   }
 
+  const reminderTypes = [
+    { id: "Aplicação", label: "Lembrete de Aplicação", desc: "Mensagem para novo conjunto", icon: <Zap size={20} /> },
+    { id: "Manutenção", label: "Lembrete de Manutenção", desc: "Mensagem para reposição", icon: <RotateCw size={20} /> },
+    { id: "Remoção", label: "Lembrete de Remoção", desc: "Mensagem para retirada total", icon: <Trash2 size={20} /> }
+  ];
+
+  // Ordena para que o tipo agendado pela cliente fique no topo da lista
+  const sortedTypes = [...reminderTypes].sort((a, b) => {
+    if (a.id === client.tipo) return -1;
+    if (b.id === client.tipo) return 1;
+    return 0;
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[90vw] sm:max-w-[400px] rounded-[2rem] bg-card border-border p-6 text-foreground">
+      <DialogContent className="w-[95vw] sm:max-w-[420px] rounded-[2.5rem] bg-card border-border p-6 md:p-8 text-foreground shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-headline text-gold-gradient flex items-center gap-2">
-            <MessageSquare className="text-primary" size={24} />
+          <DialogTitle className="text-3xl font-headline text-gold-gradient flex items-center gap-2">
+            <MessageSquare className="text-primary" size={28} />
             Escolher Lembrete
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground text-xs uppercase tracking-widest font-bold pt-2">
-            Qual tipo de procedimento para {client.nome}?
+          <DialogDescription className="text-muted-foreground text-[10px] uppercase tracking-[0.2em] font-black pt-2">
+            Qual mensagem enviar para {client.nome}?
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3 py-6">
-          <Button 
-            onClick={() => handleSend("Aplicação")}
-            className="h-14 rounded-2xl bg-muted/50 hover:bg-primary/20 border border-primary/20 flex items-center justify-start gap-4 text-foreground transition-all group"
-          >
-            <Zap className="text-primary group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <p className="font-bold">Lembrete de Aplicação</p>
-              <p className="text-[10px] text-muted-foreground">Mensagem para novo conjunto</p>
-            </div>
-          </Button>
+        <div className="grid gap-4 py-8">
+          {sortedTypes.map((type) => {
+            const isSuggested = type.id === client.tipo;
+            return (
+              <Button 
+                key={type.id}
+                onClick={() => handleSend(type.id)}
+                className={cn(
+                  "relative h-20 rounded-2xl flex items-center justify-start gap-4 transition-all group overflow-hidden border-2",
+                  isSuggested 
+                    ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(var(--primary),0.3)]" 
+                    : "bg-muted/30 border-transparent hover:bg-primary/5 hover:border-primary/20"
+                )}
+              >
+                {isSuggested && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[8px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-widest flex items-center gap-1">
+                    Sugestão VIP <Star size={8} className="fill-current" />
+                  </div>
+                )}
+                
+                <div className={cn(
+                  "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110",
+                  isSuggested ? "bg-primary text-primary-foreground" : "bg-muted text-primary/40"
+                )}>
+                  {type.icon}
+                </div>
 
-          <Button 
-            onClick={() => handleSend("Manutenção")}
-            className="h-14 rounded-2xl bg-muted/50 hover:bg-primary/20 border border-primary/20 flex items-center justify-start gap-4 text-foreground transition-all group"
-          >
-            <RotateCw className="text-primary group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <p className="font-bold">Lembrete de Manutenção</p>
-              <p className="text-[10px] text-muted-foreground">Mensagem para reposição</p>
-            </div>
-          </Button>
-
-          <Button 
-            onClick={() => handleSend("Remoção")}
-            className="h-14 rounded-2xl bg-muted/50 hover:bg-destructive/20 border border-destructive/20 flex items-center justify-start gap-4 text-foreground transition-all group"
-          >
-            <Trash2 className="text-destructive group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <p className="font-bold">Lembrete de Remoção</p>
-              <p className="text-[10px] text-muted-foreground">Mensagem para retirada total</p>
-            </div>
-          </Button>
+                <div className="text-left">
+                  <p className={cn("font-bold text-base", isSuggested ? "text-primary" : "text-foreground")}>
+                    {type.label}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{type.desc}</p>
+                </div>
+                
+                {isSuggested && <div className="ml-auto w-2 h-2 rounded-full bg-primary animate-ping" />}
+              </Button>
+            );
+          })}
         </div>
 
-        <Button variant="ghost" onClick={onClose} className="w-full rounded-xl text-muted-foreground">
-          Cancelar
+        <Button variant="ghost" onClick={onClose} className="w-full rounded-2xl h-12 text-muted-foreground font-bold hover:text-foreground">
+          Voltar para Agenda
         </Button>
       </DialogContent>
     </Dialog>
