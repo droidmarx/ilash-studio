@@ -1,13 +1,16 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/api"
 import { notifyAppointmentChange } from "@/app/actions/notifications"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   Crown, 
   User, 
@@ -18,7 +21,12 @@ import {
   CheckCircle2, 
   ArrowRight, 
   ArrowLeft,
-  Loader2
+  Loader2,
+  AlertTriangle,
+  Camera,
+  PenLine,
+  Eraser,
+  HeartPulse
 } from "lucide-react"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -35,8 +43,28 @@ export default function ClientBookingPage() {
     servico: "",
     tipo: "Aplicação",
     data: "",
-    hora: ""
+    hora: "",
+    anamnese: {
+      cpf: "",
+      rg: "",
+      profissao: "",
+      dataNascimento: "",
+      procedimentoRecenteOlhos: false,
+      alergiaCosmeticos: false,
+      problemaTireoide: false,
+      problemaOcular: false,
+      tratamentoOncologico: false,
+      gestanteLactante: false,
+      dormeDeLado: 'Não',
+      observacoesGerais: "",
+      autorizaImagem: true,
+      assinatura: ""
+    }
   })
+
+  // Refs para o Canvas de Assinatura
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [isDrawing, setIsDrawing] = useState(false)
 
   const times = ["09:00", "10:30", "13:00", "14:30", "16:00", "17:30"]
   
@@ -45,8 +73,104 @@ export default function ClientBookingPage() {
     end: addDays(startOfToday(), 14)
   })
 
+  // Efeito para ajustar o tamanho do canvas quando entrar no step 4
+  useEffect(() => {
+    if (step === 4 && canvasRef.current) {
+      const canvas = canvasRef.current
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = rect.width
+      canvas.height = rect.height
+    }
+  }, [step])
+
   const handleNext = () => setStep(prev => prev + 1)
   const handlePrev = () => setStep(prev => prev - 1)
+
+  // Máscaras de input
+  const handleCpfChange = (val: string) => {
+    let v = val.replace(/\D/g, "").substring(0, 11)
+    if (v.length > 9) v = v.substring(0, 3) + "." + v.substring(3, 6) + "." + v.substring(6, 9) + "-" + v.substring(9)
+    else if (v.length > 6) v = v.substring(0, 3) + "." + v.substring(3, 6) + "." + v.substring(6)
+    else if (v.length > 3) v = v.substring(0, 3) + "." + v.substring(3)
+    setFormData({ ...formData, anamnese: { ...formData.anamnese, cpf: v } })
+  }
+
+  const handleRgChange = (val: string) => {
+    let v = val.replace(/\D/g, "").substring(0, 9)
+    if (v.length > 8) v = v.substring(0, 2) + "." + v.substring(2, 5) + "." + v.substring(5, 8) + "-" + v.substring(8)
+    else if (v.length > 5) v = v.substring(0, 2) + "." + v.substring(2, 5) + "." + v.substring(5)
+    else if (v.length > 2) v = v.substring(0, 2) + "." + v.substring(2)
+    setFormData({ ...formData, anamnese: { ...formData.anamnese, rg: v } })
+  }
+
+  const handleBirthDateChange = (val: string) => {
+    let v = val.replace(/\D/g, "").substring(0, 8)
+    if (v.length > 4) v = v.substring(0, 2) + "/" + v.substring(2, 4) + "/" + v.substring(4)
+    else if (v.length > 2) v = v.substring(0, 2) + "/" + v.substring(2)
+    setFormData({ ...formData, anamnese: { ...formData.anamnese, dataNascimento: v } })
+  }
+
+  // Lógica do Canvas
+  const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current
+    if (!canvas) return { x: 0, y: 0 }
+    const rect = canvas.getBoundingClientRect()
+    let clientX, clientY
+    if ('touches' in e) {
+      clientX = e.touches[0].clientX
+      clientY = e.touches[0].clientY
+    } else {
+      clientX = (e as React.MouseEvent).clientX
+      clientY = (e as React.MouseEvent).clientY
+    }
+    return { x: clientX - rect.left, y: clientY - rect.top }
+  }
+
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current
+    const ctx = canvas?.getContext('2d')
+    if (!ctx) return
+    const { x, y } = getCoordinates(e)
+    ctx.beginPath()
+    ctx.moveTo(x, y)
+    setIsDrawing(true)
+  }
+
+  const stopDrawing = () => {
+    if (!isDrawing) return
+    setIsDrawing(false)
+    const canvas = canvasRef.current
+    if (canvas) {
+      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, assinatura: canvas.toDataURL() } }))
+    }
+  }
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDrawing || !canvasRef.current) return
+    if ('touches' in e) e.preventDefault()
+    const ctx = canvasRef.current.getContext('2d')
+    if (!ctx) return
+    const { x, y } = getCoordinates(e)
+    ctx.lineWidth = 2
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+    ctx.strokeStyle = '#b76e79'
+    ctx.lineTo(x, y)
+    ctx.stroke()
+  }
+
+  const clearSignature = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const canvas = canvasRef.current
+    if (canvas) {
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.beginPath()
+      }
+      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, assinatura: "" } }))
+    }
+  }
 
   const handleSubmit = async () => {
     setLoading(true)
@@ -60,7 +184,9 @@ export default function ClientBookingPage() {
         tipo: formData.tipo,
         data: dateTime,
         observacoes: "Agendamento realizado via link Instagram",
-        confirmado: false
+        confirmado: false,
+        aniversario: formData.anamnese.dataNascimento,
+        anamnese: formData.anamnese
       };
 
       const newClient = await createClient(payload)
@@ -80,9 +206,9 @@ export default function ClientBookingPage() {
           <div className="flex justify-center">
             <CheckCircle2 className="text-green-500" size={64} />
           </div>
-          <h1 className="text-4xl font-headline text-gold-gradient">Agendamento Realizado!</h1>
+          <h1 className="text-4xl font-headline text-gold-gradient">Tudo Pronto!</h1>
           <p className="text-muted-foreground">
-            Obrigada, {formData.nome.split(' ')[0]}! Seu horário foi reservado no <strong>I Lash Studio</strong>.
+            Obrigada, {formData.nome.split(' ')[0]}! Seu horário e ficha foram recebidos pelo <strong>I Lash Studio</strong>.
           </p>
           <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
             <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
@@ -100,13 +226,13 @@ export default function ClientBookingPage() {
 
   return (
     <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px]">
-      <div className="max-w-md mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        <header className="text-center space-y-12 pt-20 pb-12">
+        <header className="text-center space-y-8 pt-20 pb-8">
           <div className="flex justify-center mb-6 animate-float-luxury">
              <svg 
-              width="240" 
-              height="120" 
+              width="220" 
+              height="100" 
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
@@ -128,9 +254,9 @@ export default function ClientBookingPage() {
               <path d="M85 22L88 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
             </svg>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h1 className="text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
-            <p className="text-primary/70 text-[11px] font-bold tracking-[0.5em] uppercase">Agendamento Online</p>
+            <p className="text-primary/70 text-[10px] font-bold tracking-[0.5em] uppercase">Experiência VIP</p>
           </div>
         </header>
 
@@ -138,7 +264,7 @@ export default function ClientBookingPage() {
           <CardContent className="p-8 space-y-8">
             
             {step === 1 && (
-              <div className="space-y-8 animate-in slide-in-from-right duration-500">
+              <div className="space-y-8 animate-in slide-in-from-right duration-500 max-w-md mx-auto">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
@@ -153,7 +279,7 @@ export default function ClientBookingPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-                      <Phone size={14} /> Seu WhatsApp (apenas números)
+                      <Phone size={14} /> Seu WhatsApp
                     </Label>
                     <Input 
                       placeholder="Ex: 11999999999" 
@@ -175,7 +301,7 @@ export default function ClientBookingPage() {
             )}
 
             {step === 2 && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500">
+              <div className="space-y-6 animate-in slide-in-from-right duration-500 max-w-md mx-auto">
                 <div className="space-y-4">
                   <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                     <Sparkles size={14} /> Qual técnica você deseja?
@@ -213,7 +339,7 @@ export default function ClientBookingPage() {
             )}
 
             {step === 3 && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500">
+              <div className="space-y-6 animate-in slide-in-from-right duration-500 max-w-md mx-auto">
                 <div className="space-y-4">
                   <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                     <CalendarIcon size={14} /> Escolha o dia
@@ -272,10 +398,180 @@ export default function ClientBookingPage() {
                   </Button>
                   <Button 
                     disabled={!formData.data || !formData.hora || loading}
+                    onClick={handleNext}
+                    className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
+                  >
+                    Próximo <ArrowRight size={20} />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="space-y-10 animate-in slide-in-from-right duration-500">
+                <div className="text-center space-y-2">
+                  <h3 className="text-2xl font-bold text-foreground">Ficha de Anamnese</h3>
+                  <p className="text-sm text-muted-foreground">Preencha seus dados de saúde para um atendimento seguro.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <h4 className="text-primary flex items-center gap-2 font-bold text-sm border-b border-primary/10 pb-2">
+                    <User size={18} /> Dados Cadastrais
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase font-bold tracking-wider">CPF</Label>
+                      <Input 
+                        placeholder="000.000.000-00" 
+                        value={formData.anamnese.cpf}
+                        onChange={(e) => handleCpfChange(e.target.value)}
+                        className="h-12 rounded-xl bg-muted/30 border-border"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase font-bold tracking-wider">RG</Label>
+                      <Input 
+                        placeholder="00.000.000-0" 
+                        value={formData.anamnese.rg}
+                        onChange={(e) => handleRgChange(e.target.value)}
+                        className="h-12 rounded-xl bg-muted/30 border-border"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase font-bold tracking-wider">Profissão</Label>
+                      <Input 
+                        placeholder="Sua profissão" 
+                        value={formData.anamnese.profissao}
+                        onChange={(e) => setFormData({...formData, anamnese: {...formData.anamnese, profissao: e.target.value}})}
+                        className="h-12 rounded-xl bg-muted/30 border-border"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase font-bold tracking-wider">Data de Nascimento</Label>
+                      <Input 
+                        placeholder="DD/MM/AAAA" 
+                        value={formData.anamnese.dataNascimento}
+                        onChange={(e) => handleBirthDateChange(e.target.value)}
+                        className="h-12 rounded-xl bg-muted/30 border-border"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <h4 className="text-primary flex items-center gap-2 font-bold text-sm border-b border-primary/10 pb-2">
+                    <HeartPulse size={18} /> Saúde e Cuidados
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                      { id: 'procedimento', label: 'Proc. olhos recente?', field: 'procedimentoRecenteOlhos' },
+                      { id: 'alergia', label: 'Alergia a cosméticos?', field: 'alergiaCosmeticos' },
+                      { id: 'tireoide', label: 'Problemas de tireoide?', field: 'problemaTireoide' },
+                      { id: 'ocular', label: 'Problema ocular?', field: 'problemaOcular' },
+                      { id: 'onco', label: 'Tratamento oncológico?', field: 'tratamentoOncologico' },
+                      { id: 'gestante', label: 'Gestante/Lactante?', field: 'gestanteLactante' }
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/50">
+                        <Label className="text-xs font-semibold">{item.label}</Label>
+                        <div className="flex gap-4">
+                          <div className="flex items-center gap-1.5">
+                            <Checkbox 
+                              checked={!!(formData.anamnese as any)[item.field]}
+                              onCheckedChange={(c) => setFormData({...formData, anamnese: {...formData.anamnese, [item.field]: true}})}
+                              className="rounded-full h-4 w-4"
+                            />
+                            <span className="text-[10px] font-bold text-primary">Sim</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Checkbox 
+                              checked={!(formData.anamnese as any)[item.field]}
+                              onCheckedChange={(c) => setFormData({...formData, anamnese: {...formData.anamnese, [item.field]: false}})}
+                              className="rounded-full h-4 w-4"
+                            />
+                            <span className="text-[10px] text-muted-foreground">Não</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+                      <Sparkles size={14} /> Dorme de lado?
+                    </Label>
+                    <Select 
+                      value={formData.anamnese.dormeDeLado}
+                      onValueChange={(val: any) => setFormData({...formData, anamnese: {...formData.anamnese, dormeDeLado: val}})}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="Não">Não</SelectItem>
+                        <SelectItem value="Sim, Lado Direito">Sim, Lado Direito</SelectItem>
+                        <SelectItem value="Sim, Lado Esquerdo">Sim, Lado Esquerdo</SelectItem>
+                        <SelectItem value="Sim, Ambos os lados">Sim, Ambos os lados</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                   <h4 className="text-primary flex items-center gap-2 font-bold text-sm border-b border-primary/10 pb-2">
+                    <Camera size={18} /> Autorização e Assinatura
+                  </h4>
+                  <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 space-y-3">
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Autorizo o <strong>I Lash Studio</strong> a utilizar fotos/vídeos para fins de portfólio e redes sociais.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <Checkbox 
+                        id="auth-img" 
+                        checked={formData.anamnese.autorizaImagem}
+                        onCheckedChange={(c) => setFormData({...formData, anamnese: {...formData.anamnese, autorizaImagem: !!c}})}
+                        className="h-5 w-5"
+                      />
+                      <Label htmlFor="auth-img" className="text-xs font-bold text-primary cursor-pointer">Sim, eu autorizo</Label>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                      <PenLine size={14} /> Assinatura Digital
+                    </Label>
+                    <div className="relative border-2 border-dashed border-primary/20 rounded-3xl bg-white overflow-hidden">
+                      <canvas 
+                        ref={canvasRef}
+                        onMouseDown={startDrawing}
+                        onMouseUp={stopDrawing}
+                        onMouseOut={stopDrawing}
+                        onMouseMove={draw}
+                        onTouchStart={startDrawing}
+                        onTouchEnd={stopDrawing}
+                        onTouchMove={draw}
+                        className="w-full h-[180px] cursor-crosshair touch-none"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={clearSignature}
+                        className="absolute bottom-2 right-2 text-primary hover:bg-primary/10 rounded-full h-8 w-8"
+                      >
+                        <Eraser size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button variant="ghost" onClick={handlePrev} className="h-14 rounded-3xl gap-2 flex-1">
+                    <ArrowLeft size={18} /> Voltar
+                  </Button>
+                  <Button 
+                    disabled={!formData.anamnese.assinatura || !formData.anamnese.cpf || loading}
                     onClick={handleSubmit}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >
-                    {loading ? <Loader2 className="animate-spin" size={20} /> : "Finalizar"}
+                    {loading ? <Loader2 className="animate-spin" /> : "Finalizar Agendamento"}
                   </Button>
                 </div>
               </div>
