@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ClipboardList, Save, AlertTriangle, Send, Check, User, Camera, PenLine, Sparkles, HeartPulse } from "lucide-react"
+import { ClipboardList, Save, AlertTriangle, Send, Check, User, Camera, PenLine, Sparkles, HeartPulse, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
@@ -29,6 +29,7 @@ interface AnamneseModalProps {
 export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModalProps) {
   const [formData, setFormData] = useState<Anamnese>({})
   const [copied, setCopied] = useState(false)
+  const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -37,10 +38,41 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
     }
   }, [client, isOpen])
 
+  // Máscaras de input idênticas às do cliente
+  const handleDateChange = (val: string) => {
+    let v = val.replace(/\D/g, "").substring(0, 8)
+    if (v.length > 4) v = v.substring(0, 2) + "/" + v.substring(2, 4) + "/" + v.substring(4)
+    else if (v.length > 2) v = v.substring(0, 2) + "/" + v.substring(2)
+    setFormData({ ...formData, dataNascimento: v })
+  }
+
+  const handleCpfChange = (val: string) => {
+    let v = val.replace(/\D/g, "").substring(0, 11)
+    if (v.length > 9) v = v.substring(0, 3) + "." + v.substring(3, 6) + "." + v.substring(6, 9) + "-" + v.substring(9)
+    else if (v.length > 6) v = v.substring(0, 3) + "." + v.substring(3, 6) + "." + v.substring(6)
+    else if (v.length > 3) v = v.substring(0, 3) + "." + v.substring(3)
+    setFormData({ ...formData, cpf: v })
+  }
+
+  const handleRgChange = (val: string) => {
+    let v = val.replace(/\D/g, "").substring(0, 9)
+    if (v.length > 8) v = v.substring(0, 2) + "." + v.substring(2, 5) + "." + v.substring(5, 8) + "-" + v.substring(8)
+    else if (v.length > 5) v = v.substring(0, 2) + "." + v.substring(2, 5) + "." + v.substring(5)
+    else if (v.length > 2) v = v.substring(0, 2) + "." + v.substring(2)
+    setFormData({ ...formData, rg: v })
+  }
+
   const handleSave = async () => {
     if (client) {
-      await onSave(client.id, formData)
-      onClose()
+      setSaving(true)
+      try {
+        await onSave(client.id, formData)
+        onClose()
+      } catch (error) {
+        console.error("Erro ao salvar anamnese", error)
+      } finally {
+        setSaving(false)
+      }
     }
   }
 
@@ -98,11 +130,21 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">CPF</Label>
-                <Input value={formData.cpf || ""} onChange={(e) => setFormData({...formData, cpf: e.target.value})} className="h-9 rounded-xl text-xs" />
+                <Input 
+                  placeholder="000.000.000-00"
+                  value={formData.cpf || ""} 
+                  onChange={(e) => handleCpfChange(e.target.value)} 
+                  className="h-9 rounded-xl text-xs" 
+                />
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">RG</Label>
-                <Input value={formData.rg || ""} onChange={(e) => setFormData({...formData, rg: e.target.value})} className="h-9 rounded-xl text-xs" />
+                <Input 
+                  placeholder="00.000.000-0"
+                  value={formData.rg || ""} 
+                  onChange={(e) => handleRgChange(e.target.value)} 
+                  className="h-9 rounded-xl text-xs" 
+                />
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">Profissão</Label>
@@ -110,7 +152,12 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase">Data Nasc.</Label>
-                <Input type="date" value={formData.dataNascimento || ""} onChange={(e) => setFormData({...formData, dataNascimento: e.target.value})} className="h-9 rounded-xl text-xs" />
+                <Input 
+                  placeholder="DD/MM/AAAA"
+                  value={formData.dataNascimento || ""} 
+                  onChange={(e) => handleDateChange(e.target.value)} 
+                  className="h-9 rounded-xl text-xs" 
+                />
               </div>
             </div>
           </div>
@@ -210,8 +257,13 @@ export function AnamneseModal({ client, isOpen, onClose, onSave }: AnamneseModal
 
         <div className="flex gap-4 pt-4 border-t border-border">
           <Button variant="ghost" onClick={onClose} className="flex-1 rounded-xl">Fechar</Button>
-          <Button onClick={handleSave} className="flex-1 rounded-xl h-12 bg-gold-gradient text-primary-foreground font-bold">
-            <Save size={20} className="mr-2" /> Salvar Alterações
+          <Button 
+            onClick={handleSave} 
+            disabled={saving}
+            className="flex-1 rounded-xl h-12 bg-gold-gradient text-primary-foreground font-bold"
+          >
+            {saving ? <Loader2 className="animate-spin mr-2" size={20} /> : <Save size={20} className="mr-2" />}
+            {saving ? "Salvando..." : "Salvar Alterações"}
           </Button>
         </div>
       </DialogContent>
