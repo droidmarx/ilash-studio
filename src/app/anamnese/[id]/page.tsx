@@ -47,6 +47,20 @@ export default function ClientAnamnesePage() {
     }
   }, [loading])
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 8) val = val.substring(0, 8);
+    
+    let masked = val;
+    if (val.length > 2 && val.length <= 4) {
+      masked = val.substring(0, 2) + "/" + val.substring(2);
+    } else if (val.length > 4) {
+      masked = val.substring(0, 2) + "/" + val.substring(2, 4) + "/" + val.substring(4);
+    }
+    
+    setFormData({...formData, dataNascimento: masked});
+  };
+
   const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current
     if (!canvas) return { x: 0, y: 0 }
@@ -225,9 +239,11 @@ export default function ClientAnamnesePage() {
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wider">Data de Nascimento</Label>
                 <input 
-                  type="date"
+                  type="text"
+                  placeholder="DD/MM/AAAA"
+                  maxLength={10}
                   value={formData.dataNascimento || ""} 
-                  onChange={(e) => setFormData({...formData, dataNascimento: e.target.value})}
+                  onChange={handleDateChange}
                   className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
