@@ -61,6 +61,38 @@ export default function ClientAnamnesePage() {
     setFormData({...formData, dataNascimento: masked});
   };
 
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 11) val = val.substring(0, 11);
+    
+    let masked = val;
+    if (val.length > 3 && val.length <= 6) {
+      masked = val.substring(0, 3) + "." + val.substring(3);
+    } else if (val.length > 6 && val.length <= 9) {
+      masked = val.substring(0, 3) + "." + val.substring(3, 6) + "." + val.substring(6);
+    } else if (val.length > 9) {
+      masked = val.substring(0, 3) + "." + val.substring(3, 6) + "." + val.substring(6, 9) + "-" + val.substring(9);
+    }
+    
+    setFormData({...formData, cpf: masked});
+  };
+
+  const handleRgChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 9) val = val.substring(0, 9);
+    
+    let masked = val;
+    if (val.length > 2 && val.length <= 5) {
+      masked = val.substring(0, 2) + "." + val.substring(2);
+    } else if (val.length > 5 && val.length <= 8) {
+      masked = val.substring(0, 2) + "." + val.substring(2, 5) + "." + val.substring(5);
+    } else if (val.length > 8) {
+      masked = val.substring(0, 2) + "." + val.substring(2, 5) + "." + val.substring(5, 8) + "-" + val.substring(8);
+    }
+    
+    setFormData({...formData, rg: masked});
+  };
+
   const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current
     if (!canvas) return { x: 0, y: 0 }
@@ -213,7 +245,7 @@ export default function ClientAnamnesePage() {
                 <Label className="text-xs font-semibold uppercase tracking-wider">CPF</Label>
                 <input 
                   value={formData.cpf || ""} 
-                  onChange={(e) => setFormData({...formData, cpf: e.target.value})}
+                  onChange={handleCpfChange}
                   className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="000.000.000-00"
                 />
@@ -222,7 +254,7 @@ export default function ClientAnamnesePage() {
                 <Label className="text-xs font-semibold uppercase tracking-wider">RG</Label>
                 <input 
                   value={formData.rg || ""} 
-                  onChange={(e) => setFormData({...formData, rg: e.target.value})}
+                  onChange={handleRgChange}
                   className="w-full px-4 rounded-2xl h-12 bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="00.000.000-0"
                 />

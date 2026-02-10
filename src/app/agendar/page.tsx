@@ -102,7 +102,7 @@ export default function ClientBookingPage() {
     <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px]">
       <div className="max-w-md mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        <header className="text-center space-y-12 pt-12 pb-8">
+        <header className="text-center space-y-12 pt-20 pb-12">
           <div className="flex justify-center mb-6 animate-float-luxury">
              <svg 
               width="240" 
@@ -110,7 +110,7 @@ export default function ClientBookingPage() {
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary),0.6)] rotate-180"
+              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
             >
               <path 
                 d="M10 30C25 15 75 15 90 30" 
