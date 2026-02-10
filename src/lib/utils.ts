@@ -79,7 +79,7 @@ Olá *${event.nome.trim()}*, tudo bem?
 Confira os detalhes abaixo:
 
 ⏰ Horário: ${formattedTime}
-💸 Procedimento: R$ ${valorBaseStr}${msgAdicionais}
+🎨 Técnica: ${event.servico} (R$ ${valorBaseStr})${msgAdicionais}
 💰 *Total: R$ ${total.toFixed(2).replace(".", ",")}*
 
 📌 Em caso de atraso, por favor avise com pelo menos 2 horas de antecedência.
