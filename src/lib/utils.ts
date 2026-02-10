@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Gera a mensagem de lembrete personalizada para o WhatsApp
  */
-export function generateWhatsAppMessage(event: Client, tipoOverride?: string) {
+export function generateWhatsAppMessage(event: Client, tipoOverride?: string, origin?: string) {
   const getEventDate = (dataStr: string) => {
     try {
       if (dataStr.includes('T')) return parseISO(dataStr);
@@ -60,6 +60,16 @@ export function generateWhatsAppMessage(event: Client, tipoOverride?: string) {
 
   const total = valorBase + valorAdicionais;
 
+  // Verifica se a anamnese está pendente
+  const isAnamneseFilled = !!event.anamnese?.assinatura;
+  let anamneseLinkMsg = "";
+  if (!isAnamneseFilled && origin) {
+    const link = `${origin}/anamnese/${event.id}`;
+    anamneseLinkMsg = `\n\n📝 *Ficha de Anamnese Digital:*
+Notei que sua ficha ainda não foi preenchida. Para agilizar seu atendimento, por favor preencha no link abaixo:
+🔗 ${link}`;
+  }
+
   const message = `💖*Lembrete de agendamento*
 
 Olá *${event.nome.trim()}*, tudo bem?
@@ -77,7 +87,7 @@ Confira os detalhes abaixo:
 📌 Se houver necessidade de remarcar, peço que avise com no mínimo 1 dia de antecedência.
 
 Em caso de dúvidas ou imprevistos, é só me chamar! 💬
-Agradeço pela confiança 💕`;
+Agradeço pela confiança 💕${anamneseLinkMsg}`;
 
   return message;
 }

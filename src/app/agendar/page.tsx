@@ -104,12 +104,12 @@ export default function ClientBookingPage() {
         <header className="text-center space-y-4">
           <div className="flex justify-center mb-2 animate-float-luxury">
              <svg 
-              width="180" 
-              height="90" 
+              width="240" 
+              height="120" 
               viewBox="0 0 100 40" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary),0.6)] rotate-180"
+              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
             >
               <path 
                 d="M10 30C25 15 75 15 90 30" 
@@ -159,7 +159,7 @@ export default function ClientBookingPage() {
                   />
                 </div>
                 <Button 
-                  disabled={!formData.nome || !formData.whatsapp}
+                  disabled={!formData.nome || !formData.whatsapp || loading}
                   onClick={handleNext}
                   className="w-full h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 shadow-xl"
                 >
@@ -196,7 +196,7 @@ export default function ClientBookingPage() {
                     <ArrowLeft size={18} /> Voltar
                   </Button>
                   <Button 
-                    disabled={!formData.servico}
+                    disabled={!formData.servico || loading}
                     onClick={handleNext}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >

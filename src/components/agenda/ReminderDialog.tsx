@@ -22,7 +22,9 @@ export function ReminderDialog({ client, isOpen, onClose }: ReminderDialogProps)
   if (!client) return null
 
   const handleSend = (tipo: string) => {
-    const message = generateWhatsAppMessage(client, tipo);
+    // Passamos o origin para gerar o link da anamnese se necessário
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const message = generateWhatsAppMessage(client, tipo, origin);
     const cleanPhone = client.whatsapp?.replace(/\D/g, "") || "";
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
