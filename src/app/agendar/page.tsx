@@ -26,7 +26,9 @@ import {
   Camera,
   PenLine,
   Eraser,
-  HeartPulse
+  HeartPulse,
+  MessageCircle,
+  AlertCircle
 } from "lucide-react"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -202,20 +204,44 @@ export default function ClientBookingPage() {
   if (success) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-background/50 backdrop-blur-md">
-        <div className="bg-card/60 backdrop-blur-3xl p-10 rounded-[3rem] border border-primary/30 shadow-2xl space-y-6 max-w-md w-full animate-in zoom-in duration-500">
+        <div className="bg-card/60 backdrop-blur-3xl p-10 rounded-[3rem] border border-primary/30 shadow-2xl space-y-8 max-w-md w-full animate-in zoom-in duration-500">
           <div className="flex justify-center">
             <CheckCircle2 className="text-green-500" size={64} />
           </div>
-          <h1 className="text-4xl font-headline text-gold-gradient">Tudo Pronto!</h1>
-          <p className="text-muted-foreground">
-            Obrigada, {formData.nome.split(' ')[0]}! Seu horário e ficha foram recebidos pelo <strong>I Lash Studio</strong>.
-          </p>
+          
+          <div className="space-y-2">
+            <h1 className="text-4xl font-headline text-gold-gradient">Tudo Pronto!</h1>
+            <p className="text-muted-foreground">
+              Obrigada, {formData.nome.split(' ')[0]}! Seu horário e ficha foram recebidos pelo <strong>I Lash Studio</strong>.
+            </p>
+          </div>
+
           <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
-            <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
+            <p className="text-xs text-primary/60 font-bold uppercase tracking-widest mb-1">Horário Reservado</p>
+            <p className="text-lg font-black text-foreground">
               {formData.data ? format(new Date(formData.data + 'T00:00:00'), "dd 'de' MMMM", { locale: ptBR }) : ''} às {formData.hora}
             </p>
           </div>
-          <p className="text-[10px] text-muted-foreground">Em breve entraremos em contato via WhatsApp para confirmar.</p>
+
+          <div className="bg-primary/10 border-2 border-primary/40 p-6 rounded-[2rem] space-y-4 animate-pulse-subtle relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-2 opacity-20">
+               <AlertCircle size={40} className="text-primary" />
+            </div>
+            <div className="flex justify-center mb-1">
+               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest">
+                 <MessageCircle size={12} /> Aviso Importante
+               </div>
+            </div>
+            <p className="text-base font-bold text-foreground leading-relaxed">
+              Fique atenta ao seu celular! Em breve entraremos em contato via <strong>WhatsApp</strong> para realizar a confirmação final.
+            </p>
+            <div className="flex justify-center gap-1">
+               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-75" />
+               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-150" />
+               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-300" />
+            </div>
+          </div>
+
           <div className="pt-4">
             <Crown className="text-primary mx-auto opacity-40" size={32} />
           </div>
