@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, parseISO, isValid, parse } from "date-fns"
@@ -7,6 +6,27 @@ import { Client } from "./api"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+/**
+ * Tenta parsear uma data de nascimento que pode estar em vários formatos (ISO ou DD/MM/AAAA)
+ */
+export function parseBirthday(dateStr: string | undefined): Date | null {
+  if (!dateStr) return null;
+  
+  // Tenta formato ISO (YYYY-MM-DD)
+  const isoDate = parseISO(dateStr);
+  if (isValid(isoDate)) return isoDate;
+
+  // Tenta formato brasileiro (DD/MM/YYYY)
+  const brDate = parse(dateStr, 'dd/MM/yyyy', new Date());
+  if (isValid(brDate)) return brDate;
+
+  // Tenta formato simples YYYY-MM-DD
+  const simpleDate = parse(dateStr, 'yyyy-MM-dd', new Date());
+  if (isValid(simpleDate)) return simpleDate;
+
+  return null;
 }
 
 /**

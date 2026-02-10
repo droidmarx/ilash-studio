@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
 import { ReminderDialog } from "./ReminderDialog"
-import { cn } from "@/lib/utils"
+import { cn, parseBirthday } from "@/lib/utils"
 
 interface EventModalProps {
   day: Date | null
@@ -79,8 +79,9 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
 
   const isBirthdayMonth = (client: Client) => {
     if (!client.aniversario || !day) return false;
-    const birthDate = parseISO(client.aniversario);
-    return getMonth(day) === getMonth(birthDate);
+    const bday = parseBirthday(client.aniversario);
+    if (!bday) return false;
+    return getMonth(day) === getMonth(bday);
   }
 
   const handleSendBirthdayGreeting = (client: Client) => {

@@ -30,7 +30,7 @@ import { AnamneseModal } from "./AnamneseModal"
 import { ReminderDialog } from "./ReminderDialog"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { cn } from "@/lib/utils"
+import { cn, parseBirthday } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
@@ -113,6 +113,7 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
                 {filteredClients.length > 0 ? (
                   filteredClients.map((client) => {
                     const isAnamneseFilled = !!client.anamnese?.assinatura;
+                    const bday = parseBirthday(client.aniversario);
                     
                     return (
                       <TableRow key={client.id} className="border-border hover:bg-foreground/5">
@@ -126,7 +127,7 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
                         <TableCell className="hidden md:table-cell">
                           <div className="flex items-center gap-2 text-xs text-foreground/60">
                             <Cake size={14} className="text-primary/40" />
-                            {client.aniversario ? format(parseISO(client.aniversario), "dd/MM", { locale: ptBR }) : "--/--"}
+                            {bday ? format(bday, "dd/MM", { locale: ptBR }) : "--/--"}
                           </div>
                         </TableCell>
                         <TableCell className="text-[10px] leading-tight text-foreground/40">{safeFormatDate(client.data)}</TableCell>

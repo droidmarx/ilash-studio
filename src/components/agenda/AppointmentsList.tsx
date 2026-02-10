@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -7,7 +6,7 @@ import { format, parseISO, parse, isValid, getMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Clock, Send, Cake, Star, Calendar } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, parseBirthday } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ReminderDialog } from "./ReminderDialog"
 
@@ -28,8 +27,9 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
   const isBirthdayMonth = (client: Client) => {
     if (!client.aniversario) return false;
     const appDate = getEventDate(client.data);
-    const birthDate = parseISO(client.aniversario);
-    return getMonth(appDate) === getMonth(birthDate);
+    const bday = parseBirthday(client.aniversario);
+    if (!bday) return false;
+    return getMonth(appDate) === getMonth(bday);
   }
 
   return (

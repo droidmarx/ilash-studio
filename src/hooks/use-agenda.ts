@@ -1,9 +1,9 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { getClients, createClient, updateClient, deleteClient, Client } from '@/lib/api';
 import { addMonths, subMonths, isSameDay, parse, isValid, getMonth, getDate, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { notifyAppointmentChange } from '@/app/actions/notifications';
+import { parseBirthday } from '@/lib/utils';
 
 export function useAgenda() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -55,8 +55,10 @@ export function useAgenda() {
     return clients.filter(client => {
       if (!client.aniversario) return false;
       try {
-        const birthDate = parseISO(client.aniversario);
-        const isBday = getMonth(day) === getMonth(birthDate) && getDate(day) === getDate(birthDate);
+        const bday = parseBirthday(client.aniversario);
+        if (!bday) return false;
+        
+        const isBday = getMonth(day) === getMonth(bday) && getDate(day) === getDate(bday);
         if (isBday && !seen.has(client.nome)) {
           seen.add(client.nome);
           return true;
