@@ -142,8 +142,8 @@ export default function AgendaPage() {
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
-              width={240} 
-              height={120} 
+              width={200} 
+              height={100} 
               className="drop-shadow-[0_0_35px_rgba(var(--primary),0.6)]"
               priority
             />
@@ -202,14 +202,6 @@ export default function AgendaPage() {
             <Crown className="text-primary animate-bounce" size={24} />
           </div>
           <div className="flex flex-col items-center justify-center gap-4 py-8">
-            <Image 
-              src="/logo.png" 
-              alt="I Lash Studio Logo" 
-              width={260} 
-              height={130} 
-              className="drop-shadow-2xl animate-float-luxury"
-              priority
-            />
             <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-2">
               I Lash Studio
             </h1>

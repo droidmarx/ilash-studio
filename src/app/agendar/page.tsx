@@ -249,8 +249,8 @@ export default function ClientBookingPage() {
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
-              width={220} 
-              height={110} 
+              width={180} 
+              height={90} 
               className="drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]"
               priority
             />

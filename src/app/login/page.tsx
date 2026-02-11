@@ -49,18 +49,19 @@ export default function LoginPage() {
       
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-3xl border-border shadow-2xl rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-700">
         <CardHeader className="pt-12 pb-6 text-center space-y-6">
-          <div className="flex justify-center animate-float-luxury">
+          <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
-              width={220} 
-              height={100} 
+              width={180} 
+              height={80} 
               className="drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]"
               priority
             />
+            <h1 className="text-3xl font-headline text-gold-gradient">I Lash Studio</h1>
           </div>
           <div className="space-y-2">
-            <CardTitle className="text-3xl font-headline text-gold-gradient">Acesso Restrito</CardTitle>
+            <CardTitle className="text-xl font-bold uppercase tracking-widest text-primary/80">Acesso Restrito</CardTitle>
             <CardDescription className="text-primary/60 font-bold uppercase text-[10px] tracking-widest">
               Exclusive Management System
             </CardDescription>
