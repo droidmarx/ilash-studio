@@ -61,7 +61,6 @@ export default function AgendaPage() {
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
-    // Verificação de Login
     const isLoggedIn = localStorage.getItem("isLoggedIn")
     if (isLoggedIn !== "true") {
       router.push("/login")
@@ -69,7 +68,6 @@ export default function AgendaPage() {
     }
     setIsAuthorized(true)
 
-    // Configuração de Tema
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark'
     if (savedTheme) {
       setTheme(savedTheme)
@@ -78,7 +76,6 @@ export default function AgendaPage() {
       document.documentElement.classList.add('dark')
     }
 
-    // Timer do Splash
     const timer = setTimeout(() => {
       setShowSplash(false)
     }, 4000)
@@ -138,16 +135,18 @@ export default function AgendaPage() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="relative flex flex-col items-center gap-6 animate-luxury-zoom">
-          <div className="relative group animate-float-luxury p-6 rounded-[2.5rem] bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_50px_rgba(183,110,121,0.3)]">
+          {/* Logo com Efeito Esfumaçado Redondo */}
+          <div className="relative animate-float-luxury p-8">
+            <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-125 -z-10" />
+            <div className="absolute inset-0 bg-primary/5 blur-[30px] rounded-full -z-10" />
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
               width={180} 
               height={90} 
-              className="drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+              className="drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10"
               priority
             />
-            <div className="absolute inset-0 bg-primary/5 blur-[40px] rounded-full -z-10" />
           </div>
 
           <div className="flex flex-col items-center gap-2">

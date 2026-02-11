@@ -30,7 +30,6 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
-    // Simulação de delay para feeling de sistema real
     setTimeout(() => {
       if (username === "Tayna" && password === "12124800") {
         localStorage.setItem("isLoggedIn", "true")
@@ -44,19 +43,20 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
-      {/* Background Decorativo Herdado do Layout */}
       <div className="absolute inset-0 -z-10 bg-background/50 backdrop-blur-sm" />
       
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-3xl border-border shadow-2xl rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-700">
         <CardHeader className="pt-12 pb-6 text-center space-y-6">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
-             <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_30px_rgba(183,110,121,0.2)]">
+             {/* Logo com Efeito Esfumaçado Redondo */}
+             <div className="relative p-6">
+                <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full scale-125 -z-10" />
                 <Image 
                   src="/logo.png" 
                   alt="I Lash Studio Logo" 
-                  width={150} 
-                  height={75} 
-                  className="drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                  width={140} 
+                  height={70} 
+                  className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-10"
                   priority
                 />
              </div>

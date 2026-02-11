@@ -246,13 +246,15 @@ export default function ClientBookingPage() {
         
         <header className="text-center space-y-4 pt-20 pb-8">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
-            <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_20px_rgba(183,110,121,0.2)]">
+            {/* Logo com Efeito Esfumaçado Redondo */}
+            <div className="relative p-6">
+               <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full scale-125 -z-10" />
                <Image 
                   src="/logo.png" 
                   alt="I Lash Studio Logo" 
-                  width={150} 
-                  height={75} 
-                  className="drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                  width={140} 
+                  height={70} 
+                  className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-10"
                   priority
                 />
             </div>
@@ -271,23 +273,23 @@ export default function ClientBookingPage() {
                     <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                       <User size={14} /> Como podemos te chamar?
                     </Label>
-                    <Input 
+                    <input 
                       placeholder="Seu nome completo" 
                       value={formData.nome}
                       onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                      className="h-14 rounded-2xl bg-muted/30 border-border focus:ring-primary/20 text-lg"
+                      className="w-full h-14 px-6 rounded-2xl bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 text-lg"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                       <Phone size={14} /> Seu WhatsApp
                     </Label>
-                    <Input 
+                    <input 
                       placeholder="Ex: 11999999999" 
                       value={formData.whatsapp}
-                      inputMode="numeric"
+                      type="tel"
                       onChange={(e) => setFormData({...formData, whatsapp: e.target.value.replace(/\D/g, '')})}
-                      className="h-14 rounded-2xl bg-muted/30 border-border focus:ring-primary/20 text-lg"
+                      className="w-full h-14 px-6 rounded-2xl bg-muted/30 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 text-lg"
                     />
                   </div>
                 </div>
@@ -422,38 +424,38 @@ export default function ClientBookingPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <Label className="text-[10px] uppercase font-bold tracking-wider">CPF</Label>
-                      <Input 
+                      <input 
                         placeholder="000.000.000-00" 
                         value={formData.anamnese.cpf}
                         onChange={(e) => handleCpfChange(e.target.value)}
-                        className="h-12 rounded-xl bg-muted/30 border-border"
+                        className="w-full h-12 px-4 rounded-xl bg-muted/30 border border-border focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[10px] uppercase font-bold tracking-wider">RG</Label>
-                      <Input 
+                      <input 
                         placeholder="00.000.000-0" 
                         value={formData.anamnese.rg}
                         onChange={(e) => handleRgChange(e.target.value)}
-                        className="h-12 rounded-xl bg-muted/30 border-border"
+                        className="w-full h-12 px-4 rounded-xl bg-muted/30 border border-border focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[10px] uppercase font-bold tracking-wider">Profissão</Label>
-                      <Input 
+                      <input 
                         placeholder="Sua profissão" 
                         value={formData.anamnese.profissao}
                         onChange={(e) => setFormData({...formData, anamnese: {...formData.anamnese, profissao: e.target.value}})}
-                        className="h-12 rounded-xl bg-muted/30 border-border"
+                        className="w-full h-12 px-4 rounded-xl bg-muted/30 border border-border focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[10px] uppercase font-bold tracking-wider">Data de Nascimento</Label>
-                      <Input 
+                      <input 
                         placeholder="DD/MM/AAAA" 
                         value={formData.anamnese.dataNascimento}
                         onChange={(e) => handleBirthDateChange(e.target.value)}
-                        className="h-12 rounded-xl bg-muted/30 border-border"
+                        className="w-full h-12 px-4 rounded-xl bg-muted/30 border border-border focus:outline-none"
                       />
                     </div>
                   </div>
