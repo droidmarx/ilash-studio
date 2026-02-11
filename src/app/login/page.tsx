@@ -58,6 +58,7 @@ export default function LoginPage() {
                   height={70} 
                   className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-10"
                   priority
+                  unoptimized
                 />
              </div>
             <h1 className="text-3xl font-headline text-gold-gradient">I Lash Studio</h1>

@@ -140,7 +140,7 @@ export default function ClientBookingPage() {
     setIsDrawing(false)
     const canvas = canvasRef.current
     if (canvas) {
-      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, assinatura: canvas.toDataURL() } }))
+      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, signature: canvas.toDataURL() } }))
     }
   }
 
@@ -167,7 +167,7 @@ export default function ClientBookingPage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.beginPath()
       }
-      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, assinatura: "" } }))
+      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, signature: "" } }))
     }
   }
 
@@ -256,6 +256,7 @@ export default function ClientBookingPage() {
                   height={70} 
                   className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-10"
                   priority
+                  unoptimized
                 />
             </div>
             <h1 className="text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
@@ -570,7 +571,7 @@ export default function ClientBookingPage() {
                     <ArrowLeft size={18} /> Voltar
                   </Button>
                   <Button 
-                    disabled={!formData.anamnese.assinatura || !formData.anamnese.cpf || loading}
+                    disabled={!formData.anamnese.signature || !formData.anamnese.cpf || loading}
                     onClick={handleSubmit}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >

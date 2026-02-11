@@ -146,6 +146,7 @@ export default function AgendaPage() {
               height={90} 
               className="drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10"
               priority
+              unoptimized
             />
           </div>
 
