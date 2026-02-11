@@ -140,7 +140,7 @@ export default function ClientBookingPage() {
     setIsDrawing(false)
     const canvas = canvasRef.current
     if (canvas) {
-      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, signature: canvas.toDataURL() } }))
+      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, assinatura: canvas.toDataURL() } }))
     }
   }
 
@@ -167,7 +167,7 @@ export default function ClientBookingPage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.beginPath()
       }
-      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, signature: "" } }))
+      setFormData(prev => ({ ...prev, anamnese: { ...prev.anamnese, assinatura: "" } }))
     }
   }
 
@@ -246,14 +246,13 @@ export default function ClientBookingPage() {
         
         <header className="text-center space-y-4 pt-20 pb-8">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
-            {/* Logo com Efeito Esfumaçado Redondo */}
             <div className="relative p-6">
                <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full scale-125 -z-10" />
                <Image 
                   src="/logo.png" 
                   alt="I Lash Studio Logo" 
-                  width={140} 
-                  height={70} 
+                  width={119} 
+                  height={60} 
                   className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-10"
                   priority
                   unoptimized
@@ -571,7 +570,7 @@ export default function ClientBookingPage() {
                     <ArrowLeft size={18} /> Voltar
                   </Button>
                   <Button 
-                    disabled={!formData.anamnese.signature || !formData.anamnese.cpf || loading}
+                    disabled={!formData.anamnese.assinatura || !formData.anamnese.cpf || loading}
                     onClick={handleSubmit}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >
