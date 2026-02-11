@@ -43,21 +43,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
       {/* Background Decorativo Herdado do Layout */}
       <div className="absolute inset-0 -z-10 bg-background/50 backdrop-blur-sm" />
       
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-3xl border-border shadow-2xl rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-700">
         <CardHeader className="pt-12 pb-6 text-center space-y-6">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
-            <Image 
-              src="/logo.png" 
-              alt="I Lash Studio Logo" 
-              width={180} 
-              height={80} 
-              className="drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]"
-              priority
-            />
+             <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_30px_rgba(183,110,121,0.2)]">
+                <Image 
+                  src="/logo.png" 
+                  alt="I Lash Studio Logo" 
+                  width={150} 
+                  height={75} 
+                  className="drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                  priority
+                />
+             </div>
             <h1 className="text-3xl font-headline text-gold-gradient">I Lash Studio</h1>
           </div>
           <div className="space-y-2">

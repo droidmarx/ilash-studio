@@ -246,14 +246,16 @@ export default function ClientBookingPage() {
         
         <header className="text-center space-y-4 pt-20 pb-8">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
-            <Image 
-              src="/logo.png" 
-              alt="I Lash Studio Logo" 
-              width={180} 
-              height={90} 
-              className="drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]"
-              priority
-            />
+            <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_20px_rgba(183,110,121,0.2)]">
+               <Image 
+                  src="/logo.png" 
+                  alt="I Lash Studio Logo" 
+                  width={150} 
+                  height={75} 
+                  className="drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                  priority
+                />
+            </div>
             <h1 className="text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
           </div>
           <p className="text-primary/70 text-[10px] font-bold tracking-[0.5em] uppercase">Experiência VIP</p>

@@ -138,16 +138,16 @@ export default function AgendaPage() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="relative flex flex-col items-center gap-6 animate-luxury-zoom">
-          <div className="relative group animate-float-luxury">
+          <div className="relative group animate-float-luxury p-6 rounded-[2.5rem] bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_50px_rgba(183,110,121,0.3)]">
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
-              width={200} 
-              height={100} 
-              className="drop-shadow-[0_0_35px_rgba(var(--primary),0.6)]"
+              width={180} 
+              height={90} 
+              className="drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
               priority
             />
-            <div className="absolute inset-0 bg-primary/10 blur-[70px] rounded-full scale-150 -z-10 animate-pulse" />
+            <div className="absolute inset-0 bg-primary/5 blur-[40px] rounded-full -z-10" />
           </div>
 
           <div className="flex flex-col items-center gap-2">
