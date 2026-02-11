@@ -117,7 +117,7 @@ export default function AgendaPage() {
   const handleOpenAddModal = (date?: Date) => {
     if (date) {
       const now = new Date()
-      const dateWithTime = setMinutes(setHours(date, now.getHours()), now.getMinutes())
+      const dateWithTime = setHours(setMinutes(date, now.getMinutes()), now.getHours())
       setPrefilledDate(dateWithTime.toISOString().slice(0, 16))
     } else {
       setPrefilledDate(undefined)
@@ -137,7 +137,7 @@ export default function AgendaPage() {
   if (showSplash) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
-        <div className="relative flex flex-col items-center gap-12 animate-luxury-zoom">
+        <div className="relative flex flex-col items-center gap-6 animate-luxury-zoom">
           <div className="relative group animate-float-luxury">
             <Image 
               src="/logo.png" 
@@ -150,8 +150,8 @@ export default function AgendaPage() {
             <div className="absolute inset-0 bg-primary/10 blur-[70px] rounded-full scale-150 -z-10 animate-pulse" />
           </div>
 
-          <div className="flex flex-col items-center gap-3">
-            <h1 className="text-6xl md:text-9xl font-headline text-gold-gradient py-4 drop-shadow-2xl tracking-tight">
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="text-6xl md:text-9xl font-headline text-gold-gradient py-2 drop-shadow-2xl tracking-tight">
               I Lash Studio
             </h1>
             <p className="text-primary/40 text-[10px] md:text-xs font-bold tracking-[0.6em] uppercase animate-pulse">
@@ -197,23 +197,23 @@ export default function AgendaPage() {
 
       <div className="w-full max-w-7xl mx-auto space-y-10">
         
-        <header className="text-center space-y-2 mb-12 animate-in fade-in duration-1000">
+        <header className="text-center space-y-4 mb-12 animate-in fade-in duration-1000">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Crown className="text-primary animate-bounce" size={24} />
           </div>
-          <div className="flex justify-center py-8">
+          <div className="flex flex-col items-center justify-center gap-4 py-8">
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
-              width={300} 
-              height={150} 
+              width={260} 
+              height={130} 
               className="drop-shadow-2xl animate-float-luxury"
               priority
             />
+            <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-2">
+              I Lash Studio
+            </h1>
           </div>
-          <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-2 sr-only">
-            I Lash Studio
-          </h1>
           <p className="text-primary/70 text-sm md:text-base font-medium tracking-[0.3em] uppercase">
             Exclusive Client Experience
           </p>

@@ -32,6 +32,7 @@ import {
 } from "lucide-react"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import Image from "next/image"
 
 const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
 
@@ -64,7 +65,6 @@ export default function ClientBookingPage() {
     }
   })
 
-  // Refs para o Canvas de Assinatura
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
 
@@ -75,7 +75,6 @@ export default function ClientBookingPage() {
     end: addDays(startOfToday(), 14)
   })
 
-  // Efeito para ajustar o tamanho do canvas quando entrar no step 4
   useEffect(() => {
     if (step === 4 && canvasRef.current) {
       const canvas = canvasRef.current
@@ -88,7 +87,6 @@ export default function ClientBookingPage() {
   const handleNext = () => setStep(prev => prev + 1)
   const handlePrev = () => setStep(prev => prev - 1)
 
-  // Máscaras de input
   const handleCpfChange = (val: string) => {
     let v = val.replace(/\D/g, "").substring(0, 11)
     if (v.length > 9) v = v.substring(0, 3) + "." + v.substring(3, 6) + "." + v.substring(6, 9) + "-" + v.substring(9)
@@ -112,7 +110,6 @@ export default function ClientBookingPage() {
     setFormData({ ...formData, anamnese: { ...formData.anamnese, dataNascimento: v } })
   }
 
-  // Lógica do Canvas
   const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current
     if (!canvas) return { x: 0, y: 0 }
@@ -178,7 +175,6 @@ export default function ClientBookingPage() {
     setLoading(true)
     try {
       const dateTime = `${formData.data}T${formData.hora}`
-      
       const payload = {
         nome: formData.nome,
         whatsapp: formData.whatsapp,
@@ -190,7 +186,6 @@ export default function ClientBookingPage() {
         aniversario: formData.anamnese.dataNascimento,
         anamnese: formData.anamnese
       };
-
       const newClient = await createClient(payload)
       await notifyAppointmentChange(newClient, 'Novo')
       setSuccess(true)
@@ -235,11 +230,6 @@ export default function ClientBookingPage() {
             <p className="text-base font-bold text-foreground leading-relaxed">
               Fique atenta ao seu celular! Em breve entraremos em contato via <strong>WhatsApp</strong> para realizar a confirmação final.
             </p>
-            <div className="flex justify-center gap-1">
-               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-75" />
-               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-150" />
-               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-300" />
-            </div>
           </div>
 
           <div className="pt-4">
@@ -254,36 +244,19 @@ export default function ClientBookingPage() {
     <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px]">
       <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        <header className="text-center space-y-8 pt-20 pb-8">
-          <div className="flex justify-center mb-6 animate-float-luxury">
-             <svg 
-              width="220" 
-              height="100" 
-              viewBox="0 0 100 40" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
-            >
-              <path 
-                d="M10 30C25 15 75 15 90 30" 
-                stroke="currentColor" 
-                strokeWidth="0.8" 
-                strokeLinecap="round" 
-                className="opacity-40"
-              />
-              <path d="M15 22L12 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M25 18L22 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M35 15L34 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M50 14V0" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M65 15L66 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M75 18L78 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M85 22L88 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div className="space-y-2">
+        <header className="text-center space-y-4 pt-20 pb-8">
+          <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
+            <Image 
+              src="/logo.png" 
+              alt="I Lash Studio Logo" 
+              width={220} 
+              height={110} 
+              className="drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+              priority
+            />
             <h1 className="text-6xl font-headline text-gold-gradient py-2">I Lash Studio</h1>
-            <p className="text-primary/70 text-[10px] font-bold tracking-[0.5em] uppercase">Experiência VIP</p>
           </div>
+          <p className="text-primary/70 text-[10px] font-bold tracking-[0.5em] uppercase">Experiência VIP</p>
         </header>
 
         <Card className="bg-card/60 backdrop-blur-3xl rounded-[2.5rem] border-border shadow-2xl overflow-hidden">
