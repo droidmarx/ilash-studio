@@ -1,6 +1,8 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAgenda } from "@/hooks/use-agenda"
 import { 
   format, 
@@ -25,11 +27,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronLeft, ChevronRight, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown, LogOut } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
+import Image from "next/image"
 
 export default function AgendaPage() {
+  const router = useRouter()
   const { 
     clients,
     loading, 
@@ -54,8 +58,18 @@ export default function AgendaPage() {
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined)
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [showSplash, setShowSplash] = useState(true)
+  const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
+    // Verificação de Login
+    const isLoggedIn = localStorage.getItem("isLoggedIn")
+    if (isLoggedIn !== "true") {
+      router.push("/login")
+      return
+    }
+    setIsAuthorized(true)
+
+    // Configuração de Tema
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark'
     if (savedTheme) {
       setTheme(savedTheme)
@@ -64,17 +78,23 @@ export default function AgendaPage() {
       document.documentElement.classList.add('dark')
     }
 
+    // Timer do Splash
     const timer = setTimeout(() => {
       setShowSplash(false)
     }, 4000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [router])
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
     document.documentElement.classList.toggle('dark', newTheme === 'dark')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn")
+    router.push("/login")
   }
 
   const monthStart = startOfMonth(currentMonth)
@@ -112,34 +132,21 @@ export default function AgendaPage() {
 
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
+  if (!isAuthorized) return null
+
   if (showSplash) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="relative flex flex-col items-center gap-12 animate-luxury-zoom">
           <div className="relative group animate-float-luxury">
-            <svg 
-              width="240" 
-              height="120" 
-              viewBox="0 0 100 40" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-primary drop-shadow-[0_0_35px_rgba(var(--primary),0.6)] rotate-180"
-            >
-              <path 
-                d="M10 30C25 15 75 15 90 30" 
-                stroke="currentColor" 
-                strokeWidth="0.8" 
-                strokeLinecap="round" 
-                className="opacity-40"
-              />
-              <path d="M15 22L12 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M25 18L22 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M35 15L34 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M50 14V0" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M65 15L66 1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M75 18L78 4" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-              <path d="M85 22L88 8" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-            </svg>
+            <Image 
+              src="/logo.png" 
+              alt="I Lash Studio Logo" 
+              width={240} 
+              height={120} 
+              className="drop-shadow-[0_0_35px_rgba(var(--primary),0.6)]"
+              priority
+            />
             <div className="absolute inset-0 bg-primary/10 blur-[70px] rounded-full scale-150 -z-10 animate-pulse" />
           </div>
 
@@ -168,6 +175,15 @@ export default function AgendaPage() {
         >
           <Settings className="h-6 w-6 text-primary" />
         </Button>
+        <Button
+          variant="destructive"
+          size="icon"
+          onClick={handleLogout}
+          className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform"
+          title="Sair do Sistema"
+        >
+          <LogOut className="h-6 w-6" />
+        </Button>
       </div>
       
       <Button
@@ -185,7 +201,17 @@ export default function AgendaPage() {
           <div className="flex items-center justify-center gap-2 mb-2">
             <Crown className="text-primary animate-bounce" size={24} />
           </div>
-          <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-8">
+          <div className="flex justify-center py-8">
+            <Image 
+              src="/logo.png" 
+              alt="I Lash Studio Logo" 
+              width={300} 
+              height={150} 
+              className="drop-shadow-2xl animate-float-luxury"
+              priority
+            />
+          </div>
+          <h1 className="text-5xl md:text-8xl font-headline text-gold-gradient drop-shadow-2xl py-2 sr-only">
             I Lash Studio
           </h1>
           <p className="text-primary/70 text-sm md:text-base font-medium tracking-[0.3em] uppercase">
