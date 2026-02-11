@@ -51,7 +51,7 @@ export default function LoginPage() {
         <CardHeader className="pt-12 pb-6 text-center space-y-6">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
             <Image 
-              src="/logo.png" 
+              src="/—Pngtree—eyelashes icon logo png_6842876 - Editado_20260211_121115_0000.png" 
               alt="I Lash Studio Logo" 
               width={180} 
               height={80} 
