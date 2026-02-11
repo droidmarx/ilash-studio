@@ -140,7 +140,7 @@ export default function AgendaPage() {
         <div className="relative flex flex-col items-center gap-6 animate-luxury-zoom">
           <div className="relative group animate-float-luxury">
             <Image 
-              src="/—Pngtree—eyelashes icon logo png_6842876 - Editado_20260211_121115_0000.png" 
+              src="/logo.png" 
               alt="I Lash Studio Logo" 
               width={200} 
               height={100} 

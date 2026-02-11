@@ -247,7 +247,7 @@ export default function ClientBookingPage() {
         <header className="text-center space-y-4 pt-20 pb-8">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
             <Image 
-              src="/—Pngtree—eyelashes icon logo png_6842876 - Editado_20260211_121115_0000.png" 
+              src="/logo.png" 
               alt="I Lash Studio Logo" 
               width={180} 
               height={90} 
@@ -570,7 +570,7 @@ export default function ClientBookingPage() {
                     onClick={handleSubmit}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : "Finalizar Agendamento"}
+                    {loading ? <Loader2 className="animate-spin" size={20} /> : "Finalizar Agendamento"}
                   </Button>
                 </div>
               </div>
