@@ -42,15 +42,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
-      <div className="absolute inset-0 -z-10 bg-background/50 backdrop-blur-sm" />
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background/50 backdrop-blur-[2px]">
+      <div className="absolute inset-0 -z-10 bg-background/20" />
       
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-3xl border-border shadow-2xl rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-700">
         <CardHeader className="pt-12 pb-6 text-center space-y-6">
           <div className="flex flex-col items-center justify-center gap-4 animate-float-luxury">
              {/* Logo com Efeito Esfumaçado Redondo */}
              <div className="relative p-6">
-                <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full scale-125 -z-10" />
+                <div className="absolute inset-0 bg-primary/30 blur-[50px] rounded-full scale-125 -z-10" />
+                <div className="absolute inset-0 bg-primary/10 blur-[20px] rounded-full -z-10" />
                 <Image 
                   src="/logo.png" 
                   alt="I Lash Studio Logo" 
