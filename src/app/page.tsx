@@ -185,15 +185,15 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      {/* Menu Dropdown de Ação Fixo no Topo com Animação de Hambúrguer para X */}
-      <div className="fixed top-6 right-6 z-50">
+      {/* Menu Dropdown de Ação FIXO E FLUTUANTE no Topo com Animação VIP */}
+      <div className="fixed top-6 right-6 z-[70]">
         <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
               className={cn(
-                "rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground transition-all duration-500 border-none outline-none focus:ring-0 overflow-hidden relative group",
-                isDropdownOpen ? "scale-110 rotate-180 shadow-[0_0_40px_rgba(var(--primary),0.6)]" : "hover:scale-110"
+                "rounded-full w-14 h-14 shadow-2xl bg-gold-gradient text-primary-foreground transition-all duration-500 border-none outline-none focus:ring-0 overflow-hidden relative group",
+                isDropdownOpen ? "scale-110 rotate-180 shadow-[0_0_50px_rgba(var(--primary),0.6)]" : "hover:scale-110 shadow-[0_0_25px_rgba(var(--primary),0.4)]"
               )}
               title="Menu Principal"
             >
@@ -217,35 +217,43 @@ export default function AgendaPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-56 bg-card/80 backdrop-blur-2xl border-primary/20 rounded-[1.5rem] p-2 shadow-2xl animate-in slide-in-from-top-2 duration-300"
+            className="w-56 bg-card/90 backdrop-blur-2xl border-primary/30 rounded-[2rem] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-top-4 duration-300 z-[80]"
           >
-            <div className="px-3 py-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 text-center">Gestão Studio</p>
+            <div className="px-3 py-3 border-b border-primary/10 mb-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 text-center flex items-center justify-center gap-2">
+                <Crown size={12} /> Gestão Studio
+              </p>
             </div>
             
             <DropdownMenuItem 
               onClick={() => handleOpenAddModal()}
-              className="rounded-xl gap-3 py-3 focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors"
+              className="rounded-2xl gap-3 py-4 focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors"
             >
-              <Plus size={18} className="text-primary" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Plus size={18} className="text-primary" />
+              </div>
               <span className="font-bold text-sm">Novo Agendamento</span>
             </DropdownMenuItem>
 
             <DropdownMenuItem 
               onClick={() => setIsSettingsOpen(true)}
-              className="rounded-xl gap-3 py-3 focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors"
+              className="rounded-2xl gap-3 py-4 focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors"
             >
-              <Settings size={18} className="text-primary" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Settings size={18} className="text-primary" />
+              </div>
               <span className="font-bold text-sm">Configurações</span>
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="bg-primary/10 my-1" />
+            <DropdownMenuSeparator className="bg-primary/10 my-2" />
 
             <DropdownMenuItem 
               onClick={handleLogout}
-              className="rounded-xl gap-3 py-3 focus:bg-destructive/10 text-destructive focus:text-destructive cursor-pointer transition-colors"
+              className="rounded-2xl gap-3 py-4 focus:bg-destructive/10 text-destructive focus:text-destructive cursor-pointer transition-colors"
             >
-              <LogOut size={18} />
+              <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center">
+                <LogOut size={18} />
+              </div>
               <span className="font-bold text-sm">Sair do Sistema</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
