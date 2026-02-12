@@ -43,10 +43,12 @@ import {
   Users, 
   Crown, 
   LogOut,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  X as CloseIcon
 } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
+import { cn } from "@/lib/utils"
 import Image from "next/image"
 
 export default function AgendaPage() {
@@ -76,6 +78,7 @@ export default function AgendaPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [showSplash, setShowSplash] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn")
@@ -182,24 +185,42 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      {/* Menu Dropdown de Ação no Topo - Corrigido com modal={false} */}
+      {/* Menu Dropdown de Ação Fixo no Topo com Animação de Hambúrguer para X */}
       <div className="fixed top-6 right-6 z-50">
-        <DropdownMenu modal={false}>
+        <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
-              className="rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300 border-none outline-none focus:ring-0"
+              className={cn(
+                "rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground transition-all duration-500 border-none outline-none focus:ring-0 overflow-hidden relative group",
+                isDropdownOpen ? "scale-110 rotate-180 shadow-[0_0_40px_rgba(var(--primary),0.6)]" : "hover:scale-110"
+              )}
               title="Menu Principal"
             >
-              <MenuIcon size={28} />
+              <div className="relative w-full h-full flex items-center justify-center">
+                <MenuIcon 
+                  size={28} 
+                  className={cn(
+                    "absolute transition-all duration-500 ease-in-out transform",
+                    isDropdownOpen ? "opacity-0 scale-0 rotate-90" : "opacity-100 scale-100 rotate-0"
+                  )} 
+                />
+                <CloseIcon 
+                  size={28} 
+                  className={cn(
+                    "absolute transition-all duration-500 ease-in-out transform",
+                    isDropdownOpen ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-0 -rotate-90"
+                  )} 
+                />
+              </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-56 bg-card/80 backdrop-blur-2xl border-primary/20 rounded-[1.5rem] p-2 shadow-2xl animate-in slide-in-from-top-2 duration-200"
+            className="w-56 bg-card/80 backdrop-blur-2xl border-primary/20 rounded-[1.5rem] p-2 shadow-2xl animate-in slide-in-from-top-2 duration-300"
           >
             <div className="px-3 py-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Gestão Studio</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 text-center">Gestão Studio</p>
             </div>
             
             <DropdownMenuItem 
