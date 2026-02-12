@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle, XCircle } from "lucide-react"
+import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle, XCircle, Sparkles } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -16,17 +17,22 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
 import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook, updateMainApiUrl, DEFAULT_API_URL, getWebhookStatus, updateWebhookStatus } from "@/lib/api"
+import { ThemeToggle } from "./ThemeToggle"
 
 interface SettingsModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: () => void
+  theme: 'light' | 'dark'
+  toggleTheme: () => void
 }
 
 export function SettingsModal({ 
   isOpen, 
   onClose, 
-  onSave
+  onSave,
+  theme,
+  toggleTheme
 }: SettingsModalProps) {
   const [apiUrl, setApiUrl] = useState("")
   const [botToken, setBotToken] = useState("")
@@ -48,7 +54,6 @@ export function SettingsModal({
     setLoading(true)
     try {
       const data = await getRecipients()
-      // Filtra entradas de sistema
       const persons = data.filter(r => 
         r.nome !== 'SYSTEM_TOKEN' && 
         r.nome !== 'SUMMARY_STATE' && 
@@ -121,7 +126,6 @@ export function SettingsModal({
     localStorage.setItem("mock_api_url", normalizedUrl)
     
     try {
-      // Sincroniza URL da API e Token no servidor (MockAPI global config)
       await updateMainApiUrl(normalizedUrl);
       
       if (botToken) {
@@ -130,7 +134,6 @@ export function SettingsModal({
 
       const remoteRecipients = await getRecipients()
       
-      // Remove admins que não estão mais na lista local
       for (const remote of remoteRecipients) {
         const isSystemKey = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE'].includes(remote.nome);
         if (!isSystemKey && !recipients.find(r => r.id === remote.id)) {
@@ -138,7 +141,6 @@ export function SettingsModal({
         }
       }
 
-      // Cria ou atualiza admins
       for (const local of recipients) {
         if (local.id.startsWith('temp-')) {
           await createRecipient({ nome: local.nome, chatID: local.chatID })
@@ -166,11 +168,27 @@ export function SettingsModal({
             Configurações do Studio
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Gerencie o robô de notificações e os administradores.
+            Gerencie o robô de notificações e a aparência do sistema.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-8 py-6">
+          <div className="space-y-4">
+            <Label className="text-lg font-bold flex items-center gap-2 text-primary">
+              <Sparkles size={20} />
+              Aparência do Sistema
+            </Label>
+            <div className="flex items-center justify-between bg-muted/30 p-4 rounded-2xl border border-border">
+              <div className="space-y-0.5">
+                <p className="text-sm font-bold">Modo de Exibição</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Alternar entre tema claro e escuro</p>
+              </div>
+              <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+            </div>
+          </div>
+
+          <Separator className="bg-primary/10" />
+
           <div className="space-y-4">
             <Label htmlFor="api-url" className="text-lg font-bold flex items-center gap-2 text-primary">
               <Globe size={20} />

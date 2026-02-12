@@ -22,7 +22,6 @@ import { SettingsModal } from "@/components/agenda/SettingsModal"
 import { AppointmentForm } from "@/components/agenda/AppointmentForm"
 import { AppointmentsList } from "@/components/agenda/AppointmentsList"
 import { ClientsManager } from "@/components/agenda/ClientsManager"
-import { ThemeToggle } from "@/components/agenda/ThemeToggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -135,7 +134,6 @@ export default function AgendaPage() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="relative flex flex-col items-center gap-6 animate-luxury-zoom">
-          {/* Logo com Efeito Esfumaçado Redondo */}
           <div className="relative animate-float-luxury p-8">
             <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-125 -z-10" />
             <div className="absolute inset-0 bg-primary/5 blur-[30px] rounded-full -z-10" />
@@ -166,7 +164,6 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
-        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <Button
           variant="outline"
           size="icon"
@@ -336,6 +333,8 @@ export default function AgendaPage() {
         isOpen={isSettingsOpen}
         onClose={() => { setIsSettingsOpen(false); }}
         onSave={() => { refresh(); }}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
     </div>
   )
