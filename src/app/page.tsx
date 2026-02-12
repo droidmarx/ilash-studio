@@ -26,7 +26,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronLeft, ChevronRight, Loader2, Settings, Plus, Calendar as CalendarIcon, Users, Crown, LogOut } from "lucide-react"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Loader2, 
+  Settings, 
+  Plus, 
+  Calendar as CalendarIcon, 
+  Users, 
+  Crown, 
+  LogOut,
+  Menu as MenuIcon
+} from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
 import Image from "next/image"
@@ -163,38 +181,53 @@ export default function AgendaPage() {
 
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
-      {/* Botões de Ação Laterais */}
-      <div className="fixed top-6 right-6 z-50 flex flex-col items-center gap-4">
-        {/* Logout (Topo) */}
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={handleLogout}
-          className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform"
-          title="Sair do Sistema"
-        >
-          <LogOut className="h-6 w-6" />
-        </Button>
+      
+      {/* Menu Dropdown de Ação no Topo */}
+      <div className="fixed top-6 right-6 z-50">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              className="rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300 border-none"
+              title="Menu Principal"
+            >
+              <MenuIcon size={28} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="end" 
+            className="w-56 bg-card/80 backdrop-blur-2xl border-primary/20 rounded-[1.5rem] p-2 shadow-2xl"
+          >
+            <div className="px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Gestão Studio</p>
+            </div>
+            
+            <DropdownMenuItem 
+              onClick={() => handleOpenAddModal()}
+              className="rounded-xl gap-3 py-3 focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors"
+            >
+              <Plus size={18} className="text-primary" />
+              <span className="font-bold text-sm">Novo Agendamento</span>
+            </DropdownMenuItem>
 
-        {/* Configurações (Meio) */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsSettingsOpen(true)}
-          className="rounded-full w-12 h-12 border-primary/40 bg-background/50 backdrop-blur-md hover:bg-primary/10"
-          title="Configurações"
-        >
-          <Settings className="h-6 w-6 text-primary" />
-        </Button>
+            <DropdownMenuItem 
+              onClick={() => setIsSettingsOpen(true)}
+              className="rounded-xl gap-3 py-3 focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors"
+            >
+              <Settings size={18} className="text-primary" />
+              <span className="font-bold text-sm">Configurações</span>
+            </DropdownMenuItem>
 
-        {/* Adicionar (Base) */}
-        <Button
-          onClick={() => handleOpenAddModal()}
-          className="rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300"
-          title="Novo Agendamento"
-        >
-          <Plus size={28} />
-        </Button>
+            <DropdownMenuSeparator className="bg-primary/10 my-1" />
+
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="rounded-xl gap-3 py-3 focus:bg-destructive/10 text-destructive focus:text-destructive cursor-pointer transition-colors"
+            >
+              <LogOut size={18} />
+              <span className="font-bold text-sm">Sair do Sistema</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <Toaster />
