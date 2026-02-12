@@ -185,28 +185,28 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      {/* Menu Dropdown de Ação FIXO E FLUTUANTE no Topo com Animação VIP */}
-      <div className="fixed top-6 right-6 z-[70]">
+      {/* Menu FAB (Floating Action Button) - FIXO E FLUTUANTE na parte Inferior Direita */}
+      <div className="fixed bottom-8 right-8 z-[70]">
         <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
               className={cn(
-                "rounded-full w-14 h-14 shadow-2xl bg-gold-gradient text-primary-foreground transition-all duration-500 border-none outline-none focus:ring-0 overflow-hidden relative group",
+                "rounded-full w-16 h-16 shadow-2xl bg-gold-gradient text-primary-foreground transition-all duration-500 border-none outline-none focus:ring-0 overflow-hidden relative group",
                 isDropdownOpen ? "scale-110 rotate-180 shadow-[0_0_50px_rgba(var(--primary),0.6)]" : "hover:scale-110 shadow-[0_0_25px_rgba(var(--primary),0.4)]"
               )}
-              title="Menu Principal"
+              title="Painel de Gestão VIP"
             >
               <div className="relative w-full h-full flex items-center justify-center">
                 <MenuIcon 
-                  size={28} 
+                  size={32} 
                   className={cn(
                     "absolute transition-all duration-500 ease-in-out transform",
                     isDropdownOpen ? "opacity-0 scale-0 rotate-90" : "opacity-100 scale-100 rotate-0"
                   )} 
                 />
                 <CloseIcon 
-                  size={28} 
+                  size={32} 
                   className={cn(
                     "absolute transition-all duration-500 ease-in-out transform",
                     isDropdownOpen ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-0 -rotate-90"
@@ -217,7 +217,9 @@ export default function AgendaPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-56 bg-card/90 backdrop-blur-2xl border-primary/30 rounded-[2rem] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-top-4 duration-300 z-[80]"
+            side="top"
+            sideOffset={16}
+            className="w-56 bg-card/90 backdrop-blur-2xl border-primary/30 rounded-[2rem] p-2 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4 duration-300 z-[80]"
           >
             <div className="px-3 py-3 border-b border-primary/10 mb-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 text-center flex items-center justify-center gap-2">
