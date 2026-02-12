@@ -182,12 +182,13 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      {/* Menu Dropdown de Ação no Topo */}
+      {/* Menu Dropdown de Ação no Topo - Corrigido com modal={false} */}
       <div className="fixed top-6 right-6 z-50">
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
-              className="rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300 border-none"
+              type="button"
+              className="rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300 border-none outline-none focus:ring-0"
               title="Menu Principal"
             >
               <MenuIcon size={28} />
@@ -195,7 +196,7 @@ export default function AgendaPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-56 bg-card/80 backdrop-blur-2xl border-primary/20 rounded-[1.5rem] p-2 shadow-2xl"
+            className="w-56 bg-card/80 backdrop-blur-2xl border-primary/20 rounded-[1.5rem] p-2 shadow-2xl animate-in slide-in-from-top-2 duration-200"
           >
             <div className="px-3 py-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Gestão Studio</p>
