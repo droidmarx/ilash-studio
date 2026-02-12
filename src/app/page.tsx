@@ -185,8 +185,8 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      {/* Menu FAB (Floating Action Button) - FIXO E FLUTUANTE na parte Inferior Direita */}
-      <div className="fixed bottom-8 right-8 z-[70]">
+      {/* Menu VIP Fixo no Topo Direito */}
+      <div className="fixed top-8 right-8 z-[100]">
         <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
@@ -217,9 +217,9 @@ export default function AgendaPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            side="top"
+            side="bottom"
             sideOffset={16}
-            className="w-56 bg-card/90 backdrop-blur-2xl border-primary/30 rounded-[2rem] p-2 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4 duration-300 z-[80]"
+            className="w-56 bg-card/90 backdrop-blur-2xl border-primary/30 rounded-[2rem] p-2 shadow-2xl animate-in slide-in-from-top-4 duration-300 z-[110]"
           >
             <div className="px-3 py-3 border-b border-primary/10 mb-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 text-center flex items-center justify-center gap-2">
