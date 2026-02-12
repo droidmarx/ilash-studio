@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -108,7 +107,7 @@ export function SettingsModal({
         setIsWebhookActive(nextState)
         toast({ 
           title: nextState ? "Bot Ativado!" : "Bot Desativado", 
-          description: nextState ? "Agora seu robô responderá aos comandos /command1 e /command2." : "O robô não responderá mais a comandos interativos." 
+          description: nextState ? "Agora seu robô responderá aos comandos /command1, /command2, /command3 e /command4." : "O robô não responderá mais a comandos interativos." 
         })
       } else {
         throw new Error()
@@ -236,7 +235,9 @@ export function SettingsModal({
               onChange={(e) => setBotToken(e.target.value)}
               className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary font-mono text-xs"
             />
-            <p className="text-[10px] text-muted-foreground">O bot responde aos comandos <b>/command1</b> (Hoje) e <b>/command2</b> (Mês).</p>
+            <p className="text-[10px] text-muted-foreground">
+              O bot responde aos comandos <b>/command1</b> (Hoje), <b>/command2</b> (Mês), <b>/command3</b> (Semana) e <b>/command4</b> (Próx. Mês).
+            </p>
           </div>
 
           <Separator className="bg-primary/10" />
