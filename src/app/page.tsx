@@ -140,8 +140,8 @@ export default function AgendaPage() {
             <Image 
               src="/logo.png" 
               alt="I Lash Studio Logo" 
-              width={180} 
-              height={90} 
+              width={150} 
+              height={75} 
               className="drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10"
               priority
               unoptimized
@@ -163,15 +163,9 @@ export default function AgendaPage() {
 
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
-      <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsSettingsOpen(true)}
-          className="rounded-full w-12 h-12 border-primary/40 bg-background/50 backdrop-blur-md hover:bg-primary/10"
-        >
-          <Settings className="h-6 w-6 text-primary" />
-        </Button>
+      {/* Botões de Ação Laterais */}
+      <div className="fixed top-6 right-6 z-50 flex flex-col items-center gap-4">
+        {/* Logout (Topo) */}
         <Button
           variant="destructive"
           size="icon"
@@ -181,14 +175,27 @@ export default function AgendaPage() {
         >
           <LogOut className="h-6 w-6" />
         </Button>
+
+        {/* Configurações (Meio) */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsSettingsOpen(true)}
+          className="rounded-full w-12 h-12 border-primary/40 bg-background/50 backdrop-blur-md hover:bg-primary/10"
+          title="Configurações"
+        >
+          <Settings className="h-6 w-6 text-primary" />
+        </Button>
+
+        {/* Adicionar (Base) */}
+        <Button
+          onClick={() => handleOpenAddModal()}
+          className="rounded-full w-14 h-14 shadow-[0_0_25px_rgba(var(--primary),0.4)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300"
+          title="Novo Agendamento"
+        >
+          <Plus size={28} />
+        </Button>
       </div>
-      
-      <Button
-        onClick={() => handleOpenAddModal()}
-        className="fixed bottom-10 right-8 z-50 rounded-full w-16 h-16 shadow-[0_0_20px_rgba(var(--primary),0.5)] bg-gold-gradient text-primary-foreground hover:scale-110 transition-transform duration-300"
-      >
-        <Plus size={32} />
-      </Button>
 
       <Toaster />
 
