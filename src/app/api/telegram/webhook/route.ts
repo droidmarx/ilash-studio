@@ -100,16 +100,16 @@ export async function POST(request: Request) {
         responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o mês de ${format(nowBrasilia, 'MMMM', { locale: ptBR })}.`;
       }
     }
-    // LÓGICA 3: /command3 (Agenda da SEMANA VIGENTE)
+    // LÓGICA 3: /command3 (Agenda da SEMANA VIGENTE - Domingo a Sábado)
     else if (text.startsWith('/command3')) {
-      const today = startOfToday();
-      const weekEnd = endOfWeek(nowBrasilia, { weekStartsOn: 6 }); // Sábado
+      const weekStart = startOfWeek(nowBrasilia, { weekStartsOn: 0 }); // Domingo
+      const weekEnd = endOfWeek(nowBrasilia, { weekStartsOn: 0 }); // Sábado
       
       const weekAppointments = clients.filter(client => {
         if (client.confirmado === false) return false;
         try {
           const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
-          return isValid(appDate) && isWithinInterval(appDate, { start: startOfWeek(nowBrasilia, { weekStartsOn: 0 }), end: weekEnd });
+          return isValid(appDate) && isWithinInterval(appDate, { start: weekStart, end: weekEnd });
         } catch { return false; }
       }).sort((a, b) => {
         const da = a.data.includes('T') ? parseISO(a.data) : parse(a.data, 'dd/MM/yyyy HH:mm', new Date());
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL SEMANA: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
-        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o restante desta semana.`;
+        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para esta semana (domingo a sábado).`;
       }
     }
     // LÓGICA 4: /command4 (Agenda do PRÓXIMO MÊS)

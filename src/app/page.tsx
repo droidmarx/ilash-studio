@@ -120,8 +120,8 @@ export default function AgendaPage() {
 
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(monthStart)
-  const startDate = startOfWeek(monthStart)
-  const endDate = endOfWeek(monthEnd)
+  const startDate = startOfWeek(monthStart, { weekStartsOn: 0 })
+  const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
   const calendarDays = eachDayOfInterval({
     start: startDate,
@@ -140,10 +140,13 @@ export default function AgendaPage() {
       .reduce((acc, curr) => acc + parseValue(curr.valor), 0);
 
     const weeklyGains = [];
-    let start = startOfMonth(currentMonth);
-    while (start <= endOfMonth(currentMonth)) {
+    // Começa na primeira semana que contém dias do mês atual
+    let start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 });
+    const endOfCurrentMonth = endOfMonth(currentMonth);
+
+    while (start <= endOfCurrentMonth) {
       const wStart = startOfWeek(start, { weekStartsOn: 0 });
-      const wEnd = endOfWeek(start, { weekStartsOn: 6 });
+      const wEnd = endOfWeek(start, { weekStartsOn: 0 });
       
       const weeklyTotal = clients
         .filter(c => {
@@ -225,7 +228,7 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      <div className="fixed top-8 right-8 z-[100]">
+      <div className="fixed top-8 right-8 z-[70]">
         <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
@@ -453,7 +456,7 @@ export default function AgendaPage() {
           <DialogHeader>
             <DialogTitle className="text-3xl md:text-4xl font-headline text-gold-gradient">Novo Agendamento</DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm md:text-base">
-              Personalize a experiência para sua cliente.
+              Personalize a experiênca para sua cliente.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 md:mt-6">
