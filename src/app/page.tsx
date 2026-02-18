@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAgenda } from "@/hooks/use-agenda"
 import { 
@@ -13,7 +13,9 @@ import {
   eachDayOfInterval, 
   isSameMonth,
   setHours,
-  setMinutes
+  setMinutes,
+  addDays,
+  isWithinInterval
 } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { CalendarDay } from "@/components/agenda/CalendarDay"
@@ -44,7 +46,9 @@ import {
   Crown, 
   LogOut,
   Menu as MenuIcon,
-  X as CloseIcon
+  X as CloseIcon,
+  DollarSign,
+  TrendingUp
 } from "lucide-react"
 import { Client } from "@/lib/api"
 import { Toaster } from "@/components/ui/toaster"
@@ -124,6 +128,42 @@ export default function AgendaPage() {
     end: endDate
   })
 
+  // Cálculos de Ganhos
+  const parseValue = (val?: string) => {
+    if (!val) return 0;
+    return parseFloat(val.replace(/[^\d,.-]/g, "").replace(".", "").replace(",", ".")) || 0;
+  };
+
+  const gainsData = useMemo(() => {
+    const monthlyTotal = clients
+      .filter(c => c.confirmado !== false && isSameMonth(new Date(c.data), currentMonth))
+      .reduce((acc, curr) => acc + parseValue(curr.valor), 0);
+
+    const weeklyGains = [];
+    let start = startOfMonth(currentMonth);
+    while (start <= endOfMonth(currentMonth)) {
+      const wStart = startOfWeek(start, { weekStartsOn: 0 });
+      const wEnd = endOfWeek(start, { weekStartsOn: 6 });
+      
+      const weeklyTotal = clients
+        .filter(c => {
+          if (c.confirmado === false) return false;
+          const d = new Date(c.data);
+          return isWithinInterval(d, { start: wStart, end: wEnd });
+        })
+        .reduce((acc, curr) => acc + parseValue(curr.valor), 0);
+      
+      weeklyGains.push({
+        label: `${format(wStart, 'dd/MM')} - ${format(wEnd, 'dd/MM')}`,
+        total: weeklyTotal
+      });
+      
+      start = addDays(wEnd, 1);
+    }
+
+    return { monthlyTotal, weeklyGains };
+  }, [clients, currentMonth]);
+
   const handleDayClick = (day: Date, events: Client[], birthdays: Client[]) => {
     setSelectedDay(day)
     setModalEvents(events)
@@ -185,7 +225,6 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 font-body bg-background/50 backdrop-blur-[2px] text-foreground animate-in fade-in duration-1000">
       
-      {/* Menu VIP Fixo no Topo Direito */}
       <div className="fixed top-8 right-8 z-[100]">
         <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
@@ -301,7 +340,7 @@ export default function AgendaPage() {
             <TabsContent value="agenda" className="animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card/60 backdrop-blur-2xl">
+                  <Card className="rounded-[2.5rem] border-border shadow-2xl bg-card/60 backdrop-blur-2xl overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between px-8 py-10">
                       <Button variant="ghost" size="icon" onClick={() => prevMonth()} className="hover:bg-primary/10 text-primary">
                         <ChevronLeft size={36} />
@@ -313,7 +352,7 @@ export default function AgendaPage() {
                         <ChevronRight size={36} />
                       </Button>
                     </CardHeader>
-                    <CardContent className="px-6 pb-10">
+                    <CardContent className="px-6 pb-6">
                       <div className="grid grid-cols-7 mb-6">
                         {weekdays.map(day => (
                           <div key={day} className="text-center font-bold text-primary/40 text-xs uppercase tracking-widest">
@@ -332,6 +371,34 @@ export default function AgendaPage() {
                             onClick={(d, evts, bdays) => handleDayClick(d, evts, bdays)}
                           />
                         ))}
+                      </div>
+
+                      {/* Resumo de Ganhos - Estilo VIP */}
+                      <div className="mt-12 pt-10 border-t border-primary/10 space-y-8">
+                        <div className="flex items-center justify-between px-2">
+                          <div className="space-y-1">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 flex items-center gap-2">
+                               <TrendingUp size={12} /> Faturamento Mensal Estimado
+                            </p>
+                            <p className="text-4xl md:text-5xl font-headline text-gold-gradient">
+                              R$ {gainsData.monthlyTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          <div className="w-16 h-16 rounded-full bg-gold-gradient/10 flex items-center justify-center border border-primary/20">
+                             <DollarSign className="text-primary" size={32} />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-2">
+                          {gainsData.weeklyGains.map((week, i) => (
+                            <div key={i} className="bg-muted/30 p-4 rounded-3xl border border-border/50 hover:border-primary/30 transition-colors group">
+                              <p className="text-[9px] font-bold text-primary/60 uppercase mb-2 group-hover:text-primary transition-colors">{week.label}</p>
+                              <p className="text-lg font-black text-foreground">
+                                R$ {week.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

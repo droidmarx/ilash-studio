@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { getClients, getTelegramToken } from '@/lib/api';
 import { 
@@ -11,7 +12,8 @@ import {
   startOfWeek, 
   endOfWeek, 
   isWithinInterval,
-  addMonths
+  addMonths,
+  startOfToday
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -38,6 +40,11 @@ export async function POST(request: Request) {
 
     let responseMessage = "";
 
+    const parseValue = (val?: string) => {
+      if (!val) return 0;
+      return parseFloat(val.replace(/[^\d,.-]/g, "").replace(".", "").replace(",", ".")) || 0;
+    };
+
     // LÓGICA 1: /command1 (Agenda de HOJE)
     if (text.startsWith('/command1') || text.startsWith('/start')) {
       const todayAppointments = clients.filter(client => {
@@ -53,11 +60,13 @@ export async function POST(request: Request) {
       });
 
       if (todayAppointments.length > 0) {
+        const total = todayAppointments.reduce((acc, curr) => acc + parseValue(curr.valor), 0);
         responseMessage = `✨ <b>Agenda VIP - Hoje (${format(nowBrasilia, 'dd/MM')})</b> ✨\n\n` +
           todayAppointments.map(app => {
             const time = format(app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date()), 'HH:mm');
-            return `⏰ <b>${time}</b> - ${app.nome}\n🎨 ${app.servico}`;
-          }).join('\n\n');
+            return `⏰ <b>${time}</b> - ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+          }).join('\n\n') +
+          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL HOJE: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
         responseMessage = `✨ <b>Olá!</b> ✨\n\nVocê ainda não tem agendamentos confirmados para hoje (${format(nowBrasilia, 'dd/MM')}).`;
       }
@@ -77,21 +86,23 @@ export async function POST(request: Request) {
       });
 
       if (monthAppointments.length > 0) {
+        const total = monthAppointments.reduce((acc, curr) => acc + parseValue(curr.valor), 0);
         const monthName = format(nowBrasilia, 'MMMM', { locale: ptBR });
         responseMessage = `✨ <b>Agenda VIP - ${monthName}</b> ✨\n\n` +
           monthAppointments.map(app => {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}`;
-          }).join('\n\n');
+            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+          }).join('\n\n') +
+          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL MÊS: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
         responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o mês de ${format(nowBrasilia, 'MMMM', { locale: ptBR })}.`;
       }
     }
     // LÓGICA 3: /command3 (Agenda da SEMANA VIGENTE)
     else if (text.startsWith('/command3')) {
-      const weekStart = startOfToday(); // Opcional: startOfWeek(nowBrasilia, { weekStartsOn: 0 })
+      const today = startOfToday();
       const weekEnd = endOfWeek(nowBrasilia, { weekStartsOn: 6 }); // Sábado
       
       const weekAppointments = clients.filter(client => {
@@ -107,13 +118,15 @@ export async function POST(request: Request) {
       });
 
       if (weekAppointments.length > 0) {
+        const total = weekAppointments.reduce((acc, curr) => acc + parseValue(curr.valor), 0);
         responseMessage = `✨ <b>Agenda VIP - Esta Semana</b> ✨\n\n` +
           weekAppointments.map(app => {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}`;
-          }).join('\n\n');
+            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+          }).join('\n\n') +
+          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL SEMANA: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
         responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o restante desta semana.`;
       }
@@ -134,14 +147,16 @@ export async function POST(request: Request) {
       });
 
       if (nextMonthAppointments.length > 0) {
+        const total = nextMonthAppointments.reduce((acc, curr) => acc + parseValue(curr.valor), 0);
         const monthName = format(nextMonth, 'MMMM', { locale: ptBR });
         responseMessage = `✨ <b>Agenda VIP - ${monthName} (Próx. Mês)</b> ✨\n\n` +
           nextMonthAppointments.map(app => {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}`;
-          }).join('\n\n');
+            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+          }).join('\n\n') +
+          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL PREVISTO: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
         responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o próximo mês (${format(nextMonth, 'MMMM', { locale: ptBR })}).`;
       }
@@ -164,10 +179,4 @@ export async function POST(request: Request) {
     console.error('[Telegram Webhook] Erro fatal:', error);
     return NextResponse.json({ ok: true });
   }
-}
-
-function startOfToday() {
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  return d;
 }
