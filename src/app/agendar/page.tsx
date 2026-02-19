@@ -28,7 +28,10 @@ import {
   Eraser,
   HeartPulse,
   MessageCircle,
-  AlertCircle
+  AlertCircle,
+  Zap,
+  RotateCw,
+  Trash2
 } from "lucide-react"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -76,7 +79,7 @@ export default function ClientBookingPage() {
   })
 
   useEffect(() => {
-    if (step === 4 && canvasRef.current) {
+    if (step === 5 && canvasRef.current) {
       const canvas = canvasRef.current
       const rect = canvas.getBoundingClientRect()
       canvas.width = rect.width
@@ -304,6 +307,64 @@ export default function ClientBookingPage() {
             )}
 
             {step === 2 && (
+              <div className="space-y-8 animate-in slide-in-from-right duration-500 max-w-md mx-auto">
+                <div className="space-y-4">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                    <Sparkles size={14} /> O que vamos fazer hoje?
+                  </Label>
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { id: 'Aplicação', label: 'Aplicação', price: 'R$ 150,00', icon: <Zap size={18} /> },
+                      { id: 'Manutenção', label: 'Manutenção', price: 'R$ 100,00', icon: <RotateCw size={18} /> },
+                      { id: 'Remoção', label: 'Remoção', price: 'R$ 50,00', icon: <Trash2 size={18} /> }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setFormData({...formData, tipo: item.id})}
+                        className={`p-5 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                          formData.tipo === item.id 
+                          ? "bg-primary/10 border-primary shadow-inner" 
+                          : "bg-muted/20 border-border hover:bg-muted/40"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-full ${formData.tipo === item.id ? "bg-primary text-primary-foreground" : "bg-muted text-primary/40"}`}>
+                            {item.icon}
+                          </div>
+                          <div>
+                            <p className="font-bold text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-tighter">A partir de {item.price}</p>
+                          </div>
+                        </div>
+                        {formData.tipo === item.id && <CheckCircle2 size={20} className="text-primary" />}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 flex items-start gap-3 mt-4">
+                    <AlertTriangle className="text-primary shrink-0" size={16} />
+                    <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">
+                      <strong>Informação Importante:</strong> Os valores informados acima são uma média para o procedimento. O valor final pode variar para mais ou para menos mediante a avaliação técnica da Lash no momento do atendimento.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button variant="ghost" onClick={handlePrev} className="h-14 rounded-3xl gap-2 flex-1">
+                    <ArrowLeft size={18} /> Voltar
+                  </Button>
+                  <Button 
+                    disabled={!formData.tipo || loading}
+                    onClick={handleNext}
+                    className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
+                  >
+                    Próximo <ArrowRight size={20} />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500 max-w-md mx-auto">
                 <div className="space-y-4">
                   <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
@@ -341,7 +402,7 @@ export default function ClientBookingPage() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500 max-w-md mx-auto">
                 <div className="space-y-4">
                   <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
@@ -410,7 +471,7 @@ export default function ClientBookingPage() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-10 animate-in slide-in-from-right duration-500">
                 <div className="text-center space-y-2">
                   <h3 className="text-2xl font-bold text-foreground">Ficha de Anamnese</h3>
