@@ -574,7 +574,7 @@ export default function ClientBookingPage() {
                     onClick={handleSubmit}
                     className="h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 flex-1 shadow-xl"
                   >
-                    {loading ? <Loader2 className="animate-spin" size={20} /> : "Finalizar Agendamento"}
+                    {loading ? <Loader2 className="animate-spin" size={20} /> : "Agendar"}
                   </Button>
                 </div>
               </div>
