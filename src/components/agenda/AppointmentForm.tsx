@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2, CheckCircle, Loader2, AlertCircle } from "lucide-react"
 import { format, parseISO, isValid } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -251,52 +252,98 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, load
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name="nome"
-          render={({ field }) => (
-            <FormItem className="relative">
-              <FormLabel className="text-primary/60 font-semibold flex items-center gap-2 px-1">
-                <User size={18} /> Nome da Cliente
-              </FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Input 
-                    placeholder="Ex: Maria Oliveira" 
-                    {...field} 
-                    className="rounded-2xl h-14 bg-muted/50 border-border text-foreground focus:border-primary text-lg" 
-                    autoComplete="off"
+        <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="nome"
+            render={({ field }) => (
+              <FormItem className="relative">
+                <FormLabel className="text-primary/60 font-semibold flex items-center gap-2 px-1">
+                  <User size={18} /> Nome da Cliente
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input 
+                      placeholder="Ex: Maria Oliveira" 
+                      {...field} 
+                      className="rounded-2xl h-14 bg-muted/50 border-border text-foreground focus:border-primary text-lg" 
+                      autoComplete="off"
+                      disabled={loading}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        setNameSearch(e.target.value)
+                      }}
+                    />
+                    <Search size={22} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary" />
+                  </div>
+                </FormControl>
+                {suggestions.length > 0 && (
+                  <div className="absolute z-50 w-full bg-card border border-primary/20 rounded-2xl mt-2 shadow-2xl overflow-hidden backdrop-blur-3xl">
+                    {suggestions.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="w-full text-left px-6 py-4 hover:bg-primary/10 transition-colors flex flex-col gap-1 border-b border-border last:border-none"
+                        onClick={() => handleSelectClient(s)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-foreground text-lg">{s.nome}</span>
+                          <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">CLIENTE SALVA</Badge>
+                        </div>
+                        {s.whatsapp && <span className="text-xs text-primary/60">{s.whatsapp}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirmado"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel className="text-primary/60 font-semibold flex items-center gap-2 px-1">
+                  <CheckCircle size={18} /> Status do Atendimento
+                </FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={(val) => field.onChange(val === "true")}
+                    defaultValue={field.value ? "true" : "false"}
+                    className="flex flex-col sm:flex-row gap-4"
                     disabled={loading}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      setNameSearch(e.target.value)
-                    }}
-                  />
-                  <Search size={22} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary" />
-                </div>
-              </FormControl>
-              {suggestions.length > 0 && (
-                <div className="absolute z-50 w-full bg-card border border-primary/20 rounded-2xl mt-2 shadow-2xl overflow-hidden backdrop-blur-3xl">
-                  {suggestions.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className="w-full text-left px-6 py-4 hover:bg-primary/10 transition-colors flex flex-col gap-1 border-b border-border last:border-none"
-                      onClick={() => handleSelectClient(s)}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-foreground text-lg">{s.nome}</span>
-                        <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">CLIENTE SALVA</Badge>
-                      </div>
-                      {s.whatsapp && <span className="text-xs text-primary/60">{s.whatsapp}</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  >
+                    <FormItem className={cn(
+                      "flex items-center space-x-3 space-y-0 p-4 rounded-2xl border transition-all cursor-pointer flex-1",
+                      field.value ? "bg-green-500/10 border-green-500/50 shadow-sm" : "bg-muted/30 border-border hover:bg-muted/50"
+                    )}>
+                      <FormControl>
+                        <RadioGroupItem value="true" className="border-green-500 text-green-500" />
+                      </FormControl>
+                      <FormLabel className={cn("font-bold cursor-pointer", field.value ? "text-green-500" : "text-muted-foreground")}>
+                        Confirmado
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className={cn(
+                      "flex items-center space-x-3 space-y-0 p-4 rounded-2xl border transition-all cursor-pointer flex-1",
+                      !field.value ? "bg-primary/10 border-primary/50 shadow-sm" : "bg-muted/30 border-border hover:bg-muted/50"
+                    )}>
+                      <FormControl>
+                        <RadioGroupItem value="false" className="border-primary text-primary" />
+                      </FormControl>
+                      <FormLabel className={cn("font-bold cursor-pointer", !field.value ? "text-primary" : "text-muted-foreground")}>
+                        Pendente
+                      </FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="space-y-4 p-4 rounded-2xl border border-primary/10 bg-primary/5">
           <FormLabel className="text-primary font-bold flex items-center gap-2 mb-2">
