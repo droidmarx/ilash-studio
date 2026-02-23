@@ -73,8 +73,8 @@ export function ReminderDialog({ client, isOpen, onClose }: ReminderDialogProps)
                 )}
               >
                 {isSuggested && (
-                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[8px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-widest flex items-center gap-1">
-                    Sugestão VIP <Star size={8} className="fill-current" />
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground p-2 rounded-bl-xl flex items-center justify-center">
+                    <Star size={12} className="fill-current" />
                   </div>
                 )}
                 
