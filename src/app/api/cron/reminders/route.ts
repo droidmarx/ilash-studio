@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { getClients, getTelegramToken, getRecipients, updateClient, getLastSummaryDate, updateLastSummaryDate } from '@/lib/api';
 import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format, parse, isValid, subHours, isSameDay } from 'date-fns';
@@ -5,19 +6,17 @@ import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format, p
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  // LOG DE ENTRADA: Se isso não aparecer no log da Vercel, o GitHub não está conseguindo chamar a URL.
   console.log('[Cron] Verificação de rotina iniciada.');
 
   const authHeader = request.headers.get('authorization');
   const expectedToken = `Bearer ${process.env.CRON_SECRET}`;
 
   if (!process.env.CRON_SECRET) {
-    console.error('[Cron] ERRO: Variável CRON_SECRET não encontrada na Vercel. Adicione-a nas Environment Variables.');
+    console.error('[Cron] ERRO: Variável CRON_SECRET não encontrada.');
     return NextResponse.json({ error: 'CRON_SECRET não configurado' }, { status: 500 });
   }
 
   if (authHeader !== expectedToken) {
-    console.warn('[Cron] AVISO: Tentativa de acesso com Token inválido ou Header ausente.');
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
@@ -30,30 +29,21 @@ export async function GET(request: Request) {
       !['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE'].includes(r.nome) && r.chatID
     );
 
-    // Ajuste de Fuso Horário (Vercel UTC -> Brasília UTC-3)
     const nowUTC = new Date();
     const nowBrasilia = subHours(nowUTC, 3);
     const todayStr = format(nowBrasilia, 'yyyy-MM-dd');
     const currentHour = nowBrasilia.getHours();
 
-    console.log(`[Cron] Relógio: UTC ${format(nowUTC, 'HH:mm')} | Brasília ${format(nowBrasilia, 'HH:mm')}`);
-    console.log(`[Cron] Admins encontrados: ${adminRecipients.length}`);
-
     if (!botToken || adminRecipients.length === 0) {
-      console.error('[Cron] Erro: Token do Telegram ou Admins não configurados no Studio.');
       return NextResponse.json({ message: 'Configurações incompletas' });
     }
-
-    const logs = [];
 
     // --- LÓGICA 1: RESUMO DIÁRIO DAS 8H ---
     if (currentHour === 8) {
       const lastSentDate = await getLastSummaryDate();
-      console.log(`[Cron] Checando Resumo das 8h. Hoje: ${todayStr} | Último enviado: ${lastSentDate}`);
       
       if (lastSentDate !== todayStr) {
         const todayAppointments = clients.filter(client => {
-          if (client.confirmado === false) return false;
           try {
             const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
             return isValid(appDate) && isSameDay(appDate, nowBrasilia);
@@ -69,11 +59,12 @@ export async function GET(request: Request) {
           summaryMessage = `✨ <b>Bom dia! Agenda de Hoje</b> ✨\n\n` +
             todayAppointments.map(app => {
               const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
-              return `⏰ <b>${format(appDate, 'HH:mm')}</b> - ${app.nome}\n🎨 ${app.servico}`;
+              const status = app.confirmado === false ? "⏳ (Pendente)" : "✅";
+              return `${status} ⏰ <b>${format(appDate, 'HH:mm')}</b> - ${app.nome}\n🎨 ${app.servico}`;
             }).join('\n\n') +
             `\n\n🚀 <i>Tenha um ótimo dia de trabalho!</i>`;
         } else {
-          summaryMessage = `✨ <b>Bom dia!</b> ✨\n\nVocê ainda não tem agendamentos confirmados para hoje.\n💖 <i>Que tal aproveitar para organizar o studio?</i>`;
+          summaryMessage = `✨ <b>Bom dia!</b> ✨\n\nVocê não tem agendamentos para hoje.\n💖 <i>Que tal aproveitar para organizar o studio?</i>`;
         }
 
         for (const admin of adminRecipients) {
@@ -85,8 +76,6 @@ export async function GET(request: Request) {
         }
         
         await updateLastSummaryDate(todayStr);
-        console.log('[Cron] Resumo das 8h enviado com sucesso.');
-        logs.push({ type: 'summary', status: 'sent' });
       }
     }
 
@@ -96,14 +85,13 @@ export async function GET(request: Request) {
     const windowEnd = addMinutes(targetTime, 10);
 
     const upcoming = clients.filter(c => {
+      // Lembretes apenas para confirmados
       if (c.confirmado === false || c.reminderSent === true) return false;
       try {
         const appDate = c.data.includes('T') ? parseISO(c.data) : parse(c.data, 'dd/MM/yyyy HH:mm', new Date());
         return isValid(appDate) && isWithinInterval(appDate, { start: windowStart, end: windowEnd });
       } catch { return false; }
     });
-
-    console.log(`[Cron] Agendamentos para a próxima janela de 2h: ${upcoming.length}`);
 
     for (const app of upcoming) {
       const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
@@ -121,15 +109,9 @@ export async function GET(request: Request) {
       if (sent) await updateClient(app.id, { reminderSent: true });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      brasiliaTime: format(nowBrasilia, 'HH:mm'),
-      summaryChecked: true,
-      remindersFound: upcoming.length
-    });
-
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Cron] ERRO FATAL:', error);
+    console.error('[Cron] ERRO:', error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }

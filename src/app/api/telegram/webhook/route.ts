@@ -12,8 +12,7 @@ import {
   startOfWeek, 
   endOfWeek, 
   isWithinInterval,
-  addMonths,
-  startOfToday
+  addMonths
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -22,8 +21,6 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('[Telegram Webhook] Recebido:', JSON.stringify(body));
-
     const botToken = await getTelegramToken();
 
     if (!botToken || !body.message || !body.message.text) {
@@ -34,8 +31,6 @@ export async function POST(request: Request) {
     const text = body.message.text.toLowerCase();
 
     const clients = await getClients();
-    
-    // Ajuste de Fuso Horário (Vercel UTC -> Brasília UTC-3)
     const nowBrasilia = subHours(new Date(), 3);
 
     let responseMessage = "";
@@ -45,10 +40,11 @@ export async function POST(request: Request) {
       return parseFloat(val.replace(/[^\d,.-]/g, "").replace(".", "").replace(",", ".")) || 0;
     };
 
-    // LÓGICA 1: /command1 (Agenda de HOJE)
+    const getStatusEmoji = (confirmed?: boolean) => confirmed === false ? "⏳" : "✅";
+
+    // LÓGICA 1: /command1 ou /start (Agenda de HOJE)
     if (text.startsWith('/command1') || text.startsWith('/start')) {
       const todayAppointments = clients.filter(client => {
-        if (client.confirmado === false) return false;
         try {
           const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
           return isValid(appDate) && isSameDay(appDate, nowBrasilia);
@@ -64,17 +60,17 @@ export async function POST(request: Request) {
         responseMessage = `✨ <b>Agenda VIP - Hoje (${format(nowBrasilia, 'dd/MM')})</b> ✨\n\n` +
           todayAppointments.map(app => {
             const time = format(app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date()), 'HH:mm');
-            return `⏰ <b>${time}</b> - ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusEmoji(app.confirmado);
+            return `${status} <b>${time}</b> - ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
-          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL HOJE: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
+          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL HOJE: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>\n\n<i>⏳ = Pendente de confirmação</i>`;
       } else {
-        responseMessage = `✨ <b>Olá!</b> ✨\n\nVocê ainda não tem agendamentos confirmados para hoje (${format(nowBrasilia, 'dd/MM')}).`;
+        responseMessage = `✨ <b>Olá!</b> ✨\n\nVocê não tem agendamentos para hoje (${format(nowBrasilia, 'dd/MM')}).`;
       }
     } 
     // LÓGICA 2: /command2 (Agenda do MÊS ATUAL)
     else if (text.startsWith('/command2')) {
       const monthAppointments = clients.filter(client => {
-        if (client.confirmado === false) return false;
         try {
           const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
           return isValid(appDate) && isSameMonth(appDate, nowBrasilia);
@@ -93,20 +89,20 @@ export async function POST(request: Request) {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusEmoji(app.confirmado);
+            return `${status} <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL MÊS: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
-        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o mês de ${format(nowBrasilia, 'MMMM', { locale: ptBR })}.`;
+        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos para o mês de ${format(nowBrasilia, 'MMMM', { locale: ptBR })}.`;
       }
     }
-    // LÓGICA 3: /command3 (Agenda da SEMANA VIGENTE - Domingo a Sábado)
+    // LÓGICA 3: /command3 (Agenda da SEMANA - Domingo a Sábado)
     else if (text.startsWith('/command3')) {
-      const weekStart = startOfWeek(nowBrasilia, { weekStartsOn: 0 }); // Domingo
-      const weekEnd = endOfWeek(nowBrasilia, { weekStartsOn: 0 }); // Sábado
+      const weekStart = startOfWeek(nowBrasilia, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(nowBrasilia, { weekStartsOn: 0 });
       
       const weekAppointments = clients.filter(client => {
-        if (client.confirmado === false) return false;
         try {
           const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
           return isValid(appDate) && isWithinInterval(appDate, { start: weekStart, end: weekEnd });
@@ -124,18 +120,18 @@ export async function POST(request: Request) {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusEmoji(app.confirmado);
+            return `${status} <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL SEMANA: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
-        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para esta semana (domingo a sábado).`;
+        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos para esta semana (domingo a sábado).`;
       }
     }
     // LÓGICA 4: /command4 (Agenda do PRÓXIMO MÊS)
     else if (text.startsWith('/command4')) {
       const nextMonth = addMonths(nowBrasilia, 1);
       const nextMonthAppointments = clients.filter(client => {
-        if (client.confirmado === false) return false;
         try {
           const appDate = client.data.includes('T') ? parseISO(client.data) : parse(client.data, 'dd/MM/yyyy HH:mm', new Date());
           return isValid(appDate) && isSameMonth(appDate, nextMonth);
@@ -154,11 +150,12 @@ export async function POST(request: Request) {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            return `📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusEmoji(app.confirmado);
+            return `${status} <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL PREVISTO: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
-        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos confirmados para o próximo mês (${format(nextMonth, 'MMMM', { locale: ptBR })}).`;
+        responseMessage = `✨ <b>Olá!</b> ✨\n\nNão há agendamentos para o próximo mês (${format(nextMonth, 'MMMM', { locale: ptBR })}).`;
       }
     }
 
