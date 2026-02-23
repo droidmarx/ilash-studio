@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
@@ -24,8 +25,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2, CheckCircle, Loader2 } from "lucide-react"
+import { CalendarIcon, Clock, User, Phone, ClipboardList, DollarSign, Cake, Search, Sparkles, Zap, RotateCw, Trash2, CheckCircle, Loader2, AlertCircle } from "lucide-react"
 import { format, parseISO, isValid } from "date-fns"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -120,6 +122,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, load
   const watchedAdicionais = form.watch("servicosAdicionais");
   const isUnifiedValue = form.watch("isUnifiedValue");
   const unifiedValue = form.watch("unifiedValue");
+  const confirmedStatus = form.watch("confirmado");
 
   const parseCurrency = (val?: string) => {
     if (!val) return 0;
@@ -219,6 +222,35 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, load
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 px-4 md:px-6">
+        {/* Status Indicator at the Top */}
+        {initialData && (
+          <div className={cn(
+            "p-4 rounded-2xl border flex items-center justify-between transition-all",
+            !confirmedStatus ? "bg-primary/10 border-primary/30" : "bg-green-500/10 border-green-500/30"
+          )}>
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "w-2.5 h-2.5 rounded-full",
+                !confirmedStatus ? "bg-primary animate-pulse" : "bg-green-500"
+              )} />
+              <div>
+                <p className={cn("text-xs font-black uppercase tracking-widest", !confirmedStatus ? "text-primary" : "text-green-500")}>
+                  {confirmedStatus ? "Agendamento Confirmado" : "Agendamento Pendente"}
+                </p>
+                <p className="text-[10px] text-muted-foreground uppercase">
+                  {confirmedStatus ? "A cliente já foi notificada" : "Aguardando sua confirmação final"}
+                </p>
+              </div>
+            </div>
+            {!confirmedStatus && (
+              <AlertCircle size={18} className="text-primary opacity-40" />
+            )}
+            {confirmedStatus && (
+              <CheckCircle size={18} className="text-green-500 opacity-40" />
+            )}
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="nome"
@@ -265,13 +297,6 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, load
             </FormItem>
           )}
         />
-
-        {initialData?.confirmado === false && (
-          <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
-             <div className="w-2.5 h-2.5 rounded-full bg-primary animate-instagram-pulse shrink-0" />
-             <p className="text-xs font-bold text-primary uppercase">Agendamento Pendente de Confirmação</p>
-          </div>
-        )}
 
         <div className="space-y-4 p-4 rounded-2xl border border-primary/10 bg-primary/5">
           <FormLabel className="text-primary font-bold flex items-center gap-2 mb-2">

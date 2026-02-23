@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, CheckCircle, Loader2 } from "lucide-react"
+import { Calendar, User, Clock, MessageSquare, Info, Trash2, Edit2, Send, Cake, RotateCw, PartyPopper, PlusCircle, Sparkles, ClipboardList, DollarSign, CheckCircle, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentForm } from "./AppointmentForm"
 import { AnamneseModal } from "./AnamneseModal"
@@ -58,10 +58,8 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
   }
 
   const handleConfirmBooking = async (event: Client) => {
-    // 1. Atualiza no banco de dados
     await onEdit(event.id, { confirmado: true });
     
-    // 2. Abre WhatsApp com mensagem de confirmação detalhada
     if (event.whatsapp) {
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
       const message = generateWhatsAppMessage(event, event.tipo, origin);
@@ -84,7 +82,8 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
     
     setEditingEvent({
       ...event,
-      data: newDate.toISOString().slice(0, 16)
+      data: newDate.toISOString().slice(0, 16),
+      confirmado: false // Reset status to unconfirmed on quick reschedule
     });
   }
 
@@ -143,7 +142,7 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
                 </DialogTitle>
                 <DialogDescription className="text-xs md:text-sm text-muted-foreground">
                   {editingEvent 
-                    ? "Confirme o procedimento e adicionais para a nova data." 
+                    ? "Confirme o procedimento e adicionais para a nova data. O status será alterado para Pendente." 
                     : "Compromissos e aniversariantes."}
                 </DialogDescription>
               </div>
@@ -221,7 +220,7 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
                           className={cn(
                             "group p-4 rounded-2xl border bg-card/40 backdrop-blur-md hover:bg-foreground/5 transition-all shadow-sm relative",
                             bdayMonth && "border-primary/40 bg-primary/5",
-                            isPending && "border-primary border-dashed animate-pulse-subtle bg-primary/5"
+                            isPending && "border-primary border-dashed bg-primary/5"
                           )}
                         >
                           <div className="flex justify-between items-start mb-2">
@@ -239,16 +238,17 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
                                   {format(eventDate, 'HH:mm')}
                                 </span>
                               </div>
-                              {isPending && (
-                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase animate-instagram-pulse px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 w-fit mt-1">
-                                  <Sparkles size={10} /> Novo (Link Instagram)
-                                </div>
-                              )}
-                              {bdayMonth && !isPending && (
-                                <div className="flex items-center gap-1 text-primary font-bold text-[10px] uppercase mt-1">
-                                  <Cake size={12} /> Mês de Aniversário! ✨
-                                </div>
-                              )}
+                              <div className="flex items-center gap-2 mt-2">
+                                {isPending ? (
+                                  <Badge variant="outline" className="text-[10px] font-black uppercase text-primary border-primary animate-pulse flex items-center gap-1 h-6">
+                                    <AlertCircle size={10} /> Pendente
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-[10px] font-black uppercase text-green-500 border-green-500 flex items-center gap-1 h-6">
+                                    <CheckCircle size={10} /> Confirmado
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                             <Badge 
                               variant="outline" 
@@ -295,18 +295,11 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
                             </div>
                           )}
 
-                          {event.observacoes && (
-                            <div className="mt-3 text-[11px] flex items-start gap-2 bg-muted/30 p-2 rounded-lg text-muted-foreground">
-                              <Info size={12} className="mt-0.5" />
-                              <span>{event.observacoes}</span>
-                            </div>
-                          )}
-
                           <div className="mt-4 border-t border-border pt-4 space-y-4">
                             <div className="flex items-center justify-between">
                               <div className="flex flex-col gap-2">
                                 <span className="text-[10px] font-bold text-primary/40 uppercase flex items-center gap-1">
-                                  <RotateCw size={12} /> Remarcar para:
+                                  <RotateCw size={12} /> Reagendar para:
                                 </span>
                                 <div className="flex flex-wrap gap-2">
                                   <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2 rounded-full border border-border hover:bg-primary/10" disabled={loading} onClick={() => handleQuickReschedule(event, 15)}>+15d</Button>
@@ -318,12 +311,12 @@ export function EventModal({ day, events, birthdays, isOpen, loading, onClose, o
                               {isPending && (
                                 <Button 
                                   size="sm" 
-                                  className="rounded-full bg-gold-gradient text-primary-foreground font-bold gap-2 px-4 shadow-lg animate-bounce-subtle"
+                                  className="rounded-full bg-gold-gradient text-primary-foreground font-bold gap-2 px-4 shadow-lg animate-instagram-pulse"
                                   onClick={() => handleConfirmBooking(event)}
                                   disabled={loading}
                                 >
                                   {loading ? <Loader2 className="animate-spin" size={14} /> : <CheckCircle size={14} />}
-                                  {loading ? "Processando..." : "Confirmar"}
+                                  {loading ? "Gravando..." : "Confirmar"}
                                 </Button>
                               )}
                             </div>
