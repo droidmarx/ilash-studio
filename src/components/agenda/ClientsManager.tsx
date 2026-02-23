@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -13,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList, Loader2 } from "lucide-react"
+import { Search, Edit2, Trash2, User, Send, Cake, ClipboardList, Loader2, CheckCircle2, Sparkles } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
   AlertDialog, 
@@ -30,7 +31,7 @@ import { AnamneseModal } from "./AnamneseModal"
 import { ReminderDialog } from "./ReminderDialog"
 import { format, parseISO, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { cn, parseBirthday } from "@/lib/utils"
+import { cn, parseBirthday, generateWhatsAppMessage } from "@/lib/utils"
 
 interface ClientsManagerProps {
   clients: Client[]
@@ -71,6 +72,18 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
     }
   }
 
+  const handleConfirmBooking = async (client: Client) => {
+    await onEdit(client.id, { confirmado: true });
+    
+    if (client.whatsapp) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const message = generateWhatsAppMessage(client, client.tipo, origin);
+      const cleanPhone = client.whatsapp.replace(/\D/g, "");
+      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+    }
+  }
+
   const handleSaveAnamnese = async (id: string, anamnese: Anamnese) => {
     await onEdit(id, { 
       anamnese,
@@ -102,6 +115,7 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
             <Table>
               <TableHeader className="bg-foreground/5">
                 <TableRow className="border-border">
+                  <TableHead className="text-primary/60 font-bold">Status</TableHead>
                   <TableHead className="text-primary/60 font-bold">Nome</TableHead>
                   <TableHead className="text-primary/60 font-bold">Serviço</TableHead>
                   <TableHead className="text-primary/60 font-bold hidden md:table-cell">Aniversário</TableHead>
@@ -113,10 +127,24 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
                 {filteredClients.length > 0 ? (
                   filteredClients.map((client) => {
                     const isAnamneseFilled = !!client.anamnese?.assinatura;
+                    const isPending = client.confirmado === false;
                     const bday = parseBirthday(client.aniversario);
                     
                     return (
-                      <TableRow key={client.id} className="border-border hover:bg-foreground/5">
+                      <TableRow key={client.id} className={cn("border-border hover:bg-foreground/5 transition-colors", isPending && "bg-primary/5")}>
+                        <TableCell>
+                          {isPending ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-2.5 h-2.5 rounded-full bg-primary animate-instagram-pulse shadow-[0_0_8px_rgba(var(--primary),0.6)]" />
+                              <span className="text-[10px] font-black text-primary uppercase tracking-tighter">Pendente</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 size={14} className="text-green-500" />
+                              <span className="text-[10px] font-black text-green-500 uppercase tracking-tighter">OK</span>
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell className="font-bold text-foreground">{client.nome}</TableCell>
                         <TableCell>
                           <div className="flex flex-col">
@@ -133,6 +161,18 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
                         <TableCell className="text-[10px] leading-tight text-foreground/40">{safeFormatDate(client.data)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1 md:gap-2">
+                            {isPending && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleConfirmBooking(client)}
+                                disabled={loading}
+                                className="h-8 rounded-full border-primary/40 text-primary hover:bg-primary/10 px-3 flex items-center gap-2 animate-in zoom-in duration-300"
+                              >
+                                <CheckCircle2 size={14} />
+                                <span className="hidden sm:inline">Confirmar</span>
+                              </Button>
+                            )}
                             <Button 
                               variant="ghost" 
                               size="icon" 
@@ -185,7 +225,7 @@ export function ClientsManager({ clients, loading, onEdit, onDelete }: ClientsMa
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-primary/20 italic">
+                    <TableCell colSpan={6} className="text-center py-10 text-primary/20 italic">
                       Nenhum cliente encontrado.
                     </TableCell>
                   </TableRow>
