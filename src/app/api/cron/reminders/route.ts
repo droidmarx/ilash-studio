@@ -59,8 +59,8 @@ export async function GET(request: Request) {
           summaryMessage = `✨ <b>Bom dia! Agenda de Hoje</b> ✨\n\n` +
             todayAppointments.map(app => {
               const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
-              const status = app.confirmado === false ? "⏳ (Pendente)" : "✅";
-              return `${status} ⏰ <b>${format(appDate, 'HH:mm')}</b> - ${app.nome}\n🎨 ${app.servico}`;
+              const status = app.confirmado === false ? "⏳ <b>(Pendente)</b>" : "✅ <b>(Confirmado)</b>";
+              return `${status}\n⏰ <b>${format(appDate, 'HH:mm')}</b> - ${app.nome}\n🎨 ${app.servico}`;
             }).join('\n\n') +
             `\n\n🚀 <i>Tenha um ótimo dia de trabalho!</i>`;
         } else {

@@ -40,7 +40,8 @@ export async function POST(request: Request) {
       return parseFloat(val.replace(/[^\d,.-]/g, "").replace(".", "").replace(",", ".")) || 0;
     };
 
-    const getStatusEmoji = (confirmed?: boolean) => confirmed === false ? "⏳" : "✅";
+    const getStatusLabel = (confirmed?: boolean) => 
+      confirmed === false ? "⏳ <b>(Pendente)</b>" : "✅ <b>(Confirmado)</b>";
 
     // LÓGICA 1: /command1 ou /start (Agenda de HOJE)
     if (text.startsWith('/command1') || text.startsWith('/start')) {
@@ -60,10 +61,10 @@ export async function POST(request: Request) {
         responseMessage = `✨ <b>Agenda VIP - Hoje (${format(nowBrasilia, 'dd/MM')})</b> ✨\n\n` +
           todayAppointments.map(app => {
             const time = format(app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date()), 'HH:mm');
-            const status = getStatusEmoji(app.confirmado);
-            return `${status} <b>${time}</b> - ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusLabel(app.confirmado);
+            return `${status}\n⏰ <b>${time}</b> - ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
-          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL HOJE: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>\n\n<i>⏳ = Pendente de confirmação</i>`;
+          `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL HOJE: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>\n\n🚀 <i>Gerenciado via I Lash Studio</i>`;
       } else {
         responseMessage = `✨ <b>Olá!</b> ✨\n\nVocê não tem agendamentos para hoje (${format(nowBrasilia, 'dd/MM')}).`;
       }
@@ -89,8 +90,8 @@ export async function POST(request: Request) {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            const status = getStatusEmoji(app.confirmado);
-            return `${status} <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusLabel(app.confirmado);
+            return `${status}\n📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL MÊS: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
@@ -120,8 +121,8 @@ export async function POST(request: Request) {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            const status = getStatusEmoji(app.confirmado);
-            return `${status} <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusLabel(app.confirmado);
+            return `${status}\n📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL SEMANA: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
@@ -150,8 +151,8 @@ export async function POST(request: Request) {
             const date = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
             const dateStr = format(date, 'dd/MM (EEE)', { locale: ptBR });
             const time = format(date, 'HH:mm');
-            const status = getStatusEmoji(app.confirmado);
-            return `${status} <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
+            const status = getStatusLabel(app.confirmado);
+            return `${status}\n📅 <b>${dateStr} às ${time}</b>\n👤 ${app.nome}\n🎨 ${app.servico}\n💰 R$ ${app.valor || '0,00'}`;
           }).join('\n\n') +
           `\n\n━━━━━━━━━━━━━━━\n💰 <b>TOTAL PREVISTO: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>`;
       } else {
