@@ -40,9 +40,11 @@ export async function notifyAppointmentChange(
   }
 
   const statusEmoji = changeType === 'Novo' ? '✨' : '🔄';
+  const confirmedLabel = bookingData.confirmado === false ? "⏳ <b>Pendente</b>" : "✅ <b>Confirmado</b>";
 
   const message = `${statusEmoji} <b>Agendamento ${changeType}!</b> ${statusEmoji}\n\n` +
     `👤 <b>Cliente:</b> ${bookingData.nome}\n` +
+    `📌 <b>Status:</b> ${confirmedLabel}\n` +
     `📱 <b>WhatsApp:</b> ${bookingData.whatsapp || 'Não informado'}\n` +
     `🎨 <b>Serviço:</b> ${bookingData.servico || 'Não informado'}\n` +
     `🛠️ <b>Tipo:</b> ${bookingData.tipo || 'Não informado'}\n` +
