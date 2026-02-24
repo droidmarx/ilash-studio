@@ -19,13 +19,16 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
   const hasEvents = events.length > 0
   const hasBirthdays = birthdays.length > 0
   
+  // Filtra agendamentos vindos do Instagram que ainda estão pendentes
   const pendingInstagramEvents = events.filter(e => 
     e.confirmado === false && e.observacoes?.toLowerCase().includes("instagram")
   )
 
-  const confirmedEvents = events.filter(e => 
-    e.confirmado !== false
-  )
+  // Ordena os eventos para mostrar os confirmados primeiro nos pontinhos
+  const sortedEvents = [...events].sort((a, b) => {
+    if (a.confirmado === b.confirmado) return 0;
+    return a.confirmado ? -1 : 1;
+  });
 
   return (
     <div
@@ -70,11 +73,20 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
               />
             )}
             
-            {confirmedEvents.slice(0, 3).map((e, idx) => {
-              let dotClass = "bg-muted border-border/50";
-              if (e.tipo === 'Aplicação') dotClass = "bg-primary border-4 border-white shadow-[0_0_12px_rgba(255,255,255,0.9)] scale-125 z-10";
-              if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-4 border-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]";
-              if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-4 border-primary/20";
+            {sortedEvents.slice(0, 3).map((e, idx) => {
+              const isPending = e.confirmado === false;
+              let dotClass = "";
+
+              if (isPending) {
+                // Estilo para agendamentos pendentes: tracejado e vazado
+                dotClass = "bg-transparent border-2 border-primary/40 border-dashed shadow-none";
+              } else {
+                // Estilos para agendamentos confirmados (originais)
+                if (e.tipo === 'Aplicação') dotClass = "bg-primary border-4 border-white shadow-[0_0_12px_rgba(255,255,255,0.9)] scale-125 z-10";
+                else if (e.tipo === 'Manutenção') dotClass = "bg-primary/70 border-4 border-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]";
+                else if (e.tipo === 'Remoção') dotClass = "bg-primary/25 border-4 border-primary/20";
+                else dotClass = "bg-muted border-border/50";
+              }
               
               return (
                 <div 
@@ -83,14 +95,14 @@ export function CalendarDay({ day, events, birthdays, isCurrentMonth, onClick }:
                     "w-4 h-4 rounded-full border shadow-lg transition-transform group-hover:scale-110",
                     dotClass
                   )}
-                  title={e.tipo}
+                  title={`${e.tipo} ${isPending ? '(Pendente)' : '(Confirmado)'}`}
                 />
               )
             })}
             
-            {(confirmedEvents.length > 3) && (
+            {(events.length > 3) && (
               <span className="text-[10px] font-black text-primary ml-1.5 leading-none">
-                +{confirmedEvents.length - 3}
+                +{events.length - 3}
               </span>
             )}
           </div>
