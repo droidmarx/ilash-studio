@@ -116,13 +116,21 @@ export default function LoginPage() {
               </p>
             )}
 
-            <Button 
-              type="submit" 
-              disabled={loading || !username || !password}
-              className="w-full h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 shadow-xl hover:scale-[1.02] transition-transform active:scale-95"
-            >
-              {loading ? <Loader2 className="animate-spin" /> : "Entrar na Agenda"}
-            </Button>
+            <div className="space-y-4">
+              <div className="bg-primary/5 border border-primary/20 p-3 rounded-2xl flex items-center justify-center text-center">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-primary/70">
+                  ⚠️ Por favor, acesse pelo Google Chrome para melhor compatibilidade.
+                </p>
+              </div>
+
+              <Button 
+                type="submit" 
+                disabled={loading || !username || !password}
+                className="w-full h-14 rounded-3xl bg-gold-gradient text-primary-foreground font-black text-lg gap-2 shadow-xl hover:scale-[1.02] transition-transform active:scale-95"
+              >
+                {loading ? <Loader2 className="animate-spin" /> : "Entrar na Agenda"}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
