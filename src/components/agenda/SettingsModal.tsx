@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle, XCircle, Sparkles } from "lucide-react"
+import { Settings, Globe, Send, MessageSquare, Info, User, Trash2, PlusCircle, Loader2, Key, Bot, CheckCircle, XCircle, Sparkles, Clock, Palmtree, RefreshCw, Calendar, Bell, ShieldCheck, RotateCw, Link2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,19 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
-import { Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, updateTelegramToken, setTelegramWebhook, updateMainApiUrl, DEFAULT_API_URL, getWebhookStatus, updateWebhookStatus } from "@/lib/api"
+import { 
+  Recipient, getRecipients, createRecipient, updateRecipient, deleteRecipient, 
+  updateTelegramToken, setTelegramWebhook, updateMainApiUrl, DEFAULT_API_URL, 
+  getWebhookStatus, updateWebhookStatus,
+  getWorkingHours, updateWorkingHours, WorkingHours, defaultWorkingHours,
+  getVacationMode, updateVacationMode, VacationMode, defaultVacationMode,
+  getTelegramConfig, updateTelegramConfig, TelegramSettings, defaultTelegramSettings,
+  getTechniques, updateTechniques, defaultTechniques
+} from "@/lib/api"
 import { ThemeToggle } from "./ThemeToggle"
 
 interface SettingsModalProps {
@@ -40,6 +50,12 @@ export function SettingsModal({
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [webhookLoading, setWebhookLoading] = useState(false)
+  const [workingHours, setWorkingHours] = useState<WorkingHours>(defaultWorkingHours)
+  const [vacationMode, setVacationMode] = useState<VacationMode>(defaultVacationMode)
+  const [telegramConfig, setTelegramConfig] = useState<TelegramSettings>(defaultTelegramSettings)
+  const [techniques, setTechniques] = useState<string[]>(defaultTechniques)
+  const [newTechnique, setNewTechnique] = useState("")
+  const [testingToken, setTestingToken] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -54,10 +70,7 @@ export function SettingsModal({
     try {
       const data = await getRecipients()
       const persons = data.filter(r => 
-        r.nome !== 'SYSTEM_TOKEN' && 
-        r.nome !== 'SUMMARY_STATE' && 
-        r.nome !== 'MAIN_API_URL' &&
-        r.nome !== 'WEBHOOK_STATE'
+        !['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE', 'WORKING_HOURS', 'VACATION_MODE', 'TELEGRAM_CONFIG', 'TECHNIQUES'].includes(r.nome)
       )
       setRecipients(persons.slice(0, 3))
       
@@ -66,6 +79,19 @@ export function SettingsModal({
 
       const status = await getWebhookStatus()
       setIsWebhookActive(status)
+
+      const wh = await getWorkingHours()
+      setWorkingHours(wh)
+      
+      const vm = await getVacationMode()
+      setVacationMode(vm)
+      
+      const tc = await getTelegramConfig()
+      setTelegramConfig(tc)
+
+      const tks = await getTechniques()
+      setTechniques(tks)
+      
     } catch (error) {
       console.error("Erro ao carregar destinatários", error)
     } finally {
@@ -119,6 +145,30 @@ export function SettingsModal({
     }
   }
 
+  const handleTestToken = async () => {
+    if (!botToken) {
+      toast({ variant: "destructive", title: "Erro", description: "Informe o Token do Bot primeiro." })
+      return
+    }
+    setTestingToken(true)
+    try {
+      const res = await fetch('/api/telegram/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: botToken }),
+      })
+      if (res.ok) {
+        toast({ title: "Sucesso", description: "Mensagem de teste enviada para os administradores." })
+      } else {
+        throw new Error()
+      }
+    } catch {
+      toast({ variant: "destructive", title: "Erro no Teste", description: "Verifique seu Token e sua lista de destinatários." })
+    } finally {
+      setTestingToken(false)
+    }
+  }
+
   const handleSave = async () => {
     setSaving(true)
     const normalizedUrl = apiUrl.trim()
@@ -126,6 +176,10 @@ export function SettingsModal({
     
     try {
       await updateMainApiUrl(normalizedUrl);
+      await updateWorkingHours(workingHours);
+      await updateVacationMode(vacationMode);
+      await updateTelegramConfig(telegramConfig);
+      await updateTechniques(techniques);
       
       if (botToken) {
         await updateTelegramToken(botToken.trim());
@@ -134,7 +188,11 @@ export function SettingsModal({
       const remoteRecipients = await getRecipients()
       
       for (const remote of remoteRecipients) {
-        const isSystemKey = ['SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE'].includes(remote.nome);
+        const isSystemKey = [
+          'SYSTEM_TOKEN', 'SUMMARY_STATE', 'MAIN_API_URL', 'WEBHOOK_STATE', 
+          'WORKING_HOURS', 'VACATION_MODE', 'TELEGRAM_CONFIG', 'TECHNIQUES'
+        ].includes(remote.nome);
+        
         if (!isSystemKey && !recipients.find(r => r.id === remote.id)) {
           await deleteRecipient(remote.id)
         }
@@ -188,6 +246,61 @@ export function SettingsModal({
 
           <Separator className="bg-primary/10" />
 
+          {/* Configuração de Técnicas */}
+          <div className="space-y-6">
+            <Label className="text-lg font-bold flex items-center gap-2 text-primary">
+              <Sparkles size={20} />
+              Modelos de Técnicas Oferecidas
+            </Label>
+            
+            <div className="bg-muted/30 p-4 rounded-2xl border border-border space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {techniques.map((tech, index) => (
+                  <div key={index} className="flex items-center gap-2 bg-background border border-border shadow-sm rounded-full px-3 py-1.5 text-sm font-semibold animate-in zoom-in duration-300">
+                    <span>{tech}</span>
+                    <button 
+                      onClick={() => setTechniques(techniques.filter((_, i) => i !== index))}
+                      className="text-muted-foreground hover:text-destructive transition-colors ml-1"
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 h-12 mt-2">
+                <Input 
+                  placeholder="Nova técnica (Ex: Híbrido, Russo Volume...)" 
+                  value={newTechnique}
+                  onChange={(e) => setNewTechnique(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newTechnique.trim()) {
+                      e.preventDefault();
+                      if (!techniques.includes(newTechnique.trim())) {
+                        setTechniques([...techniques, newTechnique.trim()]);
+                      }
+                      setNewTechnique("");
+                    }
+                  }}
+                  className="h-full rounded-xl bg-background border-border text-sm flex-1 focus:ring-primary/20"
+                />
+                <Button 
+                  onClick={() => {
+                    if (newTechnique.trim() && !techniques.includes(newTechnique.trim())) {
+                      setTechniques([...techniques, newTechnique.trim()]);
+                      setNewTechnique("");
+                    }
+                  }}
+                  disabled={!newTechnique.trim()}
+                  className="h-full rounded-xl px-4 gap-2 bg-primary text-primary-foreground font-bold"
+                >
+                  <PlusCircle size={16} /> Adicionar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="bg-primary/10" />
+
           <div className="space-y-4">
             <Label htmlFor="api-url" className="text-lg font-bold flex items-center gap-2 text-primary">
               <Globe size={20} />
@@ -204,6 +317,88 @@ export function SettingsModal({
           </div>
 
           <Separator className="bg-primary/10" />
+
+          {/* Agenda & Férias */}
+          <div className="space-y-6">
+            <Label className="text-lg font-bold flex items-center gap-2 text-primary">
+              <Calendar size={20} />
+              Configuração de Agenda e Férias
+            </Label>
+            
+            {/* Vacation Mode */}
+            <div className="bg-muted/30 p-4 rounded-2xl border border-border space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold flex items-center gap-2">
+                    <Palmtree size={16} className="text-primary" /> Modo Férias
+                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Bloqueia novos agendamentos</p>
+                </div>
+                <Switch 
+                  checked={vacationMode.active} 
+                  onCheckedChange={(c) => setVacationMode({...vacationMode, active: c})} 
+                />
+              </div>
+              {vacationMode.active && (
+                <div className="space-y-2 pt-2 animate-in fade-in zoom-in">
+                  <Label className="text-xs">Mensagem para os clientes</Label>
+                  <Textarea 
+                    value={vacationMode.message}
+                    onChange={(e) => setVacationMode({...vacationMode, message: e.target.value})}
+                    placeholder="Ex: Estamos de férias! Retornamos em..."
+                    className="resize-none h-20 rounded-xl bg-background border-border"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Working Hours */}
+            <div className="bg-muted/30 p-4 rounded-2xl border border-border space-y-4">
+              <div className="space-y-0.5 mb-4">
+                <p className="text-sm font-bold flex items-center gap-2">
+                  <Clock size={16} className="text-primary" /> Horário de Trabalho
+                </p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Dias e horários que você atende</p>
+              </div>
+              <div className="space-y-3">
+                {Object.entries({
+                  seg: 'Segunda', ter: 'Terça', qua: 'Quarta', qui: 'Quinta', sex: 'Sexta', sab: 'Sábado', dom: 'Domingo'
+                }).map(([key, label]) => {
+                  const k = key as keyof WorkingHours;
+                  const dayData = workingHours[k];
+                  const updateDay = (field: keyof WorkingDay, val: any) => {
+                    setWorkingHours({
+                      ...workingHours,
+                      [k]: { ...dayData, [field]: val }
+                    })
+                  }
+                  return (
+                    <div key={key} className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+                      <div className="flex items-center gap-2 w-full sm:w-28">
+                        <Switch checked={dayData.active} onCheckedChange={(c) => updateDay('active', c)} />
+                        <span className="text-xs font-semibold">{label}</span>
+                      </div>
+                      <Input 
+                        type="time" 
+                        value={dayData.start}
+                        onChange={(e) => updateDay('start', e.target.value)}
+                        disabled={!dayData.active}
+                        className="h-8 text-xs rounded-lg bg-background w-24" 
+                      />
+                      <span className="text-muted-foreground text-xs">até</span>
+                      <Input 
+                        type="time" 
+                        value={dayData.end}
+                        onChange={(e) => updateDay('end', e.target.value)}
+                        disabled={!dayData.active}
+                        className="h-8 text-xs rounded-lg bg-background w-24" 
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -235,9 +430,43 @@ export function SettingsModal({
               onChange={(e) => setBotToken(e.target.value)}
               className="rounded-xl h-12 bg-muted/50 border-border focus:border-primary font-mono text-xs"
             />
-            <p className="text-[10px] text-muted-foreground">
-              O bot responde aos comandos <b>/command1</b> (Hoje), <b>/command2</b> (Mês), <b>/command3</b> (Semana) e <b>/command4</b> (Próx. Mês).
-            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 gap-2">
+              <p className="text-[10px] text-muted-foreground leading-tight max-w-[70%]">
+                O bot responde aos comandos <b>/command1</b> (Hoje), <b>/command2</b> (Mês), <b>/command3</b> (Semana) e <b>/command4</b> (Próx. Mês).
+              </p>
+              <Button size="sm" variant="outline" onClick={handleTestToken} disabled={testingToken} className="h-8 text-xs rounded-full gap-2 whitespace-nowrap">
+                {testingToken ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />} Testar Token
+              </Button>
+            </div>
+
+            {/* Telegram Settings */}
+            <div className="bg-muted/30 p-4 rounded-2xl border border-border space-y-4 mt-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold flex items-center gap-2">
+                    <RefreshCw size={16} className="text-primary" /> Resumo Diário
+                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Envia a agenda do dia às 8h</p>
+                </div>
+                <Switch 
+                  checked={telegramConfig.dailySummary} 
+                  onCheckedChange={(c) => setTelegramConfig({...telegramConfig, dailySummary: c})} 
+                />
+              </div>
+              <Separator className="bg-border/50" />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold flex items-center gap-2">
+                    <Bell size={16} className="text-primary" /> Aviso 2h Antes
+                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Lembra da cliente que está chegando</p>
+                </div>
+                <Switch 
+                  checked={telegramConfig.reminder2h} 
+                  onCheckedChange={(c) => setTelegramConfig({...telegramConfig, reminder2h: c})} 
+                />
+              </div>
+            </div>
           </div>
 
           <Separator className="bg-primary/10" />

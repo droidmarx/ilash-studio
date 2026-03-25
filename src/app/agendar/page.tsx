@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { createClient } from "@/lib/api"
+import { createClient, getWorkingHours, getVacationMode, getTechniques, WorkingHours, VacationMode, defaultTechniques } from "@/lib/api"
 import { notifyAppointmentChange } from "@/app/actions/notifications"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,13 +31,15 @@ import {
   AlertCircle,
   Zap,
   RotateCw,
-  Trash2
+  Trash2,
+  Palmtree
 } from "lucide-react"
 import { format, addDays, eachDayOfInterval, startOfToday } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import Image from "next/image"
 
-const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
+// Técnica inicial default caso o banco esteja vazio
+// const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
 
 export default function ClientBookingPage() {
   const [step, setStep] = useState(1)
@@ -68,15 +70,77 @@ export default function ClientBookingPage() {
     }
   })
 
+  const [configLoading, setConfigLoading] = useState(true)
+  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null)
+  const [vacationMode, setVacationMode] = useState<VacationMode | null>(null)
+  const [techniques, setTechniques] = useState<string[]>(defaultTechniques)
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
-
-  const times = ["09:00", "10:30", "13:00", "14:30", "16:00", "17:30"]
+  
+  useEffect(() => {
+    async function fetchConfig() {
+      try {
+        const [wh, vm, tks] = await Promise.all([
+          getWorkingHours(),
+          getVacationMode(),
+          getTechniques()
+        ])
+        setWorkingHours(wh);
+        setVacationMode(vm);
+        setTechniques(tks);
+      } catch (e) {
+        console.error("Erro ao carregar configurações da agenda", e);
+      } finally {
+        setConfigLoading(false);
+      }
+    }
+    fetchConfig();
+  }, [])
   
   const days = eachDayOfInterval({
-    start: startOfToday(),
-    end: addDays(startOfToday(), 14)
+    start: addDays(startOfToday(), 1), // Agendamento começa no dia seguinte
+    end: addDays(startOfToday(), 30)
+  }).filter((day) => {
+    if (!workingHours) return true;
+    const dowMap = [ 'dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab' ];
+    const dow = dowMap[day.getDay()];
+    const wh = workingHours[dow as keyof WorkingHours];
+    return wh && wh.active;
   })
+
+  // Calcula os horários disponíveis dinamicamente baseado no dia selecionado
+  const getAvailableTimes = (targetDayStr: string) => {
+    if (!workingHours) return [];
+    try {
+      // Ajuste de fuso horário local
+      const [year, month, day] = targetDayStr.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      const dowMap = [ 'dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab' ];
+      const dow = dowMap[date.getDay()];
+      const wh = workingHours[dow as keyof WorkingHours];
+      
+      if (!wh || !wh.active) return [];
+      
+      const startParts = wh.start.split(':').map(Number);
+      const endParts = wh.end.split(':').map(Number);
+      let startMins = startParts[0] * 60 + startParts[1];
+      let endMins = endParts[0] * 60 + endParts[1];
+      
+      const availableTimes = [];
+      // Usando intervalos de 1h30 (90 min) como no original
+      for (let m = startMins; m + 90 <= endMins; m += 90) {
+        const hh = Math.floor(m / 60).toString().padStart(2, '0');
+        const mm = (m % 60).toString().padStart(2, '0');
+        availableTimes.push(`${hh}:${mm}`);
+      }
+      return availableTimes;
+    } catch {
+      return [];
+    }
+  }
+
+  const times = formData.data ? getAvailableTimes(formData.data) : [];
 
   useEffect(() => {
     if (step === 5 && canvasRef.current) {
@@ -243,6 +307,63 @@ export default function ClientBookingPage() {
     )
   }
 
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 text-center bg-background/50 backdrop-blur-[2px]">
+        <Loader2 className="animate-spin text-primary" size={48} />
+      </div>
+    )
+  }
+
+  if (vacationMode?.active) {
+    return (
+      <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px] flex items-center justify-center">
+         <Card className="bg-card/60 backdrop-blur-3xl rounded-[2.5rem] border border-primary/30 shadow-2xl overflow-hidden max-w-lg w-full text-center p-10 space-y-8 animate-in zoom-in duration-500">
+           <div className="flex justify-center">
+             <div className="p-6 bg-primary/10 rounded-full animate-bounce">
+                <Palmtree className="text-primary" size={64} />
+             </div>
+           </div>
+           
+           <div className="space-y-4">
+             <h1 className="text-4xl font-headline text-gold-gradient py-2">Modo Férias</h1>
+             <p className="text-lg text-muted-foreground leading-relaxed whitespace-pre-line">
+               {vacationMode?.message || "Estamos em período de recesso. Nosso sistema de agendamento online está pausado."}
+             </p>
+           </div>
+
+           {workingHours && (
+             <div className="bg-primary/5 rounded-2xl p-4 mt-6 border border-primary/10 text-left space-y-3">
+               <p className="text-xs font-bold uppercase tracking-widest text-primary text-center mb-2">
+                 Nosso horário normal de funcionamento
+               </p>
+               <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground">
+                 {Object.entries({
+                   seg: 'Segunda', ter: 'Terça', qua: 'Quarta', qui: 'Quinta', sex: 'Sexta', sab: 'Sábado', dom: 'Domingo'
+                 }).map(([key, label]) => {
+                   const wh = workingHours[key as keyof WorkingHours];
+                   if (!wh?.active) return null;
+                   return (
+                     <div key={key} className="flex justify-between border-b border-border/50 pb-1 last:border-0 last:pb-0">
+                       <span className="font-semibold">{label}</span>
+                       <span>{wh.start} às {wh.end}</span>
+                     </div>
+                   );
+                 })}
+               </div>
+             </div>
+           )}
+           
+           <div className="pt-4 border-t border-primary/20">
+             <p className="text-xs text-primary/60 font-bold uppercase tracking-widest">
+               Agradecemos a compreensão. Até logo!
+             </p>
+           </div>
+         </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen py-10 px-4 md:px-8 bg-background/50 backdrop-blur-[2px]">
       <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -371,7 +492,7 @@ export default function ClientBookingPage() {
                     <Sparkles size={14} /> Qual técnica você deseja?
                   </Label>
                   <div className="grid grid-cols-1 gap-3">
-                    {TECHNIQUES.map((tech) => (
+                    {techniques.map((tech) => (
                       <button
                         key={tech}
                         onClick={() => setFormData({...formData, servico: tech})}
@@ -436,7 +557,7 @@ export default function ClientBookingPage() {
                       <Clock size={14} /> Escolha o horário
                     </Label>
                     <div className="grid grid-cols-3 gap-3">
-                      {times.map((time) => {
+                      {times.length > 0 ? times.map((time) => {
                         const isSelected = formData.hora === time
                         return (
                           <button
@@ -451,7 +572,11 @@ export default function ClientBookingPage() {
                             {time}
                           </button>
                         )
-                      })}
+                      }) : (
+                        <div className="col-span-3 text-center py-4 text-sm text-muted-foreground">
+                          Nenhum horário disponível para este dia.
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

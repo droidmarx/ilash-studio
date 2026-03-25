@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Client } from "@/lib/api"
+import { Client, getTechniques } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -62,11 +62,24 @@ interface AppointmentFormProps {
   onCancel: () => void
 }
 
-const TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"]
+const MANDATORY_TECHNIQUES = ["Brasileiro", "Egípcio", "4D", "5D", "Fox"]
 const OPTIONAL_SERVICES = ["Sobrancelha", "Buço", "Tintura na Sobrancelha"]
 
 export function AppointmentForm({ initialData, clients = [], prefilledDate, loading, onSubmit, onCancel }: AppointmentFormProps) {
   const [nameSearch, setNameSearch] = useState("")
+  const [dynamicTechniques, setDynamicTechniques] = useState<string[]>([])
+
+  useEffect(() => {
+    getTechniques().then(setDynamicTechniques).catch(() => {});
+  }, [])
+
+  const allTechniques = useMemo(() => {
+    const combined = [...MANDATORY_TECHNIQUES, ...dynamicTechniques];
+    if (initialData?.servico && !combined.includes(initialData.servico)) {
+      combined.push(initialData.servico);
+    }
+    return Array.from(new Set(combined)); // Remove duplicatas
+  }, [dynamicTechniques, initialData?.servico])
   
   const getInitialDateTime = () => {
     const source = initialData?.data || prefilledDate || new Date().toISOString();
@@ -456,7 +469,7 @@ export function AppointmentForm({ initialData, clients = [], prefilledDate, load
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="rounded-2xl bg-card border-border text-foreground">
-                    {TECHNIQUES.map((tech) => (
+                    {allTechniques.map((tech) => (
                       <SelectItem key={tech} value={tech}>
                         {tech}
                       </SelectItem>

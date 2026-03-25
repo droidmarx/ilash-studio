@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getClients, getTelegramToken, getRecipients, updateClient, getLastSummaryDate, updateLastSummaryDate } from '@/lib/api';
+import { getClients, getTelegramToken, getRecipients, updateClient, getLastSummaryDate, updateLastSummaryDate, getTelegramConfig } from '@/lib/api';
 import { addHours, subMinutes, addMinutes, parseISO, isWithinInterval, format, parse, isValid, subHours, isSameDay } from 'date-fns';
 
 export const dynamic = 'force-dynamic';
@@ -38,8 +38,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'Configurações incompletas' });
     }
 
+    const telegramConfig = await getTelegramConfig();
+
     // --- LÓGICA 1: RESUMO DIÁRIO DAS 8H ---
-    if (currentHour === 8) {
+    if (telegramConfig.dailySummary && currentHour === 8) {
       const lastSentDate = await getLastSummaryDate();
       
       if (lastSentDate !== todayStr) {
@@ -80,33 +82,35 @@ export async function GET(request: Request) {
     }
 
     // --- LÓGICA 2: LEMBRETES DE 2 HORAS ---
-    const targetTime = addHours(nowBrasilia, 2);
-    const windowStart = subMinutes(targetTime, 10);
-    const windowEnd = addMinutes(targetTime, 10);
+    if (telegramConfig.reminder2h) {
+      const targetTime = addHours(nowBrasilia, 2);
+      const windowStart = subMinutes(targetTime, 10);
+      const windowEnd = addMinutes(targetTime, 10);
 
-    const upcoming = clients.filter(c => {
-      // Lembretes apenas para confirmados
-      if (c.confirmado === false || c.reminderSent === true) return false;
-      try {
-        const appDate = c.data.includes('T') ? parseISO(c.data) : parse(c.data, 'dd/MM/yyyy HH:mm', new Date());
-        return isValid(appDate) && isWithinInterval(appDate, { start: windowStart, end: windowEnd });
-      } catch { return false; }
-    });
+      const upcoming = clients.filter(c => {
+        // Lembretes apenas para confirmados
+        if (c.confirmado === false || c.reminderSent === true) return false;
+        try {
+          const appDate = c.data.includes('T') ? parseISO(c.data) : parse(c.data, 'dd/MM/yyyy HH:mm', new Date());
+          return isValid(appDate) && isWithinInterval(appDate, { start: windowStart, end: windowEnd });
+        } catch { return false; }
+      });
 
-    for (const app of upcoming) {
-      const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
-      const msg = `⏰ <b>Lembrete VIP I Lash Studio</b>\n\n👤 <b>Cliente:</b> ${app.nome}\n🎨 <b>Serviço:</b> ${app.servico}\n⏰ <b>Horário:</b> ${format(appDate, 'HH:mm')}\n\n🚀 <i>Sua cliente chega em breve!</i>`;
+      for (const app of upcoming) {
+        const appDate = app.data.includes('T') ? parseISO(app.data) : parse(app.data, 'dd/MM/yyyy HH:mm', new Date());
+        const msg = `⏰ <b>Lembrete VIP I Lash Studio</b>\n\n👤 <b>Cliente:</b> ${app.nome}\n🎨 <b>Serviço:</b> ${app.servico}\n⏰ <b>Horário:</b> ${format(appDate, 'HH:mm')}\n\n🚀 <i>Sua cliente chega em breve!</i>`;
 
-      let sent = false;
-      for (const admin of adminRecipients) {
-        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: admin.chatID, text: msg, parse_mode: 'HTML' }),
-        });
-        if (res.ok) sent = true;
+        let sent = false;
+        for (const admin of adminRecipients) {
+          const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: admin.chatID, text: msg, parse_mode: 'HTML' }),
+          });
+          if (res.ok) sent = true;
+        }
+        if (sent) await updateClient(app.id, { reminderSent: true });
       }
-      if (sent) await updateClient(app.id, { reminderSent: true });
     }
 
     return NextResponse.json({ success: true });

@@ -29,6 +29,54 @@ export interface Anamnese {
   assinatura?: string;
 }
 
+export interface WorkingDay {
+  active: boolean;
+  start: string;
+  end: string;
+}
+
+export interface WorkingHours {
+  dom: WorkingDay;
+  seg: WorkingDay;
+  ter: WorkingDay;
+  qua: WorkingDay;
+  qui: WorkingDay;
+  sex: WorkingDay;
+  sab: WorkingDay;
+}
+
+export interface VacationMode {
+  active: boolean;
+  message: string;
+}
+
+export interface TelegramSettings {
+  dailySummary: boolean;
+  reminder2h: boolean;
+}
+
+export const defaultWorkingHours: WorkingHours = {
+  dom: { active: false, start: "09:00", end: "18:00" },
+  seg: { active: true, start: "09:00", end: "18:00" },
+  ter: { active: true, start: "09:00", end: "18:00" },
+  qua: { active: true, start: "09:00", end: "18:00" },
+  qui: { active: true, start: "09:00", end: "18:00" },
+  sex: { active: true, start: "09:00", end: "18:00" },
+  sab: { active: true, start: "09:00", end: "14:00" },
+};
+
+export const defaultVacationMode: VacationMode = {
+  active: false,
+  message: "Estamos de férias! Retornamos em breve.",
+};
+
+export const defaultTelegramSettings: TelegramSettings = {
+  dailySummary: true,
+  reminder2h: true,
+};
+
+export const defaultTechniques: string[] = ["Brasileiro", "Egípcio", "4D", "5D", "Fio-a-Fio", "Fox"];
+
 export interface Client {
   id: string;
   nome: string;
@@ -136,6 +184,90 @@ export async function updateWebhookStatus(active: boolean): Promise<void> {
     await updateRecipient({ ...config, chatID: value });
   } else {
     await createRecipient({ nome: 'WEBHOOK_STATE', chatID: value });
+  }
+}
+
+export async function getWorkingHours(): Promise<WorkingHours> {
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'WORKING_HOURS');
+    return config ? JSON.parse(config.chatID) : defaultWorkingHours;
+  } catch {
+    return defaultWorkingHours;
+  }
+}
+
+export async function updateWorkingHours(hours: WorkingHours): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'WORKING_HOURS');
+  const value = JSON.stringify(hours);
+  if (config) {
+    await updateRecipient({ ...config, chatID: value });
+  } else {
+    await createRecipient({ nome: 'WORKING_HOURS', chatID: value });
+  }
+}
+
+export async function getVacationMode(): Promise<VacationMode> {
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'VACATION_MODE');
+    return config ? JSON.parse(config.chatID) : defaultVacationMode;
+  } catch {
+    return defaultVacationMode;
+  }
+}
+
+export async function updateVacationMode(mode: VacationMode): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'VACATION_MODE');
+  const value = JSON.stringify(mode);
+  if (config) {
+    await updateRecipient({ ...config, chatID: value });
+  } else {
+    await createRecipient({ nome: 'VACATION_MODE', chatID: value });
+  }
+}
+
+export async function getTelegramConfig(): Promise<TelegramSettings> {
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'TELEGRAM_CONFIG');
+    return config ? JSON.parse(config.chatID) : defaultTelegramSettings;
+  } catch {
+    return defaultTelegramSettings;
+  }
+}
+
+export async function updateTelegramConfig(settings: TelegramSettings): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'TELEGRAM_CONFIG');
+  const value = JSON.stringify(settings);
+  if (config) {
+    await updateRecipient({ ...config, chatID: value });
+  } else {
+    await createRecipient({ nome: 'TELEGRAM_CONFIG', chatID: value });
+  }
+}
+
+export async function getTechniques(): Promise<string[]> {
+  try {
+    const recipients = await getRecipients();
+    const config = recipients.find(r => r.nome === 'TECHNIQUES');
+    return config ? JSON.parse(config.chatID) : defaultTechniques;
+  } catch {
+    return defaultTechniques;
+  }
+}
+
+export async function updateTechniques(techniques: string[]): Promise<void> {
+  const recipients = await getRecipients();
+  const config = recipients.find(r => r.nome === 'TECHNIQUES');
+  const value = JSON.stringify(techniques);
+  if (config) {
+    await updateRecipient({ ...config, chatID: value });
+  } else {
+    await createRecipient({ nome: 'TECHNIQUES', chatID: value });
   }
 }
 
